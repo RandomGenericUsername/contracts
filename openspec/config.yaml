@@ -1,0 +1,21 @@
+schema: spec-driven
+
+context: |
+  The AGS event contract repo: `org.dotfiles.Events` (event-contract.json + .xml)
+  and the bindings generated from it. Single source of truth for the runtime <-> AGS
+  event seam, consumed by the Python runtime and by ags-platform. Breaking change =
+  a new interface (Events2); non-breaking stays on Events1; both coexist during
+  migration. Repo contract in AGENTS.md applies to all artifacts.
+
+rules:
+  proposal:
+    - "Every claim carries Evidence (file path + lines, commit SHA, URL + quote, or prototype command + observed output) and a one-command Verify step; mark Evidence MISSING rather than stating unproven claims as fact."
+    - "Always state what is out of scope."
+  specs:
+    - "Each requirement states its acceptance check (command to run + expected result)."
+    - "Cite the source of each requirement (prior-art path, user statement, or prototype output)."
+  design:
+    - "Include a verification plan - what prototype or test validates each key decision, with exact commands."
+    - "No component without an evidence-backed reason to exist."
+  tasks:
+    - "Each task ends with an observable check (command + expected output); break tasks into chunks of max 2 hours."
