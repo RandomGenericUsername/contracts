@@ -2,7 +2,7 @@
 id: EPIC-001
 title: "Stand up the contracts repo: canonical event contract + codegen"
 kind: epic
-status: proposed
+status: in-progress
 lane: bmad-advisory
 links:
   openspec: none

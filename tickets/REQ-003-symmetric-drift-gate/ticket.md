@@ -2,13 +2,13 @@
 id: REQ-003
 title: "Add the symmetric regenerate-and-diff CI gate"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: symmetric-drift-gate
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-003/
+branch: ticket/REQ-003-symmetric-drift-gate
 ---
 
 # Add the symmetric regenerate-and-diff CI gate
