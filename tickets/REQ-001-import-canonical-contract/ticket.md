@@ -2,13 +2,13 @@
 id: REQ-001
 title: "Import the canonical event contract into contracts/"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: import-canonical-contract
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-001/
+branch: ticket/REQ-001-import-canonical-contract
 ---
 
 # Import the canonical event contract into contracts/
