@@ -36,6 +36,18 @@ Source: spine **AD-6**.
 - **WHEN** the generator runs
 - **THEN** `generated/contract.ts` names all 9 hub methods, 5 signals, the job interface, and all 6 topics
 
+### Requirement: JSON validation schema is generated
+
+The generator SHALL emit `generated/events.schema.json` (JSON Schema draft 2020-12) derived from the canonical `event-contract.json`, with a per-topic payload definition stating required keys, types, and enums, plus `SignalEnvelope`/`MethodEnvelope`/`TopicEnvelope` discriminators.
+
+Source: spine **AD-6** ("including the runtime's wire tables and validation schemas").
+
+#### Scenario: schema covers topics with required keys and enums
+
+- **WHEN** the generator runs
+- **THEN** `generated/events.schema.json` defines all 6 topics
+- **AND** each topic definition lists its required keys, types, and enums (e.g. `speedtest.state` requires `state`+`trigger` and constrains both)
+
 ### Requirement: Generation is deterministic
 
 The generator SHALL produce byte-identical output across runs: sorted keys and a trailing newline.

@@ -18,7 +18,8 @@ Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-plan
 - Add `gen/generate.py` (Python, stdlib only) that reads the canonical `event-contract.xml` (methods/signals) and `event-contract.json` (topics/delivery/versioning) and emits, deterministically (sorted keys, trailing newline):
   - `generated/contract.py` — constants + TypedDicts + wire method/signal tables + per-topic payload types.
   - `generated/contract.ts` — constants + types + per-topic payload interfaces.
-- Add `gen/test_generate.py` asserting output coverage (6 topics, 9 hub methods, 5 signals, the job interface) and byte-identical reruns.
+  - `generated/events.schema.json` — JSON Schema (draft 2020-12) with per-topic required/optional/enum/type definitions and the signal/method/topic envelopes.
+- Add `gen/test_generate.py` asserting output coverage (6 topics, 9 hub methods, 5 signals, the job interface, the schema's required keys + enums) and byte-identical reruns.
 - Wire the `Makefile` `generate` target to the generator.
 - No private `contract.json` copy survives in `gen/`.
 
@@ -29,7 +30,7 @@ Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-plan
 
 ## Non-goals
 
-- **Not** the structural `schemas/*.schema.json` — `schemas/` stays exactly as imported in REQ-001.
+- **Not** the structural `schemas/*.schema.json` (state artifacts) — `schemas/` stays exactly as imported in REQ-001. The event wire schema `generated/events.schema.json` **is** in scope.
 - **Not** the CI regenerate-and-diff gate — that is REQ-003 (`symmetric-drift-gate`).
 - **Not** repointing consumers or deleting their embedded duplicates — that is REQ-004.
 - **Not** changing the contract itself — REQ-005 owns the known drift (`wallpaper.state`).
@@ -37,6 +38,6 @@ Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-plan
 
 ## Impact
 
-- New: `gen/generate.py`, `gen/test_generate.py`, `generated/contract.py`, `generated/contract.ts`.
+- New: `gen/generate.py`, `gen/test_generate.py`, `generated/contract.py`, `generated/contract.ts`, `generated/events.schema.json`.
 - Modified: `Makefile` (`generate` target only).
 - No consumer is touched; no contract file is modified; `schemas/` is untouched.

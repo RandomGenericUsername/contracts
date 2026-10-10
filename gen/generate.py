@@ -8,8 +8,9 @@ Reads the canonical, imported contract (REQ-001):
 
 and emits, deterministically and byte-for-byte reproducibly:
 
-  generated/contract.py   constants + TypedDicts + wire tables + payload types
-  generated/contract.ts   constants + types + per-topic payload interfaces
+  generated/contract.py         constants + TypedDicts + wire tables + payload types
+  generated/contract.ts         constants + types + per-topic payload interfaces
+  generated/events.schema.json  JSON Schema (2020-12): topic payloads + envelopes
 
 Scope: the EVENT contract only. The structural schemas under ``schemas/`` are
 NOT generated here and are left untouched.
@@ -58,6 +59,19 @@ TS_TYPES: dict[str, str] = {
     "a{sv}": "Record<string, unknown>",
     "a{ss}": "Record<string, string>",
     "as": "string[]",
+}
+
+# D-Bus signature -> JSON Schema (draft 2020-12) fragment.
+JSON_TYPES: dict[str, dict[str, Any]] = {
+    "s": {"type": "string"},
+    "u": {"type": "integer", "minimum": 0},
+    "i": {"type": "integer"},
+    "x": {"type": "integer"},
+    "d": {"type": "number"},
+    "b": {"type": "boolean"},
+    "a{sv}": {"type": "object"},
+    "a{ss}": {"type": "object", "additionalProperties": {"type": "string"}},
+    "as": {"type": "array", "items": {"type": "string"}},
 }
 
 
@@ -374,12 +388,140 @@ def emit_typescript(contract: dict[str, Any]) -> str:
     return "\n".join(out) + "\n"
 
 
+# ---- JSON Schema emission --------------------------------------------------
+def _json_members(entries: list[str]) -> list[tuple[str, str]]:
+    """``["topic:s", "payload:a{sv}"]`` -> ``[("topic", "s"), ...]``."""
+    members: list[tuple[str, str]] = []
+    for entry in entries:
+        name, sig = entry.split(":", 1)
+        members.append((name, sig))
+    return members
+
+
+def _object_schema(
+    members: list[tuple[str, str]],
+    enums: dict[str, list[str]] | None = None,
+    optional: set[str] | None = None,
+) -> dict[str, Any]:
+    """An object schema with explicit required/optional keys, types and enums."""
+    enums = enums or {}
+    optional = optional or set()
+    properties: dict[str, Any] = {}
+    for name, sig in sorted(members):
+        prop = dict(JSON_TYPES[sig])
+        if name in enums:
+            prop["enum"] = list(enums[name])
+        properties[name] = prop
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": sorted(name for name, _ in members if name not in optional),
+        "properties": properties,
+    }
+
+
+def emit_events_schema(contract: dict[str, Any]) -> str:
+    """Emit the event wire schema, derived from the canonical JSON semantics.
+
+    Per-topic definitions make required/optional keys, types and enums
+    explicit (the shape the runtime's per-topic TOPIC_SCHEMAS validation
+    expresses); the envelopes discriminate signal/method/topic payloads.
+    """
+    doc = contract["doc"]
+    signals = {name: _json_members(entries) for name, entries in doc["signals"].items()}
+    methods = {
+        name: {"in": _json_members(spec.get("in", [])), "out": _json_members(spec.get("out", []))}
+        for name, spec in doc["methods"].items()
+    }
+    topics = doc["topics"]
+
+    defs: dict[str, Any] = {}
+    for name in sorted(signals):
+        defs[f"Signal_{name}"] = _object_schema(signals[name])
+    for name in sorted(methods):
+        defs[f"MethodIn_{name}"] = _object_schema(methods[name]["in"])
+        defs[f"MethodOut_{name}"] = _object_schema(methods[name]["out"])
+    for topic in sorted(topics):
+        spec = topics[topic]
+        members = [(key, spec["payload"][key]) for key in sorted(spec["payload"])]
+        defs[f"Topic_{topic.replace('.', '_')}"] = _object_schema(
+            members, spec.get("enum", {}), set(spec.get("optional", []))
+        )
+
+    defs["SignalEnvelope"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["signal", "members"],
+        "properties": {
+            "signal": {"enum": sorted(signals)},
+            "members": {"type": "object"},
+        },
+        "allOf": [
+            {
+                "if": {"properties": {"signal": {"const": name}}, "required": ["signal"]},
+                "then": {"properties": {"members": {"$ref": f"#/$defs/Signal_{name}"}}},
+            }
+            for name in sorted(signals)
+        ],
+    }
+    defs["MethodEnvelope"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["method", "args"],
+        "properties": {
+            "method": {"enum": sorted(methods)},
+            "args": {"type": "object"},
+        },
+        "allOf": [
+            {
+                "if": {"properties": {"method": {"const": name}}, "required": ["method"]},
+                "then": {"properties": {"args": {"$ref": f"#/$defs/MethodIn_{name}"}}},
+            }
+            for name in sorted(methods)
+        ],
+    }
+    defs["TopicEnvelope"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["topic", "producer", "payload"],
+        "properties": {
+            "topic": {"enum": sorted(topics)},
+            "producer": {"type": "string"},
+            "payload": {"type": "object"},
+        },
+        "allOf": [
+            {
+                "if": {"properties": {"topic": {"const": topic}}, "required": ["topic"]},
+                "then": {
+                    "properties": {
+                        "payload": {"$ref": f"#/$defs/Topic_{topic.replace('.', '_')}"}
+                    }
+                },
+            }
+            for topic in sorted(topics)
+        ],
+    }
+
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://dotfiles.local/generated/events.schema.json",
+        "$defs": defs,
+        "oneOf": [
+            {"$ref": "#/$defs/SignalEnvelope"},
+            {"$ref": "#/$defs/MethodEnvelope"},
+            {"$ref": "#/$defs/TopicEnvelope"},
+        ],
+    }
+    return json.dumps(schema, indent=2, sort_keys=True) + "\n"
+
+
 # ---- entry point -----------------------------------------------------------
 def generate(repo_root: Path, out_dir: Path) -> dict[str, str]:
     contract = load_contract(repo_root)
     artifacts = {
         "contract.py": emit_python(contract),
         "contract.ts": emit_typescript(contract),
+        "events.schema.json": emit_events_schema(contract),
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, text in artifacts.items():
