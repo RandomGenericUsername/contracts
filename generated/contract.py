@@ -177,6 +177,8 @@ class SpeedtestStatePayload(TypedDict):
 
 
 class WallpaperStatePayload(TypedDict):
+    reload_failures: NotRequired[list[str]]
+    stage: NotRequired[Literal['setting_wallpaper', 'generating_palette', 'palette_generated', 'preparing_appearance_assets', 'appearance_assets_ready', 'reconciling_consumers', 'finished']]
     state: Literal['applying', 'visible', 'done', 'error']
     trigger: NotRequired[Literal['set', 'regenerate', 'reconcile', 'reactive']]
     wallpaper_hash: str

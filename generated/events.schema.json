@@ -903,6 +903,24 @@
     "Topic_wallpaper_state": {
       "additionalProperties": false,
       "properties": {
+        "reload_failures": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "stage": {
+          "enum": [
+            "setting_wallpaper",
+            "generating_palette",
+            "palette_generated",
+            "preparing_appearance_assets",
+            "appearance_assets_ready",
+            "reconciling_consumers",
+            "finished"
+          ],
+          "type": "string"
+        },
         "state": {
           "enum": [
             "applying",

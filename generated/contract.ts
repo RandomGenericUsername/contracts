@@ -133,6 +133,8 @@ export interface SpeedtestStatePayload {
 }
 
 export interface WallpaperStatePayload {
+  reload_failures?: string[];
+  stage?: "setting_wallpaper" | "generating_palette" | "palette_generated" | "preparing_appearance_assets" | "appearance_assets_ready" | "reconciling_consumers" | "finished";
   state: "applying" | "visible" | "done" | "error";
   trigger?: "set" | "regenerate" | "reconcile" | "reactive";
   wallpaper_hash: string;
