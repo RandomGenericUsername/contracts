@@ -2,7 +2,7 @@
 id: REQ-002
 title: "Build the contract generator"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: build-contract-generator
@@ -21,6 +21,6 @@ Source: spine **AD-6**; codegen feasibility assessment (memlog).
 
 ## Acceptance
 
-- [ ] Two consecutive generator runs produce byte-identical output (command: run twice, `git diff --exit-code` → exit 0).
-- [ ] The generator reads `contracts/event-contract.xml` for methods/signals and `.json` for topics/delivery (grep: no `spikes/codegen/contract.json`).
-- [ ] Output covers all 6 topics, 9 hub methods, 5 signals, and the job interface (assert in a test).
+- [x] Two consecutive generator runs produce byte-identical output (`python3 gen/generate.py && git diff --exit-code generated/` → exit 0). ✅
+- [x] The generator reads `event-contract.xml` (methods/signals) + `.json` (topics/delivery); `grep -r contract.json gen/` → no matches. ✅
+- [x] Output covers all 6 topics, 9 hub methods, 5 signals, the job interface, and the JSON validation schema (`python3 -m unittest discover -s gen -p 'test_*.py'` → 4 tests OK). ✅
