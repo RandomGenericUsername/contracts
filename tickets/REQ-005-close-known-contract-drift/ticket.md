@@ -2,7 +2,7 @@
 id: REQ-005
 title: "Close the known contract drift"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: close-known-contract-drift
@@ -21,6 +21,6 @@ Source: spine **AD-6**; sweep evidence (`emit_validation.py`, `hypr-pano/lib/eve
 
 ## Acceptance
 
-- [ ] `wallpaper.state` contract JSON includes `stage` + `reload_failures`; the symmetric gate passes.
-- [ ] `speedtest.finished` appears nowhere in code (grep → none).
-- [ ] A reverse drift check fails when schema and contract disagree (negative test).
+- [x] `wallpaper.state` contract JSON includes `stage` (7-value enum) + `reload_failures` (string array), both optional; the symmetric gate passes (`make contracts-drift` → exit 0). ✅
+- [x] A reverse drift check fails when schema and contract disagree (delivered in REQ-003: `gen/test_symmetry.py::test_c_extra_schema_key_reverse_check_fails`). ✅
+- [~] `speedtest.finished` appears nowhere in code — **re-scoped to REQ-004**: the dead literal lives in `dotfiles-v3/src/gui-tools/hypr-pano/lib/event-bus-core.ts` (cross-repo); REQ-004 removes it when it repoints/deletes the TS readers. This child is contracts-repo-only.
