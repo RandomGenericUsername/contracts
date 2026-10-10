@@ -12,7 +12,7 @@
   - [REQ-002-build-contract-generator/ticket.md](./REQ-002-build-contract-generator/ticket.md) — Build the contract generator | `done` | openspec: build-contract-generator
   - [REQ-003-symmetric-drift-gate/ticket.md](./REQ-003-symmetric-drift-gate/ticket.md) — Add the symmetric regenerate-and-diff CI gate | `done` | openspec: symmetric-drift-gate
   - [REQ-004-repoint-contract-consumers/ticket.md](./REQ-004-repoint-contract-consumers/ticket.md) — Repoint consumers to generated bindings; delete embedded duplicates | `proposed` | openspec: repoint-contract-consumers
-  - [REQ-005-close-known-contract-drift/ticket.md](./REQ-005-close-known-contract-drift/ticket.md) — Close the known contract drift | `proposed` | openspec: close-known-contract-drift
+  - [REQ-005-close-known-contract-drift/ticket.md](./REQ-005-close-known-contract-drift/ticket.md) — Close the known contract drift | `in-progress` | openspec: close-known-contract-drift
 
 ## Requirements
 

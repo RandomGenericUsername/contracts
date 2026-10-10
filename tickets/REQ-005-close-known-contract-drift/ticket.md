@@ -2,13 +2,13 @@
 id: REQ-005
 title: "Close the known contract drift"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: close-known-contract-drift
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-005/
+branch: ticket/REQ-005-close-known-contract-drift
 ---
 
 # Close the known contract drift
