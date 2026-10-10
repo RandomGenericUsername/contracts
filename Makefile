@@ -9,7 +9,7 @@ validate:
 	@echo "TODO: validate event-contract.json/.xml"
 
 generate:
-	@echo "TODO: generate bindings"
+	python3 gen/generate.py
 
 test:
-	@echo "TODO: contract tests"
+	python3 -m unittest discover -s gen -p 'test_*.py'
