@@ -1,0 +1,23 @@
+name: contract-drift
+
+# AD-6 / AD-19 / AD-23: the contracts repo gates on its own Makefile target.
+# `make contracts-drift` runs the symmetric content check, regenerates, and
+# fails on any diff in generated/; `make test` runs the coverage + negative tests.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  drift:
+    name: symmetric regenerate-and-diff gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Symmetric regenerate-and-diff gate
+        run: make contracts-drift
+      - name: Contract tests (coverage, determinism, negative gate tests)
+        run: make test

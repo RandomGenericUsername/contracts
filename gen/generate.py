@@ -161,6 +161,17 @@ def _members(members: list[tuple[str, str]]) -> str:
     return ", ".join(f"Member({name!r}, {sig!r}, {PY_TYPES[sig]!r})" for name, sig in members)
 
 
+def _py_args(members: list[tuple[str, str]]) -> str:
+    """Emit a Python tuple literal: a trailing comma keeps one element a tuple.
+
+    ``(Member(...))`` is a bare ``Member``; ``(Member(...),)`` is a 1-tuple. The
+    wire tables are annotated ``tuple[Member, ...]``, so the trailing comma is
+    load-bearing for every single-argument method/signal.
+    """
+    inner = _members(members)
+    return f"({inner},)" if inner else "()"
+
+
 def _table(methods: dict[str, Any], *, signals: bool = False) -> list[str]:
     lines = ["("]
     for name in sorted(methods):
@@ -168,10 +179,10 @@ def _table(methods: dict[str, Any], *, signals: bool = False) -> list[str]:
         lines.append("    Method(")
         lines.append(f"        {name!r},")
         if signals:
-            lines.append(f"        out_args=({_members(spec)},),")
+            lines.append(f"        out_args={_py_args(spec)},")
         else:
-            lines.append(f"        in_args=({_members(spec['in'])}),")
-            lines.append(f"        out_args=({_members(spec['out'])}),")
+            lines.append(f"        in_args={_py_args(spec['in'])},")
+            lines.append(f"        out_args={_py_args(spec['out'])},")
         lines.append("    ),")
     lines.append(")")
     return lines

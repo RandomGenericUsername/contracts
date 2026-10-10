@@ -64,47 +64,47 @@ class Method:
 EVENTS_METHODS: Final[tuple[Method, ...]] = (
     Method(
         'AdoptJob',
-        in_args=(Member('job_id', 's', 'str'), Member('pid', 'u', 'int')),
+        in_args=(Member('job_id', 's', 'str'), Member('pid', 'u', 'int'),),
         out_args=(),
     ),
     Method(
         'BeginJob',
-        in_args=(Member('kind', 's', 'str'), Member('ttl', 'u', 'int')),
-        out_args=(Member('job_id', 's', 'str')),
+        in_args=(Member('kind', 's', 'str'), Member('ttl', 'u', 'int'),),
+        out_args=(Member('job_id', 's', 'str'),),
     ),
     Method(
         'Control',
-        in_args=(Member('job_id', 's', 'str'), Member('action', 's', 'str')),
+        in_args=(Member('job_id', 's', 'str'), Member('action', 's', 'str'),),
         out_args=(),
     ),
     Method(
         'Emit',
-        in_args=(Member('topic', 's', 'str'), Member('payload', 'a{sv}', 'dict[str, object]')),
+        in_args=(Member('topic', 's', 'str'), Member('payload', 'a{sv}', 'dict[str, object]'),),
         out_args=(),
     ),
     Method(
         'EndJob',
-        in_args=(Member('job_id', 's', 'str'), Member('exit_code', 'i', 'int')),
+        in_args=(Member('job_id', 's', 'str'), Member('exit_code', 'i', 'int'),),
         out_args=(),
     ),
     Method(
         'GetActiveJobs',
         in_args=(),
-        out_args=(Member('jobs', 'a{ss}', 'dict[str, str]')),
+        out_args=(Member('jobs', 'a{ss}', 'dict[str, str]'),),
     ),
     Method(
         'GetTopicState',
-        in_args=(Member('topic', 's', 'str')),
-        out_args=(Member('state', 'a{sv}', 'dict[str, object]')),
+        in_args=(Member('topic', 's', 'str'),),
+        out_args=(Member('state', 'a{sv}', 'dict[str, object]'),),
     ),
     Method(
         'RenewJob',
-        in_args=(Member('job_id', 's', 'str')),
+        in_args=(Member('job_id', 's', 'str'),),
         out_args=(),
     ),
     Method(
         'ReportProgress',
-        in_args=(Member('job_id', 's', 'str'), Member('fraction', 'd', 'float')),
+        in_args=(Member('job_id', 's', 'str'), Member('fraction', 'd', 'float'),),
         out_args=(),
     ),
 )
@@ -137,7 +137,7 @@ EVENTS_SIGNALS: Final[tuple[Method, ...]] = (
 JOB_METHODS: Final[tuple[Method, ...]] = (
     Method(
         'Control',
-        in_args=(Member('action', 's', 'str')),
+        in_args=(Member('action', 's', 'str'),),
         out_args=(),
     ),
 )
