@@ -9,7 +9,7 @@
 - [EPIC-001-stand-up-contracts/ticket.md](./EPIC-001-stand-up-contracts/ticket.md) — Stand up the contracts repo: canonical event contract + codegen | `proposed` | links: none | 1/5 children done
   - done-when: The event contract lives only in contracts/; the generator emits Python + TS bindings + JSON schemas; the symmetric regenerate-and-diff gate runs in CI; the runtime and TS consumers import generated bindings with no embedded duplicates.
   - [REQ-001-import-canonical-contract/ticket.md](./REQ-001-import-canonical-contract/ticket.md) — Import the canonical event contract into contracts/ | `done` | openspec: import-canonical-contract
-  - [REQ-002-build-contract-generator/ticket.md](./REQ-002-build-contract-generator/ticket.md) — Build the contract generator | `proposed` | openspec: build-contract-generator
+  - [REQ-002-build-contract-generator/ticket.md](./REQ-002-build-contract-generator/ticket.md) — Build the contract generator | `in-progress` | openspec: build-contract-generator
   - [REQ-003-symmetric-drift-gate/ticket.md](./REQ-003-symmetric-drift-gate/ticket.md) — Add the symmetric regenerate-and-diff CI gate | `proposed` | openspec: symmetric-drift-gate
   - [REQ-004-repoint-contract-consumers/ticket.md](./REQ-004-repoint-contract-consumers/ticket.md) — Repoint consumers to generated bindings; delete embedded duplicates | `proposed` | openspec: repoint-contract-consumers
   - [REQ-005-close-known-contract-drift/ticket.md](./REQ-005-close-known-contract-drift/ticket.md) — Close the known contract drift | `proposed` | openspec: close-known-contract-drift

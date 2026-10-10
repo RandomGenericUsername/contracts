@@ -2,13 +2,13 @@
 id: REQ-002
 title: "Build the contract generator"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: build-contract-generator
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-002/
+branch: ticket/REQ-002-build-contract-generator
 ---
 
 # Build the contract generator
