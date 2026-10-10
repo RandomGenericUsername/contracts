@@ -2,7 +2,7 @@
 id: REQ-003
 title: "Add the symmetric regenerate-and-diff CI gate"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: symmetric-drift-gate
@@ -21,6 +21,7 @@ Source: spine **AD-6** (symmetric gate), **AD-19**.
 
 ## Acceptance
 
-- [ ] `make contracts-drift` regenerates then `git diff --exit-code` over `generated/` (exit 0 when clean).
-- [ ] A deliberately hand-edited generated file fails the gate (negative test).
-- [ ] The gate runs in CI (`.github/workflows`).
+- [x] `make contracts-drift` regenerates then `git diff --exit-code` over `generated/` (exit 0 when clean). ✅
+- [x] A deliberately hand-edited generated file fails the gate (negative test → exit 2). ✅
+- [x] The gate runs in CI (`.github/workflows/drift.yml`). ✅
+- [x] The symmetric reverse check catches a schema-only key absent from the contract. ✅
