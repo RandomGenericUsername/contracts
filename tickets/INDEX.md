@@ -10,7 +10,7 @@
 
 ## Requirements
 
-(none)
+- [REQ-006-cli-invocation-contract/ticket.md](./REQ-006-cli-invocation-contract/ticket.md) — Ship the cli-invocation-contract package | `in-progress` | openspec: cli-invocation-contract
 
 ## Bugs
 
