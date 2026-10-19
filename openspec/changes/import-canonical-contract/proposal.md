@@ -5,7 +5,7 @@
 The event contract currently lives in `dotfiles-v3/contracts/` and is read by the Python runtime and pinned by tests across components. The architecture spine (**AD-6**) makes this repo the single source of truth; nothing downstream can be regenerated or repointed until the contract is here.
 
 Evidence: `dotfiles-v3/contracts/event-contract.{xml,json,md}` + `dotfiles-v3/contracts/schemas/*.schema.json`; spine `ARCHITECTURE-SPINE.md` AD-6.
-Verify: `ls /home/inumaki/Development/dotfiles-v3/contracts` → 3 files + `schemas/` (4 schemas).
+Verify: `ls dotfiles-v3/contracts` → 3 files + `schemas/` (4 schemas).
 
 ## What Changes
 

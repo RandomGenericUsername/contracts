@@ -14,7 +14,7 @@ values (`setting_wallpaper`, `generating_palette`, `palette_generated`,
 `finished`) and `reload_failures` is `{"type": "array", "items": {"type":
 "string"}}`; neither is in `required` (`required` is `["state",
 "wallpaper_hash"]`). `emit_validation.py` lines 176–204.
-Verify: `sed -n '176,204p' /home/inumaki/Development/dotfiles-v3/src/runtime/src/runtime/adapters/emit_validation.py`.
+Verify: `sed -n '176,204p' dotfiles-v3/src/runtime/src/runtime/adapters/emit_validation.py`.
 
 Evidence: the canonical contract omits both. The `wallpaper.state` payload keys
 are `['state', 'trigger', 'wallpaper_hash']` and `optional` is `['trigger']`.
@@ -23,7 +23,7 @@ Verify: `python3 -c "import json;d=json.load(open('event-contract.json'));t=d['t
 Evidence: spine `ARCHITECTURE-SPINE.md` AD-6 (lines 92–96) states the rule and
 the observed drift verbatim: "already observed: `wallpaper.state` ahead of the
 contract by `stage` and `reload_failures`" … "additive stays on `Events1`".
-Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-planning/_bmad-output/planning-artifacts/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
+Verify: `sed -n '92,96p' <planning-repo>/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
 
 Evidence: the symmetric drift gate already exists and is green (REQ-003); it
 compares the contract against the generated artifacts in both directions, so an

@@ -8,10 +8,10 @@ Evidence: the canonical files are present at the repo root — `event-contract.x
 Verify: `ls event-contract.xml event-contract.json` → both exist.
 
 Evidence: the prototype reads its own private source, not the canonical contract. `spikes/codegen/gen.py` line 31 is `SOURCE = HERE / "contract.json"`, and its source `spikes/codegen/contract.json` lists the dead topic `speedtest.finished`, which the canonical contract supersedes with `speedtest.state`.
-Verify: `grep -n 'contract.json' /home/inumaki/Development/dotfiles-v3/spikes/codegen/gen.py` → line 31; `grep -c speedtest.finished event-contract.json` → 0.
+Verify: `grep -n 'contract.json' dotfiles-v3/spikes/codegen/gen.py` → line 31; `grep -c speedtest.finished event-contract.json` → 0.
 
 Evidence: spine `ARCHITECTURE-SPINE.md` AD-6 (lines 92–96): "`contracts/event-contract.xml` … and `contracts/event-contract.json` … are the **only** source. A generator emits Python + TS bindings … This supersedes AD-44".
-Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-planning/_bmad-output/planning-artifacts/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
+Verify: `sed -n '92,96p' <planning-repo>/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
 
 ## What Changes
 

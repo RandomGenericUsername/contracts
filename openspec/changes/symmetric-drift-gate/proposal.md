@@ -17,10 +17,10 @@ Evidence: the only existing coverage test asserts contract → schema (one direc
 Verify: `sed -n '106,135p' gen/test_generate.py`.
 
 Evidence: spine `ARCHITECTURE-SPINE.md` AD-6 (lines 92–96): "A **regenerate-and-diff gate** fails CI on drift, and it is **symmetric**: the contract is checked against **both** the TS and the runtime tables, not one direction."
-Verify: `sed -n '92,96p' /home/inumaki/Development/dotfiles-v3-ags-platform-planning/_bmad-output/planning-artifacts/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
+Verify: `sed -n '92,96p' <planning-repo>/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
 
 Evidence: spine AD-19 (lines 170–174) requires the per-repo gate to run in CI; AD-23 (lines 194–202) names `contracts` as running "the codegen regenerate-and-diff + schema validation" on GitHub Actions.
-Verify: `sed -n '170,174p;194,202p' /home/inumaki/Development/dotfiles-v3-ags-platform-planning/_bmad-output/planning-artifacts/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
+Verify: `sed -n '170,174p;194,202p' <planning-repo>/architecture/architecture-ags-platform-2026-10-09/ARCHITECTURE-SPINE.md`.
 
 ## What Changes
 
