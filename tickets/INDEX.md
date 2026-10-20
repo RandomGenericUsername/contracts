@@ -10,7 +10,7 @@
 
 ## Requirements
 
-(none)
+- [REQ-007-v010-release-and-specs/ticket.md](./REQ-007-v010-release-and-specs/ticket.md) — Publish the v0.1.0 release and land the two boundary specs | `in-progress` | openspec: none
 
 ## Bugs
 
