@@ -1,0 +1,140 @@
+{
+  "contract_version": 1,
+  "timeout_unit": "seconds",
+  "clis": {
+    "csg": {
+      "binary": "csg",
+      "argv": [
+        "generate",
+        "{wallpaper}",
+        "--format",
+        "yaml",
+        "--format",
+        "conf",
+        "--format",
+        "gtk.css",
+        "--format",
+        "adw.css",
+        "--format",
+        "sequences",
+        "--format",
+        "rasi",
+        "--format",
+        "kitty",
+        "--format",
+        "btop.theme"
+      ],
+      "placeholders": {
+        "{wallpaper}": "path to the input wallpaper file, supplied as a plain positional argument (S1 §1.3)"
+      },
+      "env": {
+        "required": [
+          "COLORSCHEME__OUTPUT__DIRECTORY",
+          "COLORSCHEME__OUTPUT__OVERWRITE"
+        ],
+        "injected": {
+          "COLORSCHEME__OUTPUT__DIRECTORY": "{output_dir}",
+          "COLORSCHEME__OUTPUT__OVERWRITE": "true"
+        }
+      },
+      "artifacts": {
+        "match": "exact_filename",
+        "recursive": false,
+        "filenames": [
+          "colors.yaml",
+          "colors.conf",
+          "colors.gtk.css",
+          "colors.adw.css",
+          "colors.sequences",
+          "colors.rasi",
+          "colors.kitty",
+          "colors.btop.theme"
+        ],
+        "suffixes": [],
+        "min_count": 8
+      },
+      "exit_codes": {
+        "success": 0,
+        "nonzero_is_failure": true,
+        "success_requires_artifacts": true
+      },
+      "timeout": 60
+    },
+    "weg": {
+      "binary": "weg",
+      "argv": [
+        "batch",
+        "all",
+        "--",
+        "{wallpaper}"
+      ],
+      "placeholders": {
+        "{wallpaper}": "path to the input wallpaper file, after the `--` separator (S1 §1.3)"
+      },
+      "env": {
+        "required": [
+          "WALLPAPER__OUTPUT__DIRECTORY"
+        ],
+        "injected": {
+          "WALLPAPER__OUTPUT__DIRECTORY": "{output_dir}"
+        }
+      },
+      "artifacts": {
+        "match": "suffix",
+        "recursive": true,
+        "filenames": [],
+        "suffixes": [
+          ".png",
+          ".jpg",
+          ".jpeg",
+          ".webp",
+          ".bmp",
+          ".tiff",
+          ".gif"
+        ],
+        "min_count": 1
+      },
+      "exit_codes": {
+        "success": 0,
+        "nonzero_is_failure": true,
+        "success_requires_artifacts": true
+      },
+      "timeout": 600
+    },
+    "itr": {
+      "binary": "itr",
+      "argv": [
+        "render",
+        "{mappings_file}?"
+      ],
+      "placeholders": {
+        "{mappings_file}": "path to the resolved icon-mappings YAML file; appended only when the resolved mappings input is a regular file, omitted when it is a directory (S1 §1.3, §3.2)"
+      },
+      "env": {
+        "required": [
+          "ICON_RENDERER__OUTPUT__OUTPUT_DIR",
+          "ICON_RENDERER__COLOR_SCHEME__PATH"
+        ],
+        "injected": {
+          "ICON_RENDERER__OUTPUT__OUTPUT_DIR": "{output_dir}",
+          "ICON_RENDERER__COLOR_SCHEME__PATH": "{palette_colors_yaml}"
+        }
+      },
+      "artifacts": {
+        "match": "suffix",
+        "recursive": true,
+        "filenames": [],
+        "suffixes": [
+          ".svg"
+        ],
+        "min_count": 1
+      },
+      "exit_codes": {
+        "success": 0,
+        "nonzero_is_failure": true,
+        "success_requires_artifacts": true
+      },
+      "timeout": 60
+    }
+  }
+}

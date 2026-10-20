@@ -15,7 +15,8 @@ Format: any non-trivial claim gets an `Evidence:` line and a `Verify:` line (how
 ## 2. How we work here
 
 - This repo owns the **event contract** for the AGS platform: `org.dotfiles.Events` (`event-contract.json` + `event-contract.xml`) and the **bindings generated from it**. It is the single source of truth consumed by the **Python runtime** and by **ags-platform**.
-- The contract is **versioned**: a breaking change is a new interface (`Events2`); non-breaking changes stay on `Events1`; both may coexist during migration.
+- This repo also owns the **runtime ↔ CLI invocation contract** (spine AD-4): `invocation-contract.json` plus the `cli-invocation-contract` package (`cli_invocation_contract.load()` / `get()` and exactly two assertions in `cli_invocation_contract.testkit`). The Python runtime and **all three CLIs** (`csg`, `weg`, `itr`) pin the **same `contracts` tag** — not a compatible range — and run the kit instead of duplicating argv/env/artifact literals in their own tests. `CONTRACT.md` cites the evidence report (`S1`) section for every value; do not re-derive contract literals.
+- The event contract is **versioned**: a breaking change is a new interface (`Events2`); non-breaking changes stay on `Events1`; both may coexist during migration. The invocation contract is versioned too (`invocation-contract.json` `contract_version`, package semver): a change is a new tag that every consumer re-pins in the same slice.
 - Bindings are **generated, never hand-edited**. Regenerate and commit.
 - Prefer executed output over recalled text. Read files, run commands, paste results.
 

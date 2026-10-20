@@ -1,11 +1,13 @@
-.PHONY: help validate generate check-symmetry contracts-drift drift test
+.PHONY: help validate generate check-symmetry contracts-drift drift sync test build
 
 help:
 	@echo "validate          Validate the event contract"
 	@echo "generate          Regenerate bindings from the contract"
 	@echo "check-symmetry    Check generated/ against the contract, both directions"
 	@echo "contracts-drift   Regenerate-and-diff gate (alias: drift)"
-	@echo "test              Run the contract tests"
+	@echo "sync              Install the cli-invocation-contract package + dev deps"
+	@echo "test              Run the event-contract tests and the package tests"
+	@echo "build             Build the cli-invocation-contract sdist + wheel"
 
 validate:
 	@echo "TODO: validate event-contract.json/.xml"
@@ -39,5 +41,13 @@ contracts-drift: check-symmetry
 
 drift: contracts-drift
 
+sync:
+	uv sync
+
+# Both legs are gates: a failure of either fails the target (no suppression).
 test:
 	python3 -m unittest discover -s gen -p 'test_*.py'
+	uv run pytest -q
+
+build:
+	uv build

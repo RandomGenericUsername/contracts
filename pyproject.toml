@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cli-invocation-contract"
+version = "0.1.0"
+description = "Versioned runtime <-> CLI invocation contract plus a two-assertion conformance kit"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cli_invocation_contract"]
+
+# The repo-root JSON is the single source. It is copied into the wheel as package
+# data so `load()` works from an installed distribution; no duplicate is committed.
+[tool.hatch.build.targets.wheel.force-include]
+"invocation-contract.json" = "cli_invocation_contract/invocation-contract.json"
+
+# `only-include` keeps the agent/tooling trees (.agents/, _bmad/, openspec/,
+# tickets/, gen/, generated/, schemas/) out of the sdist.
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "invocation-contract.json",
+  "CONTRACT.md",
+  "README.md",
+  "pyproject.toml",
+  "src/cli_invocation_contract",
+  "tests",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
