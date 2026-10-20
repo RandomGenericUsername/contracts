@@ -10,7 +10,7 @@
 
 ## Requirements
 
-- [REQ-006-cli-invocation-contract/ticket.md](./REQ-006-cli-invocation-contract/ticket.md) — Ship the cli-invocation-contract package | `in-progress` | openspec: cli-invocation-contract
+(none)
 
 ## Bugs
 
@@ -37,3 +37,4 @@
   - [REQ-003-symmetric-drift-gate/ticket.md](./REQ-003-symmetric-drift-gate/ticket.md) — Add the symmetric regenerate-and-diff CI gate | `done` | openspec: symmetric-drift-gate
   - [REQ-004-repoint-contract-consumers/ticket.md](./REQ-004-repoint-contract-consumers/ticket.md) — Repoint consumers to generated bindings; delete embedded duplicates | `done` | openspec: repoint-runtime-to-generated-contract (dotfiles-v3)
   - [REQ-005-close-known-contract-drift/ticket.md](./REQ-005-close-known-contract-drift/ticket.md) — Close the known contract drift | `done` | openspec: close-known-contract-drift
+- [REQ-006-cli-invocation-contract/ticket.md](./REQ-006-cli-invocation-contract/ticket.md) — Ship the cli-invocation-contract package | `done` | openspec: cli-invocation-contract (archived 2026-10-19)
