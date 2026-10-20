@@ -8,7 +8,7 @@ links:
   openspec: none
   bmad: none
 worktree: .worktrees/req-007/
-branch: ticket/REQ-007-release-v010-and-specs
+branch: ticket/req-007-release-v010-and-specs
 ---
 
 # Publish the v0.1.0 release and land the two boundary specs
