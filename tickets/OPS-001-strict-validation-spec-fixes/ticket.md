@@ -2,7 +2,7 @@
 id: OPS-001
 title: "Clear the three pre-existing strict-validation failures"
 kind: ops-task
-status: in-progress
+status: done
 lane: direct
 links:
   openspec: none
@@ -83,6 +83,17 @@ Commits (oldest first):
 
 ## Status
 
-**In progress — evidence recorded, closeout pending the merge.** The three failures are
-cleared and every gate is green on the ticket branch; the merge to `main` and the INDEX move
-to Done land in the closeout commit, as in REQ-008.
+**Closed — done.** Merged to `main` as a fast-forward (`a0f8f05..9724c5c`); all three
+failures are cleared and every gate is green on `main`, not just on the ticket branch.
+`openspec validate --all --strict` → `Totals: 10 passed, 0 failed (10 items)`; `uv run pytest
+-q` → `55 passed`; `make test` → `Ran 10 tests … OK` + `55 passed`; `make check-symmetry` →
+`[drift] symmetric: contract and generated/ agree`.
+
+No tag is cut: the slice changed only `openspec/specs/` and `tickets/`, so
+`git diff --stat a0f8f05 HEAD -- src invocation-contract.json event-contract.json generated/
+dist/` is empty and every consumer pin (`v0.2.0`) stays valid.
+
+One environment note, not a repo change: the long-lived checkout's gitignored `.venv` predated
+the move of this repo under `dotfiles/`, so `.venv/bin/pytest` carried a dead shebang
+(`/home/inumaki/Development/contracts/.venv/bin/python`). `uv sync --reinstall-package pytest`
+rewrote it; no tracked file was touched.
