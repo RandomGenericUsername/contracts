@@ -10,7 +10,7 @@
 
 ## Requirements
 
-- [REQ-008-itr-templates-dir-contract/ticket.md](./REQ-008-itr-templates-dir-contract/ticket.md) — Record the itr templates-dir env key in the invocation contract | `in-progress` | openspec: itr-templates-dir-contract
+(none)
 
 ## Bugs
 
@@ -39,3 +39,4 @@
   - [REQ-005-close-known-contract-drift/ticket.md](./REQ-005-close-known-contract-drift/ticket.md) — Close the known contract drift | `done` | openspec: close-known-contract-drift
 - [REQ-006-cli-invocation-contract/ticket.md](./REQ-006-cli-invocation-contract/ticket.md) — Ship the cli-invocation-contract package | `done` | openspec: cli-invocation-contract (archived 2026-10-19)
 - [REQ-007-v010-release-and-specs/ticket.md](./REQ-007-v010-release-and-specs/ticket.md) — Publish the v0.1.0 release and land the two boundary specs | `done` | openspec: none
+- [REQ-008-itr-templates-dir-contract/ticket.md](./REQ-008-itr-templates-dir-contract/ticket.md) — Record the itr templates-dir env key in the invocation contract | `done` | openspec: itr-templates-dir-contract (archived 2026-10-21)
