@@ -67,20 +67,20 @@ Verify: `git show v0.1.0:invocation-contract.json | rg -n "ICON_RENDERER__"` →
 
 Contract side (verifiable in this worktree):
 
-- [ ] `invocation-contract.json` declares `contract_version: 2` and the `itr` record's
+- [x] `invocation-contract.json` declares `contract_version: 2` and the `itr` record's
   `env.required`/`env.injected` carry `ICON_RENDERER__TEMPLATES__DIR` → `{templates_dir}`; the
   `csg`/`weg` records do not carry the key, and no record's `argv`/`artifacts` changed.
   Verify: `uv run pytest -q tests/test_record.py` → exit 0.
-- [ ] `CONTRACT_VERSION` is `"0.2.0"`, `DATA_VERSION` is `2`, and the distribution version is
+- [x] `CONTRACT_VERSION` is `"0.2.0"`, `DATA_VERSION` is `2`, and the distribution version is
   `0.2.0`; a v1 document is refused by `load()`.
   Verify: `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
   → `0.2.0 2`; `uv run pytest -q tests/test_loader.py` → exit 0.
-- [ ] `CONTRACT.md` documents the new key plus the versioning rule (required env key → minor
+- [x] `CONTRACT.md` documents the new key plus the versioning rule (required env key → minor
   bump, `DATA_VERSION` 2), `CHANGELOG.md` carries a `0.2.0` entry citing this ticket, and the
   README status names `v0.2.0`.
   Verify: `rg -n "ICON_RENDERER__TEMPLATES__DIR|DATA_VERSION.?2|REQ-008" CONTRACT.md CHANGELOG.md README.md`
   → hits in all three.
-- [ ] `uv run pytest -q`, `uv build`, `make test`, `make check-symmetry`, and
+- [x] `uv run pytest -q`, `uv build`, `make test`, `make check-symmetry`, and
   `openspec validate --strict itr-templates-dir-contract` all exit 0.
   Verify: each command's exit code (recorded in the closeout table below).
 - [ ] Annotated tag `v0.2.0` exists on the remote with a GitHub Release carrying the wheel +
