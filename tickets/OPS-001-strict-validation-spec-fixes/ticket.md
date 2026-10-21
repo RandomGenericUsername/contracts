@@ -62,10 +62,27 @@ Base: `a0f8f05` (`main`, clean). Worktree `.worktrees/OPS-001/`, branch
 | (1) is a placeholder, not content | `openspec validate container-adapter-env-contract --type spec --strict` | `⚠ [WARNING] overview: Purpose section is still a placeholder…`, exit 1; the line at `openspec/specs/container-adapter-env-contract/spec.md:11` is the archive-written `TBD` sentence |
 | (2) is a placeholder, not content | `openspec validate interface-contract-test --type spec --strict` | same `overview` warning, exit 1; `openspec/specs/interface-contract-test/spec.md:11` |
 | (3) is a length failure on the 7th requirement | `openspec validate ticket-system --type spec --strict` | `⚠ [WARNING] requirements[6]: Requirement text is very long (>500 characters)`, exit 1 |
-| The body really is over the cap | `sed -n '65p' openspec/specs/ticket-system/spec.md \| wc -c` | `513` (512 chars + newline) |
+| The body really is over the cap | `sed -n '65p' openspec/specs/ticket-system/spec.md \| wc -c` (base) | `513` (512 chars + newline) |
 | No artifact references the two requirement titles being touched | `grep -rn "Index entries carry\|Global index mirrors" --include='*.md' --include='*.py' --include='*.json' . \| grep -v '^./openspec/specs/ticket-system'` | no matches — the split is internal to that spec |
-| Strict validator clean after the fixes | `openspec validate --all --strict` | `Totals: 10 passed, 0 failed (10 items)`, exit 0 |
-| Both touched requirement bodies are under the cap | `awk '/^### Requirement:/{n++} n==7 || n==8' openspec/specs/ticket-system/spec.md \| wc -c` | see the per-requirement line counts recorded at closeout; each body is under 500 |
-| Package tests unaffected | `uv run pytest -q` | `55 passed`, exit 0 |
+| Each spec validates on its own (strict) | `for s in container-adapter-env-contract interface-contract-test ticket-system; do openspec validate "$s" --type spec --strict; done` | `Specification '<name>' is valid` for all three, exit 0 |
+| Strict validator clean across the tree | `openspec validate --all --strict` | `Totals: 10 passed, 0 failed (10 items)`, exit 0 |
+| Non-strict validator agrees | `openspec validate --all` | `Totals: 10 passed, 0 failed (10 items)`, exit 0 |
+| Both split bodies are under the cap | python3 body-length scan over `openspec/specs/ticket-system/spec.md` (whitespace-normalised text between the heading and the first blank line) | `requirements[6]` `512` → `204`; `requirements[7]` (new) `307`; every other requirement byte-identical to base (`237/150/163/228/296/155`) |
+| Nothing but prose moved in `ticket-system` | `git show a0f8f05:…/spec.md \| grep -c '^#### Scenario:'` vs. the same on the branch | `8` before, `8` after; requirements `7` → `8` (the split only) |
+| Package tests unaffected | `uv run pytest -q` | `55 passed in 0.27s`, exit 0 |
+| Both test legs | `make test` | `Ran 10 tests … OK` then `55 passed in 0.22s`, exit 0 |
 | Generated bindings unaffected | `make check-symmetry` | `[drift] symmetric: contract and generated/ agree`, exit 0 |
-| No tag is cut (no package/data change) | `git diff --stat a0f8f05 HEAD -- src invocation-contract.json event-contract.json generated/ dist/` | empty — only `openspec/` + `tickets/` changed |
+| No tag is cut (no package/data change) | `git diff --stat a0f8f05 HEAD -- src invocation-contract.json event-contract.json generated/ dist/` | empty (exit 0) — only `openspec/` and `tickets/` changed |
+
+Commits (oldest first):
+
+| Commit | Subject |
+| --- | --- |
+| `09530b9` | `plan(OPS-001): open the strict-validation spec-hygiene ticket` |
+| `1a8fee0` | `fix(OPS-001): clear the three strict-validation failures in the spec tree` |
+
+## Status
+
+**In progress — evidence recorded, closeout pending the merge.** The three failures are
+cleared and every gate is green on the ticket branch; the merge to `main` and the INDEX move
+to Done land in the closeout commit, as in REQ-008.
