@@ -132,7 +132,7 @@ Commands run from the worktree root unless a path is named. Base `5e03075`; work
 | Release assets | `gh release view v0.2.0 --json tagName,assets --jq …` | `{"assets":["cli_invocation_contract-0.2.0-py3-none-any.whl","cli_invocation_contract-0.2.0.tar.gz"],"tag":"v0.2.0"}` |
 | Birth-gate: anonymous tag reachability | `GIT_TERMINAL_PROMPT=0 git -c credential.helper= ls-remote https://github.com/RandomGenericUsername/contracts 'refs/tags/v0.2.0'` | one line `442fb9abdc73fa109115ba804911a10af9f4cad1 refs/tags/v0.2.0`, exit 0 |
 | CI | `gh run list --limit 5 --json headSha,conclusion,workflowName` | `5338d1d` → `success` (run `39654249183`), `c6c3ab5` → `success` (run `39654081676`), `da27780` → `success` (run `39654069916`) |
-| Main pushed and clean | `git rev-parse origin/main main`; `git status --porcelain` | both `5338d1d5216f7e1f7c8faf8adba0e8e095507f9f`; empty porcelain |
+| Main pushed and clean | `git rev-parse origin/main main`; `git status --porcelain` | local `main` equals `origin/main` after every push in this ticket (release commit `c6c3ab5` onward, including the docs tips); porcelain empty |
 
 Commits (oldest first, on `main`):
 
