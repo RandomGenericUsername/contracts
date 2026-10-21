@@ -49,6 +49,24 @@ def test_version_mismatch_raises_value_error(tmp_path: Path) -> None:
         load(path)
 
 
+def test_v1_document_is_refused(tmp_path: Path) -> None:
+    # REQ-008: the data shape moved 1 -> 2, so a v1 document must fail loudly
+    # rather than be read without the itr templates-dir key.
+    path = _write(tmp_path, {"contract_version": 1, "clis": load()})
+    with pytest.raises(ValueError, match="version mismatch"):
+        load(path)
+
+
+def test_packaged_document_declares_the_data_version() -> None:
+    document = json.loads(
+        (Path(__file__).resolve().parents[1] / "invocation-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert document["contract_version"] == DATA_VERSION
+    assert DATA_VERSION == 2
+
+
 def test_record_missing_a_contract_field_raises_value_error(tmp_path: Path) -> None:
     records = load()
     del records["itr"]["timeout"]

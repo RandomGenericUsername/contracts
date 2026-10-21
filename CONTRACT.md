@@ -17,15 +17,33 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.1.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.2.0"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
-- `DATA_VERSION = 1` — the **data shape** version declared by `contract_version` in the JSON.
+- `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
 | Field | Meaning |
 |---|---|
-| `contract_version` | Integer version of the data shape. `cli_invocation_contract.DATA_VERSION` must equal it, or `load()` raises `ValueError`. Bumped only for an incompatible shape change, in a new `contracts` tag. |
+| `contract_version` | Integer version of the data shape. `cli_invocation_contract.DATA_VERSION` must equal it, or `load()` raises `ValueError`. Bumped with every data change, in a new `contracts` tag. |
 | `timeout_unit` | Unit for every record's `timeout`: seconds. |
 | `clis` | Mapping `cli name` → record. Exactly `csg`, `weg`, `itr` today. |
+
+### Versioning rule
+
+- **Adding a required env key is a minor bump** (`0.1.0` → `0.2.0`): no argv, artifact, or
+  exit-code semantics change, so the record stays usable by every consumer — but `load()` is
+  version-strict, so a **0.1.x loader refuses a v2 document** instead of reading it and silently
+  ignoring a key it does not know. That loud failure is why `DATA_VERSION` also moves (`1` → `2`)
+  on an additive change; the shape identifier follows the tag.
+- Removing or renaming a required key, or changing argv/artifact/exit-code semantics, is a
+  breaking change: a new major (or, on 0.x, the next minor) that every consumer re-pins.
+- Consumers pin one tag, never a range (AD-9/AD-11), so a v2 document never reaches a 0.1.x
+  loader in a correct install.
+
+Evidence: `invocation-contract.json` `contract_version` and
+`src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
+comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
+`uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
+→ `0.2.0 2`.
 
 ## Per-CLI record
 
@@ -92,13 +110,24 @@ itr render [<mappings-file>]
   `itr render` then exits 2 (`Missing argument 'yaml_file'`). The provisioned spine supplies
   `<install>/icon-mappings/icons.yaml`, so the file branch is the production path.
 - Env overrides: `ICON_RENDERER__OUTPUT__OUTPUT_DIR=<output_dir>`,
-  `ICON_RENDERER__COLOR_SCHEME__PATH=<palette colors.yaml>`.
+  `ICON_RENDERER__COLOR_SCHEME__PATH=<palette colors.yaml>`, and
+  `ICON_RENDERER__TEMPLATES__DIR=<templates dir>`.
+- `ICON_RENDERER__TEMPLATES__DIR` is the directory the runtime hashes into the icons entry key;
+  `itr` binds it to `templates.dir` and ranks env above `settings.toml` and discovery, so without
+  the key the process could render from a directory the runtime never hashed. The record
+  therefore requires it and injects the `{templates_dir}` placeholder (REQ-008).
 - Required artifacts: at least one `.svg`, recursively under the output dir.
 - Timeout 60 s.
 
 Evidence: `S1` §1.3 (`itr_adapter.py:410-419`; real `itr render` exit 2), §1.5 (`:402-408`),
-§2.2 (`:487-497`), §1.6 (`:102`). Verify:
-`sed -n '154,193p;226,240p;314,329p;259,270p' docs/investigation/S1-runtime-cli-addressing.md`.
+§2.2 (`:487-497`), §1.6 (`:102`); REQ-008 for the templates key — `itr` binds it at
+`assembled_config_resolver.py:66,70` (`ResolutionPolicy(env_prefix="ICON_RENDERER")`,
+`OverrideRule("templates.dir", …)`) and names it in `cli/main.py:37` and
+`icon_renderer.py:292`; the runtime hashes it at `itr_adapter.py:233` but its `build_env` call
+(`:402-407`) omits it. Verify:
+`sed -n '154,193p;226,240p;314,329p;259,270p' docs/investigation/S1-runtime-cli-addressing.md`
+and, in `dotfiles-v3`, `grep -n "ICON_RENDERER__TEMPLATES__DIR"
+src/runtime/src/runtime/adapters/itr_adapter.py` → no output (the gap this key closes).
 
 ## The child environment
 

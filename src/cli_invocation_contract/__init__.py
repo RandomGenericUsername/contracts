@@ -31,11 +31,11 @@ __all__ = [
 #: Release version of the contract, equal to the ``contracts`` tag without its
 #: leading ``v`` and to the distribution version (AD-9/AD-11: every consumer
 #: pins one tag and the version each CLI reports equals it).
-CONTRACT_VERSION = "0.1.0"
+CONTRACT_VERSION = "0.2.0"
 
 #: Version of the *data shape* in ``invocation-contract.json``. A document that
 #: declares a different shape fails loudly instead of being misread.
-DATA_VERSION = 1
+DATA_VERSION = 2
 
 _REQUIRED_RECORD_KEYS = ("argv", "env", "artifacts", "exit_codes", "timeout")
 

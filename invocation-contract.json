@@ -1,5 +1,5 @@
 {
-  "contract_version": 1,
+  "contract_version": 2,
   "timeout_unit": "seconds",
   "clis": {
     "csg": {
@@ -113,11 +113,13 @@
       "env": {
         "required": [
           "ICON_RENDERER__OUTPUT__OUTPUT_DIR",
-          "ICON_RENDERER__COLOR_SCHEME__PATH"
+          "ICON_RENDERER__COLOR_SCHEME__PATH",
+          "ICON_RENDERER__TEMPLATES__DIR"
         ],
         "injected": {
           "ICON_RENDERER__OUTPUT__OUTPUT_DIR": "{output_dir}",
-          "ICON_RENDERER__COLOR_SCHEME__PATH": "{palette_colors_yaml}"
+          "ICON_RENDERER__COLOR_SCHEME__PATH": "{palette_colors_yaml}",
+          "ICON_RENDERER__TEMPLATES__DIR": "{templates_dir}"
         }
       },
       "artifacts": {

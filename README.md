@@ -50,5 +50,7 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 ## Status
 
 Both seams live. The AGS event contract and generated bindings landed in REQ-001–REQ-005; the
-invocation contract is REQ-006. `v0.1.0` (AD-9) is the first release and ships
-`cli-invocation-contract` 0.1.0, tagged on `48cf3cf` — see `CHANGELOG.md` and the GitHub Release.
+invocation contract is REQ-006, released as `v0.1.0` (AD-9) on `48cf3cf`. `v0.2.0` ships
+`cli-invocation-contract` 0.2.0 (`CONTRACT_VERSION` `0.2.0`, `DATA_VERSION` `2`), adding the
+`itr` record's `ICON_RENDERER__TEMPLATES__DIR` env key (REQ-008) — see `CHANGELOG.md` and the
+GitHub Releases.

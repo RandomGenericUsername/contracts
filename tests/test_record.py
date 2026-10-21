@@ -40,12 +40,12 @@ CSG_ARGV = [
 
 
 def test_contract_version_is_the_release_version() -> None:
-    # AD-11: the version a CLI reports equals the pinned `contracts` tag (v0.1.0).
-    assert CONTRACT_VERSION == "0.1.0"
+    # AD-11: the version a CLI reports equals the pinned `contracts` tag (v0.2.0).
+    assert CONTRACT_VERSION == "0.2.0"
 
 
 def test_data_version_is_the_json_shape_version() -> None:
-    assert DATA_VERSION == 1
+    assert DATA_VERSION == 2
 
 
 def test_three_cli_records() -> None:
@@ -121,11 +121,29 @@ def test_env_keys_and_injected_overrides() -> None:
     assert itr["required"] == [
         "ICON_RENDERER__OUTPUT__OUTPUT_DIR",
         "ICON_RENDERER__COLOR_SCHEME__PATH",
+        "ICON_RENDERER__TEMPLATES__DIR",
     ]
     assert itr["injected"] == {
         "ICON_RENDERER__OUTPUT__OUTPUT_DIR": "{output_dir}",
         "ICON_RENDERER__COLOR_SCHEME__PATH": "{palette_colors_yaml}",
+        "ICON_RENDERER__TEMPLATES__DIR": "{templates_dir}",
     }
+
+
+def test_itr_env_names_the_templates_directory() -> None:
+    # REQ-008: the runtime hashes templates_dir, so the invocation must forward it.
+    # itr binds ICON_RENDERER__TEMPLATES__DIR to templates.dir (env > settings > discovery).
+    env = get("itr")["env"]
+    assert "ICON_RENDERER__TEMPLATES__DIR" in env["required"]
+    assert env["injected"]["ICON_RENDERER__TEMPLATES__DIR"] == "{templates_dir}"
+    assert set(env["required"]) == set(env["injected"])
+
+
+@pytest.mark.parametrize("cli", ["csg", "weg"])
+def test_templates_dir_env_key_is_itr_only(cli: str) -> None:
+    env = get(cli)["env"]
+    assert "ICON_RENDERER__TEMPLATES__DIR" not in env["required"]
+    assert "ICON_RENDERER__TEMPLATES__DIR" not in env["injected"]
 
 
 @pytest.mark.parametrize("cli", ["csg", "weg", "itr"])

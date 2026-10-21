@@ -55,6 +55,7 @@ def test_itr_optional_mappings_file_may_be_omitted_or_present() -> None:
     env = {
         "ICON_RENDERER__OUTPUT__OUTPUT_DIR": "/work/icons",
         "ICON_RENDERER__COLOR_SCHEME__PATH": "/work/pal/colors.yaml",
+        "ICON_RENDERER__TEMPLATES__DIR": "/work/templates",
     }
     assert_consumer_invocation(get("itr"), "itr", ["itr", "render"], env)
     assert_consumer_invocation(

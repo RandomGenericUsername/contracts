@@ -2,16 +2,44 @@
 
 Notable changes to the `contracts` repo. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Release versions follow the git tags
-(AD-9/AD-11): for `v0.1.0`, the tag, the `cli-invocation-contract` distribution version, and
-`CONTRACT_VERSION` are the same value.
+(AD-9/AD-11): for every release the tag, the `cli-invocation-contract` distribution version, and
+`CONTRACT_VERSION` are the same value (`v0.2.0` ↔ `0.2.0` ↔ `CONTRACT_VERSION = "0.2.0"`).
 
 ## [Unreleased]
 
+(nothing yet)
+
+## [0.2.0] - 2026-10-21
+
+Minor release: the `itr` record now pins the env key that selects the icon templates directory
+(ticket [`REQ-008`](./tickets/REQ-008-itr-templates-dir-contract/ticket.md), OpenSpec change
+`itr-templates-dir-contract`).
+
+### Added
+
+- `clis.itr.env` records `ICON_RENDERER__TEMPLATES__DIR`: listed in `required` and injected as
+  the `{templates_dir}` placeholder, alongside the two existing path overrides. `itr` binds this
+  key to `templates.dir` (env ranks above `settings.toml` and discovery), so the runtime can pass
+  the directory it hashes into the icons entry key instead of letting the process resolve a
+  different one. `csg` and `weg` are unchanged, and no CLI's `argv` or `artifacts` changed.
+
 ### Changed
 
+- `invocation-contract.json` `contract_version` bumped `1` → `2`. The change is additive, but
+  `load()` is version-strict, so a 0.1.x loader refuses a v2 document rather than silently
+  ignoring the new key (see the versioning rule in `CONTRACT.md`).
+- `cli-invocation-contract` bumped `0.1.0` → `0.2.0`: `CONTRACT_VERSION = "0.2.0"` (equal to the
+  `v0.2.0` tag without its `v`), `DATA_VERSION = 2`.
 - Moved the two boundary specs `interface-contract-test` and `container-adapter-env-contract`
   here from `dotfiles-v3/openspec/specs/` (`openspec/specs/<name>/spec.md`), content preserved
-  verbatim with a provenance header (cli-tools-repos split, slice S0b).
+  verbatim with a provenance header (cli-tools-repos split, slice S0b; REQ-007).
+
+### Release
+
+- Annotated tag `v0.2.0` with the wheel + sdist built from the tag commit, not from a working
+  tree.
+- The Python runtime and the three CLIs (`csg`, `weg`, `itr`) re-pin this exact tag; the runtime
+  additionally sets `ICON_RENDERER__TEMPLATES__DIR` from its resolved `templates_dir`.
 
 ## [0.1.0] - 2026-10-19
 

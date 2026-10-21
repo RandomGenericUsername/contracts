@@ -37,6 +37,16 @@ def test_missing_required_env_key_is_rejected() -> None:
         assert_consumer_invocation(get("csg"), "csg", csg_argv(), env)
 
 
+def test_missing_itr_templates_dir_env_key_is_rejected() -> None:
+    # REQ-008: the itr record requires the templates dir the runtime hashes.
+    env = {
+        "ICON_RENDERER__OUTPUT__OUTPUT_DIR": "/work/icons",
+        "ICON_RENDERER__COLOR_SCHEME__PATH": "/work/pal/colors.yaml",
+    }
+    with pytest.raises(AssertionError, match="ICON_RENDERER__TEMPLATES__DIR"):
+        assert_consumer_invocation(get("itr"), "itr", ["itr", "render"], env)
+
+
 def test_wrong_literal_override_is_rejected() -> None:
     env = csg_env()
     env["COLORSCHEME__OUTPUT__OVERWRITE"] = "false"
