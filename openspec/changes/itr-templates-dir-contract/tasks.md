@@ -55,16 +55,16 @@
 
 ## 6. Release (≤1h)
 
-- [ ] 6.1 Push `main`; create annotated tag `v0.2.0` on the implementation commit and push it.
+- [x] 6.1 Push `main`; create annotated tag `v0.2.0` on the implementation commit and push it.
   Verify: `git cat-file -t v0.2.0` → `tag`; `git rev-parse v0.2.0^{}` → the commit.
-- [ ] 6.2 Build the assets from the tag in a throwaway worktree and attach them to a GitHub
+- [x] 6.2 Build the assets from the tag in a throwaway worktree and attach them to a GitHub
   Release. Verify: `gh release view v0.2.0 --json assets --jq '.assets[].name'` → wheel + sdist.
-- [ ] 6.3 Birth-gate proof: anonymous `ls-remote` returns exactly one line; the CI run for the
+- [x] 6.3 Birth-gate proof: anonymous `ls-remote` returns exactly one line; the CI run for the
   pushed commit concludes `success`.
   Verify: `GIT_TERMINAL_PROMPT=0 git -c credential.helper= ls-remote https://github.com/RandomGenericUsername/contracts 'refs/tags/v0.2.0'`
   → one line; `gh run list --commit <sha> --json conclusion` → `success`.
 
-## Observed (sections 1–5)
+## Observed (sections 1–6)
 
 Run from the worktree root, base `5e03075`:
 
@@ -81,3 +81,6 @@ Run from the worktree root, base `5e03075`:
 | 5.3 | `make check-symmetry` | `[drift] symmetric: contract and generated/ agree`, exit 0 |
 | 5.4 | `openspec validate --strict itr-templates-dir-contract` | `Change 'itr-templates-dir-contract' is valid`, exit 0 |
 | 5.4 | `openspec validate --all` | `Totals: 11 passed, 0 failed (11 items)`, exit 0 |
+| 6.1 | `git cat-file -t v0.2.0`; `git rev-parse v0.2.0^{}` | `tag`; `c6c3ab5d523d06210f8e87535c464d3190d005c0` (tag object `442fb9ab`), pushed |
+| 6.2 | `gh release view v0.2.0 --json assets --jq '.assets[].name'` | `cli_invocation_contract-0.2.0-py3-none-any.whl`, `cli_invocation_contract-0.2.0.tar.gz` (built in a worktree at `v0.2.0`) |
+| 6.3 | anonymous `ls-remote`; `gh run list` | one line, exit 0; runs `39654081676` (`c6c3ab5`) and `39654069916` (`da27780`) both `success` |

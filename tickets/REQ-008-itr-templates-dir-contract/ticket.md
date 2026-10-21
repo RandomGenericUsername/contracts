@@ -83,7 +83,7 @@ Contract side (verifiable in this worktree):
 - [x] `uv run pytest -q`, `uv build`, `make test`, `make check-symmetry`, and
   `openspec validate --strict itr-templates-dir-contract` all exit 0.
   Verify: each command's exit code (recorded in the closeout table below).
-- [ ] Annotated tag `v0.2.0` exists on the remote with a GitHub Release carrying the wheel +
+- [x] Annotated tag `v0.2.0` exists on the remote with a GitHub Release carrying the wheel +
   sdist built from the tag, and the tag is anonymously reachable.
   Verify: `GIT_TERMINAL_PROMPT=0 git -c credential.helper= ls-remote https://github.com/RandomGenericUsername/contracts 'refs/tags/v0.2.0'`
   → one line, exit 0; `gh release view v0.2.0 --json assets --jq '.assets[].name'` → two names.
@@ -102,3 +102,46 @@ Consumer side (must land before this ticket can close):
   key, matching the two existing path overrides.
 - Changing `artifacts`, `exit_codes`, or `timeout` for any CLI.
 - Closing this ticket, archiving the OpenSpec change, or moving the INDEX line to Done.
+
+## Status
+
+**In progress — not closed.** The contract side and the `v0.2.0` release are done; the two
+consumer-side acceptance boxes cannot be ticked until the runtime and the three CLIs re-pin
+`v0.2.0` in their own repos. Closing now would leave a released contract with no consumer pinned
+to it.
+
+## Evidence
+
+Commands run from the worktree root unless a path is named. Base `5e03075`; worktree
+`.worktrees/req-008/`, branch `ticket/req-008-itr-templates-dir-contract`.
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| `itr` JSON diff is exactly the new key + version | `git diff 5e03075 c6c3ab5 -- invocation-contract.json` | `contract_version` `1`→`2`; `required` gains `"ICON_RENDERER__TEMPLATES__DIR"`; `injected` gains `"ICON_RENDERER__TEMPLATES__DIR": "{templates_dir}"`; nothing else, exit 0 |
+| `csg`/`weg` env unchanged | `uv run python -c "from cli_invocation_contract import get; print(get('csg')['env'], get('weg')['env'])"` | the two pre-existing env mappings, exit 0 |
+| Package version/constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.2.0 2`, exit 0 |
+| Wheel carries the v2 data and the 0.2.0 metadata | `unzip -p dist/cli_invocation_contract-0.2.0-py3-none-any.whl cli_invocation_contract/invocation-contract.json \| python3 -c "import json,sys; d=json.load(sys.stdin); print(d['contract_version'], d['clis']['itr']['env']['injected']['ICON_RENDERER__TEMPLATES__DIR'])"` | `2 {templates_dir}`, exit 0; `…/METADATA` → `Version: 0.2.0` |
+| Tests | `uv run pytest -q` | `55 passed in 0.18s`, exit 0 (was 49 at `5e03075`) |
+| Event-contract tests + package tests | `make test` | `Ran 10 tests … OK` then `55 passed`, exit 0 |
+| Symmetric drift gate | `make check-symmetry` | `[drift] symmetric: contract and generated/ agree`, exit 0 |
+| OpenSpec change valid (strict) | `openspec validate --strict itr-templates-dir-contract` | `Change 'itr-templates-dir-contract' is valid`, exit 0 |
+| OpenSpec tree valid | `openspec validate --all` | `Totals: 11 passed, 0 failed (11 items)`, exit 0 |
+| Build | `uv build` | `Successfully built dist/cli_invocation_contract-0.2.0.tar.gz` + `…-py3-none-any.whl`, exit 0 |
+| Tag is annotated and peels to the implementation commit | `git cat-file -t v0.2.0`; `git rev-parse v0.2.0^{}` | `tag`; `c6c3ab5d523d06210f8e87535c464d3190d005c0`; tag object `442fb9abdc73fa109115ba804911a10af9f4cad1` |
+| Assets built from the tag, not the tree | `git worktree add /tmp/opencode/contracts-v020 v0.2.0 && (cd /tmp/opencode/contracts-v020 && uv build)` | `HEAD is now at c6c3ab5`; both `0.2.0` artifacts, exit 0 (worktree removed afterwards) |
+| Release assets | `gh release view v0.2.0 --json tagName,assets --jq …` | `{"assets":["cli_invocation_contract-0.2.0-py3-none-any.whl","cli_invocation_contract-0.2.0.tar.gz"],"tag":"v0.2.0"}` |
+| Birth-gate: anonymous tag reachability | `GIT_TERMINAL_PROMPT=0 git -c credential.helper= ls-remote https://github.com/RandomGenericUsername/contracts 'refs/tags/v0.2.0'` | one line `442fb9abdc73fa109115ba804911a10af9f4cad1 refs/tags/v0.2.0`, exit 0 |
+| CI | `gh run list --limit 5 --json headSha,conclusion,workflowName` | `c6c3ab5` → `success` (run `39654081676`), `da27780` → `success` (run `39654069916`) |
+| Main pushed and clean | `git rev-parse origin/main main` | both `da27780` at push time; `git status --porcelain` empty |
+
+Commits (oldest first, on `main`):
+
+| Commit | Subject |
+| --- | --- |
+| `c144071` | `plan(REQ-008): open the itr templates-dir contract ticket + OpenSpec change` |
+| `c6c3ab5` | `feat(REQ-008): record ICON_RENDERER__TEMPLATES__DIR for itr (contract 0.2.0, data v2)` — the tagged commit |
+| `da27780` | `plan(REQ-008): record task and acceptance evidence for the contract change` |
+
+Remaining before close: the runtime slice sets `ICON_RENDERER__TEMPLATES__DIR` from its resolved
+`templates_dir` and re-pins `v0.2.0`; `csg`, `weg`, and `itr` re-pin the same tag. Then archive
+`itr-templates-dir-contract`, tick the two consumer boxes, and move this INDEX line to Done.
