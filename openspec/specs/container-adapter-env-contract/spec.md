@@ -8,7 +8,15 @@
 ---
 
 ## Purpose
-TBD - created by archiving change container-adapter-decoupling. Update Purpose after archive.
+
+This capability is the container/host environment seam for the two containerised CLIs: `csg`
+and `weg` each hand the in-container process its whole configuration through a fixed
+`_CONTAINER_ENV` env dict (`HOME`, the XDG dirs, the tool's config/effects paths, plus a
+`...__RUNTIME__MODE=local` override) instead of re-passing `--config`/`--effects`/`--runtime`
+flags into the container. It exists so the in-container run is configured identically to a host
+run while those flags stay host-only, no new flag surface is added for it, and both tools carry
+a test that pins the exact env dict the container runtime receives.
+
 ## Requirements
 ### Requirement: WEG defines and passes `_CONTAINER_ENV` on every container run
 

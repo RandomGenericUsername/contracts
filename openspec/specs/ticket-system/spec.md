@@ -60,16 +60,21 @@ A `task` item SHALL declare a `parent:` holding a story or epic id, and SHALL in
 - **WHEN** validation runs
 - **THEN** every item file under `tickets/` appears in INDEX.md and every INDEX entry resolves to an existing file
 
-### Requirement: Index entries carry link, title, status, rollup
+### Requirement: Index entries carry link, title, status, execution links
 
-Every INDEX.md entry SHALL contain, in order: a relative link to the item file, the item title, the current `status`, and the execution links (OpenSpec change names and/or BMAD artifact paths, or `none`). Epic entries SHALL additionally show children rollup as `done/total children done`, the one-line `done-when`, and one nested line per child with its own link, title, and status. Bug entries SHALL additionally show severity; spike entries SHALL additionally show timebox state (`boxed <limit>` | `reported`).
+Every INDEX.md entry SHALL contain, in order: a relative link to the item file, the item title, the current `status`, and the execution links (OpenSpec change names and/or BMAD artifact paths, or `none`).
+
+#### Scenario: Stale index rejected
+
+- **WHEN** an item's status changes without its INDEX line changing
+- **THEN** the completeness check fails naming the diverged entry
+
+### Requirement: Index entries carry kind-specific detail
+
+Epic entries SHALL additionally show children rollup as `done/total children done`, the one-line `done-when`, and one nested line per child with its own link, title, and status. Bug entries SHALL additionally show severity; spike entries SHALL additionally show timebox state (`boxed <limit>` | `reported`).
 
 #### Scenario: Epic rollup line
 
 - **WHEN** an epic has 3 of 7 children done
 - **THEN** its INDEX line reads `| \`in-progress\` | 3/7 children done` with 7 nested child lines each carrying link, title, status
 
-#### Scenario: Stale index rejected
-
-- **WHEN** an item's status changes without its INDEX line changing
-- **THEN** the completeness check fails naming the diverged entry

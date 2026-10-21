@@ -8,7 +8,14 @@
 ---
 
 ## Purpose
-TBD - created by archiving change container-adapter-decoupling. Update Purpose after archive.
+
+This capability is the adapter ↔ live-CLI interface check: `csg` and `weg` each build an
+in-container argv from their adapters, and a test replays that argv through
+`typer.testing.CliRunner` against the real Typer `app` (with processor resolution mocked) to
+prove the CLI still accepts it. It exists so a flag that moves between scopes, gets renamed or
+removed, or a changed positional order fails a test instead of surfacing as a runtime error in
+the container, and so no flag the adapter emits is only "known" by the adapter itself.
+
 ## Requirements
 ### Requirement: WEG adapter argv is validated against the live CLI
 
