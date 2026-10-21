@@ -18,7 +18,7 @@
 
 ## Ops tasks
 
-(none)
+- [OPS-001-strict-validation-spec-fixes/ticket.md](./OPS-001-strict-validation-spec-fixes/ticket.md) — Clear the three pre-existing strict-validation failures | `in-progress` | links: none
 
 ## Spikes
 
