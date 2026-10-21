@@ -10,7 +10,7 @@
 
 ## Requirements
 
-(none)
+- [REQ-008-itr-templates-dir-contract/ticket.md](./REQ-008-itr-templates-dir-contract/ticket.md) — Record the itr templates-dir env key in the invocation contract | `in-progress` | openspec: itr-templates-dir-contract
 
 ## Bugs
 
