@@ -7,7 +7,20 @@ Notable changes to the `contracts` repo. Format follows
 
 ## [Unreleased]
 
-(nothing yet)
+### Added
+
+- Standalone AGS app contract (REQ-009): draft-07 schemas for
+  `app.manifest.json`, the dotfiles-v3 app list, the program tuple and the
+  runtime per-app refresh result; the fixed `palette-refresh` request/response
+  protocol in `ags-app-refresh.md`; positive/negative fixtures and
+  `make schema-test`, wired into CI.
+
+### Changed
+
+- `wallpaper.state` is documented as the progress/UI event only. It is not the
+  palette-refresh trigger; the runtime invokes live apps through
+  `palette-refresh` (AD-27).
+- Added the `jsonschema` dev dependency for the schema fixture gate.
 
 ## [0.2.0] - 2026-10-21
 

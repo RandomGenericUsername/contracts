@@ -1,0 +1,28 @@
+{
+  "apps": [
+    {
+      "app": "notifications",
+      "installDir": "notifications",
+      "owner": "legacy",
+      "instance": "notifications",
+      "configDir": "ags-notifications",
+      "configLink": "ags-notifications",
+      "spineLink": "ags-notifications",
+      "xdgLink": "ags-notifications",
+      "launch": "on-demand",
+      "cutoverId": "REQ-012"
+    },
+    {
+      "app": "notification-echo",
+      "installDir": "notification-echo",
+      "owner": "legacy",
+      "instance": "notifications",
+      "configDir": "ags-notification-echo",
+      "configLink": "ags-notification-echo",
+      "spineLink": "ags-notification-echo",
+      "xdgLink": "ags-notification-echo",
+      "launch": "on-demand",
+      "cutoverId": "REQ-012"
+    }
+  ]
+}

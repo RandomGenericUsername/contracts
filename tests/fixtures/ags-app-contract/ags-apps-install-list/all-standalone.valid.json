@@ -1,0 +1,36 @@
+{
+  "apps": [
+    {
+      "app": "bar",
+      "installDir": "bar",
+      "owner": "standalone",
+      "repo": "https://github.com/RandomGenericUsername/ags-bar.git",
+      "tag": "v0.1.0",
+      "instance": "ags",
+      "configDir": "ags",
+      "configLink": "ags",
+      "spineLink": "ags",
+      "xdgLink": "ags",
+      "launch": "always",
+      "barPalettePointer": true,
+      "cutoverId": "REQ-015"
+    },
+    {
+      "app": "clipboard",
+      "installDir": "clipboard",
+      "owner": "standalone",
+      "repo": "https://github.com/RandomGenericUsername/ags-clipboard.git",
+      "tag": "v0.1.0",
+      "instance": "clipboard",
+      "configDir": "ags-clipboard",
+      "configLink": "ags-clipboard",
+      "spineLink": "ags-clipboard",
+      "xdgLink": "ags-clipboard",
+      "binLink": "clipboard-ui",
+      "launcher": "clipboard-ui",
+      "autostart": "clipboard",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    }
+  ]
+}

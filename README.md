@@ -1,11 +1,17 @@
 # contracts
 
-Two versioned contracts, one repo.
+Canonical contract sources for the AGS platform, one repo.
 
 1. **AGS event contract** (`org.dotfiles.Events`) — `event-contract.json` + `event-contract.xml`
    and the bindings generated from them.
 2. **Runtime ↔ CLI invocation contract** — `invocation-contract.json` and the
    `cli-invocation-contract` package (`cli_invocation_contract`).
+3. **Standalone AGS app contract** — `schemas/ags-app-manifest.schema.json`,
+   `schemas/ags-apps-install-list.schema.json`, `schemas/program-tuple.schema.json`,
+   `schemas/ags-app-refresh-result.schema.json`, and the fixed `palette-refresh`
+   protocol in `ags-app-refresh.md`. Draft-07 schemas with positive/negative
+   fixtures (`tests/test_ags_app_contract.py`), consumed by `dotfiles-v3`,
+   `dotfiles-provision`, `dotfiles-runtime`, `ags-platform`, and every app repo.
 
 The event contract is the single source of truth for the runtime ↔ AGS event seam. It is
 consumed by:
@@ -27,6 +33,15 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 - `invocation-contract.json` — the runtime ↔ CLI invocation contract, one record per CLI.
 - `CONTRACT.md` — field-by-field reference for the invocation contract, citing the evidence
   report (`S1`) section for every value.
+- `schemas/ags-app-manifest.schema.json` — the per-app identity, mode and
+  unsaved-state manifest (`app.manifest.json`).
+- `schemas/ags-apps-install-list.schema.json` — the single dotfiles-v3 app list
+  and ownership source (`apps.yaml`).
+- `schemas/program-tuple.schema.json` — the one `ags-platform` / `contracts` /
+  `dotfiles-assets` tag tuple per install.
+- `schemas/ags-app-refresh-result.schema.json` — the runtime-owned per-app
+  refresh result/log record.
+- `ags-app-refresh.md` — the fixed `palette-refresh` request/response protocol.
 
 ## The `cli-invocation-contract` package
 
@@ -37,9 +52,10 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   `assert_cli_writes_artifacts(record, cli, run, cwd)`.
 - `tests/` — record completeness, loader behaviour, and positive/negative kit paths against a
   fake CLI (never a real binary).
-- `Makefile` — `make sync` (uv), `make test` (event-contract unittest + pytest), `make build`
-  (sdist + wheel). The wheel carries `invocation-contract.json` as package data, so `load()`
-  works from an installed tag.
+- `Makefile` — `make sync` (uv), `make test` (event-contract unittest + schema fixtures +
+  pytest), `make schema-test` (AGS app contract fixtures only), `make build` (sdist + wheel).
+  The wheel carries `invocation-contract.json` as package data, so `load()` works from an
+  installed tag.
 
 ## Tooling here
 
@@ -49,8 +65,10 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 
 ## Status
 
-Both seams live. The AGS event contract and generated bindings landed in REQ-001–REQ-005; the
+The event and invocation seams are live. The AGS event contract and generated bindings landed in REQ-001–REQ-005; the
 invocation contract is REQ-006, released as `v0.1.0` (AD-9) on `48cf3cf`. `v0.2.0` ships
 `cli-invocation-contract` 0.2.0 (`CONTRACT_VERSION` `0.2.0`, `DATA_VERSION` `2`), adding the
 `itr` record's `ICON_RENDERER__TEMPLATES__DIR` env key (REQ-008) — see `CHANGELOG.md` and the
-GitHub Releases.
+GitHub Releases. The standalone AGS app contract (manifest, install list, program tuple,
+refresh result and `palette-refresh` protocol) is REQ-009; it is schema/protocol source only,
+with no runtime or app code in this repo.

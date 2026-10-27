@@ -1,0 +1,20 @@
+{
+  "runId": "20261026T190000Z-1",
+  "app": "wallpaper-selector",
+  "instance": "wallpaper-selector",
+  "configDir": "ags-wallpaper-selector",
+  "mode": "live",
+  "phase": "refresh",
+  "appearanceHash": "5d5dd1140d6e",
+  "status": "deferred",
+  "reason": "draft preview is open",
+  "startedAt": "2026-10-26T19:00:00Z",
+  "endedAt": "2026-10-26T19:00:00.050Z",
+  "durationMs": 50,
+  "argv": ["ags", "request", "palette-refresh", "5d5dd1140d6e", "-i", "wallpaper-selector"],
+  "exitCode": 0,
+  "response": { "ok": true, "deferred": "draft preview is open" },
+  "error": null,
+  "timeout": false,
+  "discoveryIndex": 4
+}

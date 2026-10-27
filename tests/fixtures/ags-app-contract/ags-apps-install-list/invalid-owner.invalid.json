@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "app": "clipboard",
+      "installDir": "clipboard",
+      "owner": "hybrid",
+      "instance": "clipboard",
+      "configDir": "ags-clipboard",
+      "configLink": "ags-clipboard",
+      "spineLink": "ags-clipboard",
+      "xdgLink": "ags-clipboard",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    }
+  ]
+}

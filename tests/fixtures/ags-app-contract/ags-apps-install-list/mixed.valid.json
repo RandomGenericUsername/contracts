@@ -1,0 +1,101 @@
+{
+  "apps": [
+    {
+      "app": "bar",
+      "installDir": "bar",
+      "owner": "legacy",
+      "instance": "ags",
+      "configDir": "ags",
+      "configLink": "ags",
+      "spineLink": "ags",
+      "xdgLink": "ags",
+      "autostart": "ags",
+      "launch": "always",
+      "barPalettePointer": true,
+      "cutoverId": "REQ-015"
+    },
+    {
+      "app": "notifications",
+      "installDir": "notifications",
+      "owner": "legacy",
+      "instance": "notifications",
+      "configDir": "ags-notifications",
+      "configLink": "ags-notifications",
+      "spineLink": "ags-notifications",
+      "xdgLink": "ags-notifications",
+      "launcher": "notifications",
+      "autostart": "notifications",
+      "launch": "on-demand",
+      "cutoverId": "REQ-012"
+    },
+    {
+      "app": "capture",
+      "installDir": "capture",
+      "owner": "legacy",
+      "instance": "capture",
+      "configDir": "ags-capture",
+      "configLink": "ags-capture",
+      "spineLink": "ags-capture",
+      "xdgLink": "ags-capture",
+      "launcher": "capture",
+      "launch": "on-demand",
+      "cutoverId": "REQ-011"
+    },
+    {
+      "app": "clipboard",
+      "installDir": "clipboard",
+      "owner": "standalone",
+      "repo": "https://github.com/RandomGenericUsername/ags-clipboard.git",
+      "tag": "v0.1.0",
+      "instance": "clipboard",
+      "configDir": "ags-clipboard",
+      "configLink": "ags-clipboard",
+      "spineLink": "ags-clipboard",
+      "xdgLink": "ags-clipboard",
+      "binLink": "clipboard-ui",
+      "launcher": "clipboard-ui",
+      "autostart": "clipboard",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    },
+    {
+      "app": "wallpaper-selector",
+      "installDir": "wallpaper-selector",
+      "owner": "legacy",
+      "instance": "wallpaper-selector",
+      "configDir": "ags-wallpaper-selector",
+      "configLink": "ags-wallpaper-selector",
+      "spineLink": "ags-wallpaper-selector",
+      "xdgLink": "ags-wallpaper-selector",
+      "launcher": "wallpaper-selector",
+      "launch": "on-demand",
+      "cutoverId": "REQ-013"
+    },
+    {
+      "app": "icme",
+      "installDir": "icme",
+      "owner": "legacy",
+      "instance": "icon-color-mapping-editor",
+      "configDir": "ags-icme",
+      "configLink": "ags-icme",
+      "spineLink": "ags-icme",
+      "xdgLink": "ags-icme",
+      "launcher": "icme",
+      "launch": "on-demand",
+      "cutoverId": "REQ-014"
+    },
+    {
+      "app": "btop-theme-studio",
+      "installDir": "btop-theme-studio",
+      "owner": "legacy",
+      "instance": "btop-theme-studio",
+      "configDir": "ags-btop-studio",
+      "configLink": "ags-btop-studio",
+      "spineLink": "ags-btop-studio",
+      "xdgLink": "ags-btop-studio",
+      "launcher": "btop-theme-studio",
+      "launch": "on-demand",
+      "cutoverId": "REQ-010"
+    }
+  ]
+}

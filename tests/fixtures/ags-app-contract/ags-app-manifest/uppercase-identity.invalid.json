@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "app": "Clipboard",
+  "instance": "clipboard",
+  "configDir": "ags-clipboard",
+  "mode": "live",
+  "holdsUnsavedState": false
+}

@@ -1,0 +1,21 @@
+{
+  "runId": "20261026T190000Z-1",
+  "app": "bar",
+  "instance": "ags",
+  "configDir": "ags",
+  "mode": "restart",
+  "phase": "restart",
+  "appearanceHash": "5d5dd1140d6e",
+  "status": "failed",
+  "reason": "old instance did not release io.Astal.ags",
+  "retryable": false,
+  "startedAt": "2026-10-26T19:00:00Z",
+  "endedAt": "2026-10-26T19:00:05Z",
+  "durationMs": 5000,
+  "argv": ["ags", "run"],
+  "exitCode": null,
+  "response": null,
+  "error": "quit timeout",
+  "timeout": true,
+  "discoveryIndex": 0
+}

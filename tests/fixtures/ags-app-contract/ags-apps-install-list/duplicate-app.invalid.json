@@ -1,0 +1,28 @@
+{
+  "apps": [
+    {
+      "app": "clipboard",
+      "installDir": "clipboard",
+      "owner": "legacy",
+      "instance": "clipboard",
+      "configDir": "ags-clipboard",
+      "configLink": "ags-clipboard",
+      "spineLink": "ags-clipboard",
+      "xdgLink": "ags-clipboard",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    },
+    {
+      "app": "clipboard",
+      "installDir": "clipboard-two",
+      "owner": "legacy",
+      "instance": "clipboard-two",
+      "configDir": "ags-clipboard-two",
+      "configLink": "ags-clipboard-two",
+      "spineLink": "ags-clipboard-two",
+      "xdgLink": "ags-clipboard-two",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    }
+  ]
+}

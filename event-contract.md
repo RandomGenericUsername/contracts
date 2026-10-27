@@ -123,7 +123,9 @@ route `Control` to the hub-allocated `job_id`.
 `wallpaper.state` is emitted by `dotfiles-runtime wallpaper set` on every
 transition (`applying` at set start, `visible` after the swap,
 `done`/`error` at finish) so the wallpaper selector can show progress
-and refresh its LIVE badge. It is publish-only — the synchronous set
+and update its LIVE badge. It is the **progress/UI event only**: it is
+not the palette-refresh trigger — the runtime invokes each running live
+app through the fixed `palette-refresh` request (AD-27). It is publish-only — the synchronous set
 registers no job lease. `wallpaper_hash` is empty when the input never
 validated. `visible` is additive: the new wallpaper is already on screen
 while palette/effects/icons theming is still in flight — consumers treat

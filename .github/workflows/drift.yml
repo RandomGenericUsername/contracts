@@ -22,3 +22,5 @@ jobs:
         run: make contracts-drift
       - name: Contract tests (coverage, determinism, negative gate tests)
         run: make test
+      - name: AGS app contract schemas (draft-07 + positive/negative fixtures)
+        run: make schema-test

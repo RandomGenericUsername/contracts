@@ -1,0 +1,16 @@
+{
+  "runId": "20261026T190000Z-1",
+  "app": "icme",
+  "instance": "icon-color-mapping-editor",
+  "configDir": "ags-icme",
+  "mode": "live",
+  "appearanceHash": "5d5dd1140d6e",
+  "status": "skipped",
+  "reason": "ledger already applied this appearance hash",
+  "startedAt": "2026-10-26T19:00:00Z",
+  "endedAt": "2026-10-26T19:00:00Z",
+  "durationMs": 0,
+  "error": null,
+  "timeout": false,
+  "discoveryIndex": 6
+}

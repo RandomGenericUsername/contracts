@@ -15,7 +15,10 @@ classifiers = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.0"]
+dev = [
+    "jsonschema>=4.23",
+    "pytest>=8.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cli_invocation_contract"]

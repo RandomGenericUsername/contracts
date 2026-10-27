@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "app": "clipboard",
+      "installDir": "../clipboard",
+      "owner": "standalone",
+      "repo": "https://github.com/RandomGenericUsername/ags-clipboard.git",
+      "tag": "v0.1.0",
+      "instance": "clipboard",
+      "configDir": "ags-clipboard",
+      "configLink": "ags-clipboard",
+      "spineLink": "ags-clipboard",
+      "xdgLink": "ags-clipboard",
+      "launch": "on-demand",
+      "cutoverId": "REQ-009"
+    }
+  ]
+}
