@@ -18,7 +18,7 @@
 
 ## Ops tasks
 
-(none)
+- [OPS-002-v030-release/ticket.md](./OPS-002-v030-release/ticket.md) — Release v0.3.0 for the AGS app contract | `in-progress` | links: none
 
 ## Spikes
 
