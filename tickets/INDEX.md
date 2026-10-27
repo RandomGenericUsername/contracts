@@ -18,7 +18,7 @@
 
 ## Ops tasks
 
-- [OPS-002-v030-release/ticket.md](./OPS-002-v030-release/ticket.md) — Release v0.3.0 for the AGS app contract | `in-progress` | links: none
+(none)
 
 ## Spikes
 
@@ -42,3 +42,4 @@
 - [REQ-008-itr-templates-dir-contract/ticket.md](./REQ-008-itr-templates-dir-contract/ticket.md) — Record the itr templates-dir env key in the invocation contract | `done` | openspec: itr-templates-dir-contract (archived 2026-10-21)
 - [OPS-001-strict-validation-spec-fixes/ticket.md](./OPS-001-strict-validation-spec-fixes/ticket.md) — Clear the three pre-existing strict-validation failures | `done` | links: none
 - [REQ-009-ags-app-contract/ticket.md](./REQ-009-ags-app-contract/ticket.md) — AGS app manifest, install-list, program-tuple and palette-refresh contracts | `done` | links: none
+- [OPS-002-v030-release/ticket.md](./OPS-002-v030-release/ticket.md) — Release v0.3.0 for the AGS app contract | `done` | links: none

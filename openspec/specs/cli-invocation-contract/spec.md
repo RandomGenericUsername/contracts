@@ -156,17 +156,18 @@ Source: `S1` §1.6 (`csg_adapter.py:127`, `itr_adapter.py:102`, `weg_adapter.py:
 
 ### Requirement: the loader is stdlib-only and version-strict
 
-`cli_invocation_contract` SHALL export `CONTRACT_VERSION = "0.2.0"` (release = tag without `v`),
+`cli_invocation_contract` SHALL export `CONTRACT_VERSION = "0.3.0"` (release = tag without `v`),
 `DATA_VERSION = 2`, `load(path=None)`, and `get(cli)`. `load()` returns `{cli: record}`; `get()`
 raises `UnknownCliError` (a `KeyError`) for an unknown CLI; a document whose `contract_version`
 differs from `DATA_VERSION` raises `ValueError`; an explicit path is honoured.
 
-Source: **AD-4** line 136; **AD-11**; `SLICES.md` lines 61–62, 85–92; REQ-008 (0.2.0).
+Source: **AD-4** line 136; **AD-11**; `SLICES.md` lines 61–62, 85–92; REQ-008 (data v2);
+v0.3.0 release (REQ-009).
 
 #### Scenario: release and data versions are distinct
 
 - **WHEN** `CONTRACT_VERSION` and `DATA_VERSION` are read
-- **THEN** `CONTRACT_VERSION` is `"0.2.0"`, `DATA_VERSION` is `2`, and the packaged
+- **THEN** `CONTRACT_VERSION` is `"0.3.0"`, `DATA_VERSION` is `2`, and the packaged
   `invocation-contract.json` declares `contract_version: 2`
 
 #### Scenario: unknown CLI is an error

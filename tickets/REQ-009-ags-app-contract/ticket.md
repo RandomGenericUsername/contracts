@@ -105,4 +105,5 @@ Commands run from the worktree root (`.worktrees/REQ-009/`, branch
 **Closed — done on `ticket/REQ-009-ags-app-contract`.** All four schemas, the
 `palette-refresh` protocol and the corrected `wallpaper.state` note are in the
 implementation commit; the fixture gate is green and CI runs it. No runtime, app
-or host code was changed, and the branch is neither merged nor pushed.
+or host code was changed. The work is merged to `main` and tagged `v0.3.0` by the
+OPS-002 release; the ticket branch itself was not pushed separately.

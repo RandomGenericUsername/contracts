@@ -3,17 +3,31 @@
 Notable changes to the `contracts` repo. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Release versions follow the git tags
 (AD-9/AD-11): for every release the tag, the `cli-invocation-contract` distribution version, and
-`CONTRACT_VERSION` are the same value (`v0.2.0` ↔ `0.2.0` ↔ `CONTRACT_VERSION = "0.2.0"`).
+`CONTRACT_VERSION` are the same value (`v0.3.0` ↔ `0.3.0` ↔ `CONTRACT_VERSION = "0.3.0"`).
 
 ## [Unreleased]
 
+(nothing yet)
+
+## [0.3.0] - 2026-10-26
+
+Feature release: the standalone AGS app contract (ticket
+[`REQ-009`](./tickets/REQ-009-ags-app-contract/ticket.md)) is now canonical source in this repo.
+The invocation contract data is unchanged, so `DATA_VERSION` stays `2`; the distribution and
+`CONTRACT_VERSION` move with the repo tag.
+
 ### Added
 
-- Standalone AGS app contract (REQ-009): draft-07 schemas for
-  `app.manifest.json`, the dotfiles-v3 app list, the program tuple and the
-  runtime per-app refresh result; the fixed `palette-refresh` request/response
-  protocol in `ags-app-refresh.md`; positive/negative fixtures and
-  `make schema-test`, wired into CI.
+- Draft-07 schemas for the standalone AGS app program: the per-app identity/mode manifest
+  (`schemas/ags-app-manifest.schema.json`, `app.manifest.json`), the dotfiles-v3 app list and
+  ownership source (`schemas/ags-apps-install-list.schema.json`), the per-install program tag
+  tuple (`schemas/program-tuple.schema.json`) and the runtime-owned per-app refresh result
+  (`schemas/ags-app-refresh-result.schema.json`).
+- The fixed `palette-refresh` request/response protocol in `ags-app-refresh.md`: the
+  appearance-hash argument, one JSON-encoded string response on stdout exactly once,
+  applied/deferred/failed semantics, the 5 s caller timeout, idempotency and
+  state-preservation requirements.
+- Positive/negative schema fixtures and `make schema-test`, wired into CI after `make test`.
 
 ### Changed
 
@@ -21,6 +35,15 @@ Notable changes to the `contracts` repo. Format follows
   palette-refresh trigger; the runtime invokes live apps through
   `palette-refresh` (AD-27).
 - Added the `jsonschema` dev dependency for the schema fixture gate.
+
+### Release
+
+- Annotated tag `v0.3.0` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- `cli-invocation-contract` bumped `0.2.0` → `0.3.0`: `CONTRACT_VERSION = "0.3.0"` (equal to the
+  `v0.3.0` tag without its `v`), `DATA_VERSION = 2` (invocation data shape unchanged). The AGS app
+  schemas and protocol are repo-root sources at the tag; they are not part of the
+  `cli-invocation-contract` distribution.
 
 ## [0.2.0] - 2026-10-21
 
