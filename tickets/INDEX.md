@@ -10,7 +10,7 @@
 
 ## Requirements
 
-- [REQ-009-ags-app-contract](./REQ-009-ags-app-contract/ticket.md) — AGS app manifest, install-list, program-tuple and palette-refresh contracts | `proposed` | links: none
+- [REQ-009-ags-app-contract](./REQ-009-ags-app-contract/ticket.md) — AGS app manifest, install-list, program-tuple and palette-refresh contracts | `in-progress` | links: none
 
 ## Bugs
 

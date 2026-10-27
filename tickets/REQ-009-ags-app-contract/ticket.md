@@ -2,13 +2,13 @@
 id: REQ-009
 title: "AGS app manifest, install-list, program-tuple and palette-refresh contracts"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-009/
+branch: ticket/REQ-009-ags-app-contract
 ---
 
 # AGS app manifest, install-list, program-tuple and palette-refresh contracts
