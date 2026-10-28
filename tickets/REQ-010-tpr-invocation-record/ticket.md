@@ -2,7 +2,7 @@
 id: REQ-010
 title: "Record the tpr invocation contract"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: tpr-invocation-record

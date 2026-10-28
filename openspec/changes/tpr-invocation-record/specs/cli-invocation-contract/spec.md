@@ -35,8 +35,6 @@ Source: `theme-producer` `src/theme_producer/cli/generate_cmd.py`,
 - **WHEN** a `tpr` invocation omits `THEME__OUTPUT__DIRECTORY` or writes only seven artifacts
 - **THEN** `assert_consumer_invocation` / `assert_cli_writes_artifacts` raise `AssertionError`
 
-## MODIFIED Requirements
-
 ### Requirement: the contract data pins all four CLIs
 
 `invocation-contract.json` SHALL declare `contract_version: 2` and one record per CLI (`csg`,
@@ -54,3 +52,7 @@ Source: spine AD-4; this change adds `tpr` (REQ-010). The data shape is unchange
 
 - **WHEN** the packaged `invocation-contract.json` is parsed
 - **THEN** its top-level `contract_version` is `2`
+
+## REMOVED Requirements
+
+### Requirement: the contract data pins all three CLIs
