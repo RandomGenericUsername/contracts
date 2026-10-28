@@ -3,11 +3,41 @@
 Notable changes to the `contracts` repo. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Release versions follow the git tags
 (AD-9/AD-11): for every release the tag, the `cli-invocation-contract` distribution version, and
-`CONTRACT_VERSION` are the same value (`v0.3.0` ↔ `0.3.0` ↔ `CONTRACT_VERSION = "0.3.0"`).
+`CONTRACT_VERSION` are the same value (`v0.4.0` ↔ `0.4.0` ↔ `CONTRACT_VERSION = "0.4.0"`).
 
 ## [Unreleased]
 
 (nothing yet)
+
+## [0.4.0] - 2026-10-28
+
+Minor release: the `tpr` (theme producer) record joins the invocation contract (ticket
+[`REQ-010`](./tickets/REQ-010-tpr-invocation-record/ticket.md), OpenSpec change
+`tpr-invocation-record`).
+
+### Added
+
+- `clis.tpr` in `invocation-contract.json`: `binary: "tpr"`, the `generate {wallpaper}` argv with
+  the eight `--format` values (`yaml`, `conf`, `gtk.css`, `adw.css`, `sequences`, `rasi`, `kitty`,
+  `btop.theme`), `THEME__OUTPUT__DIRECTORY` / `THEME__OUTPUT__OVERWRITE` as required and injected
+  env keys, the eight exact consumer artifacts (`colors.*`, `min_count: 8`, not recursive), the
+  standard exit-code semantics and a 60 s timeout. `CONTRACT.md` documents the fourth record and
+  the `theme.json` exclusion.
+
+### Changed
+
+- `cli-invocation-contract` bumped `0.3.0` → `0.4.0`: `CONTRACT_VERSION = "0.4.0"` (equal to the
+  `v0.4.0` tag without its `v`), `DATA_VERSION = 2` (the record shape is unchanged and
+  `invocation-contract.json` still declares `contract_version: 2`).
+- `csg`, `weg` and `itr` are byte-identical; the testkit is unchanged (its two assertions already
+  enforce the new record).
+
+### Release
+
+- Annotated tag `v0.4.0` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- Consumers re-pin this exact tag in the adoption slice; `tpr` is invoked through the same
+  conformance kit as `csg`/`weg`/`itr`.
 
 ## [0.3.0] - 2026-10-26
 

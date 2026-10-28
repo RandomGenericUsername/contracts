@@ -10,7 +10,16 @@ from cli_invocation_contract.testkit import (
     assert_consumer_invocation,
 )
 
-from test_testkit_positive import CSG_FILENAMES, csg_argv, csg_env, write_csg_artifacts
+from test_testkit_positive import (
+    CSG_FILENAMES,
+    TPR_FILENAMES,
+    csg_argv,
+    csg_env,
+    tpr_argv,
+    tpr_env,
+    write_csg_artifacts,
+    write_tpr_artifacts,
+)
 
 
 def test_extra_argv_token_is_rejected() -> None:
@@ -45,6 +54,22 @@ def test_missing_itr_templates_dir_env_key_is_rejected() -> None:
     }
     with pytest.raises(AssertionError, match="ICON_RENDERER__TEMPLATES__DIR"):
         assert_consumer_invocation(get("itr"), "itr", ["itr", "render"], env)
+
+
+def test_missing_tpr_output_directory_env_key_is_rejected() -> None:
+    # REQ-010: tpr is driven only through THEME__OUTPUT__* env overrides.
+    env = tpr_env()
+    del env["THEME__OUTPUT__DIRECTORY"]
+    with pytest.raises(AssertionError, match="THEME__OUTPUT__DIRECTORY"):
+        assert_consumer_invocation(get("tpr"), "tpr", tpr_argv(), env)
+
+
+def test_seven_file_tpr_run_is_rejected(tmp_path) -> None:
+    incomplete = [name for name in TPR_FILENAMES if name != "colors.btop.theme"]
+    with pytest.raises(AssertionError, match="colors.btop.theme"):
+        assert_cli_writes_artifacts(
+            get("tpr"), "tpr", write_tpr_artifacts(tmp_path, incomplete), tmp_path
+        )
 
 
 def test_wrong_literal_override_is_rejected() -> None:

@@ -137,6 +137,64 @@
         "success_requires_artifacts": true
       },
       "timeout": 60
+    },
+    "tpr": {
+      "binary": "tpr",
+      "argv": [
+        "generate",
+        "{wallpaper}",
+        "--format",
+        "yaml",
+        "--format",
+        "conf",
+        "--format",
+        "gtk.css",
+        "--format",
+        "adw.css",
+        "--format",
+        "sequences",
+        "--format",
+        "rasi",
+        "--format",
+        "kitty",
+        "--format",
+        "btop.theme"
+      ],
+      "placeholders": {
+        "{wallpaper}": "path to the input wallpaper file, supplied as a plain positional argument"
+      },
+      "env": {
+        "required": [
+          "THEME__OUTPUT__DIRECTORY",
+          "THEME__OUTPUT__OVERWRITE"
+        ],
+        "injected": {
+          "THEME__OUTPUT__DIRECTORY": "{output_dir}",
+          "THEME__OUTPUT__OVERWRITE": "true"
+        }
+      },
+      "artifacts": {
+        "match": "exact_filename",
+        "recursive": false,
+        "filenames": [
+          "colors.yaml",
+          "colors.conf",
+          "colors.gtk.css",
+          "colors.adw.css",
+          "colors.sequences",
+          "colors.rasi",
+          "colors.kitty",
+          "colors.btop.theme"
+        ],
+        "suffixes": [],
+        "min_count": 8
+      },
+      "exit_codes": {
+        "success": 0,
+        "nonzero_is_failure": true,
+        "success_requires_artifacts": true
+      },
+      "timeout": 60
     }
   }
 }
