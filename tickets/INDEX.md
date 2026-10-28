@@ -10,7 +10,7 @@
 
 ## Requirements
 
-(none)
+- [REQ-010-tpr-invocation-record/ticket.md](./REQ-010-tpr-invocation-record/ticket.md) — Record the tpr invocation contract | `in-progress` | openspec: tpr-invocation-record
 
 ## Bugs
 
