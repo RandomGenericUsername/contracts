@@ -1,14 +1,16 @@
 # The CLI invocation contract
 
 `invocation-contract.json` is the single source for how the Python runtime invokes `csg`, `weg`,
-and `itr`. It is versioned data (`contract_version`) shipped by the `cli-invocation-contract`
-distribution; the conformance kit is `cli_invocation_contract.testkit`.
+`itr`, and `tpr`. It is versioned data (`contract_version`) shipped by the
+`cli-invocation-contract` distribution; the conformance kit is
+`cli_invocation_contract.testkit`.
 
-**Source of truth.** Every literal below is transcribed from the investigation report
-`S1-runtime-cli-addressing.md` (in the `dotfiles-v3` `clirsplit` worktree, under
-`docs/investigation/`). The report records the adapters' code, a recording probe of the exact
-argv/env/cwd/stdin of all three calls, and the artifact checks. This file does not re-derive
-anything; it cites the S1 section for each field.
+**Source of truth.** The `csg`, `weg` and `itr` literals below are transcribed from the
+investigation report `S1-runtime-cli-addressing.md` (in the `dotfiles-v3` `clirsplit` worktree,
+under `docs/investigation/`). The report records the adapters' code, a recording probe of the exact
+argv/env/cwd/stdin of those three calls, and the artifact checks. The `tpr` record (REQ-010) is
+transcribed from the `theme-producer` sources cited in its section. This file does not re-derive
+anything; it cites the section or source for each field.
 
 Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from that worktree):
 `sed -n '20,34p;118,271p;314,329p' docs/investigation/S1-runtime-cli-addressing.md`.
@@ -17,19 +19,20 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.3.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.4.0"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
 - `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
-The `0.3.0` release adds the standalone AGS app contract (`schemas/` + `ags-app-refresh.md`)
-without changing `invocation-contract.json`; the release version moves with the repo tag while
-`DATA_VERSION` stays `2`.
+The `0.3.0` release added the standalone AGS app contract (`schemas/` + `ags-app-refresh.md`)
+without changing `invocation-contract.json`. The `0.4.0` release adds the `tpr` record: an
+additive data change with the record shape unchanged, so `DATA_VERSION` stays `2` while the
+release version moves with the repo tag.
 
 | Field | Meaning |
 |---|---|
 | `contract_version` | Integer version of the data shape. `cli_invocation_contract.DATA_VERSION` must equal it, or `load()` raises `ValueError`. Bumped with every data change, in a new `contracts` tag. |
 | `timeout_unit` | Unit for every record's `timeout`: seconds. |
-| `clis` | Mapping `cli name` → record. Exactly `csg`, `weg`, `itr` today. |
+| `clis` | Mapping `cli name` → record. Exactly `csg`, `weg`, `itr`, `tpr` today. |
 
 ### Versioning rule
 
@@ -47,7 +50,7 @@ Evidence: `invocation-contract.json` `contract_version` and
 `src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
 comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
-→ `0.3.0 2`.
+→ `0.4.0 2`.
 
 ## Per-CLI record
 
@@ -66,9 +69,9 @@ comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 | `exit_codes.success` | `0`. | §2.2 |
 | `exit_codes.nonzero_is_failure` | `true`: any non-zero exit is a failed invocation; the runtime raises with the exit code and truncated stderr/stdout. A negative code is a signal. | §2.4 |
 | `exit_codes.success_requires_artifacts` | `true`: exit 0 alone is not success — the artifacts must exist, or the invocation is fatal. | §2.2 |
-| `timeout` | Default wall-clock budget in seconds. `csg` 60, `weg` 600, `itr` 60. | §1.6 |
+| `timeout` | Default wall-clock budget in seconds. `csg` 60, `weg` 600, `itr` 60, `tpr` 60. | §1.6 |
 
-## The three records
+## The four records
 
 ### `csg` — color scheme generation
 
@@ -132,6 +135,41 @@ Evidence: `S1` §1.3 (`itr_adapter.py:410-419`; real `itr render` exit 2), §1.5
 `sed -n '154,193p;226,240p;314,329p;259,270p' docs/investigation/S1-runtime-cli-addressing.md`
 and, in `dotfiles-v3`, `grep -n "ICON_RENDERER__TEMPLATES__DIR"
 src/runtime/src/runtime/adapters/itr_adapter.py` → no output (the gap this key closes).
+
+### `tpr` — theme producer
+
+```
+tpr generate <wallpaper> --format yaml --format conf --format gtk.css --format adw.css \
+    --format sequences --format rasi --format kitty --format btop.theme
+```
+
+- The wallpaper is a plain positional argument; no `-o`/`--output`, output redirection is
+  exclusively `THEME__OUTPUT__DIRECTORY=<output_dir>` with `THEME__OUTPUT__OVERWRITE="true"`.
+  `tpr` resolves settings through `ResolutionPolicy(env_prefix="THEME")` and ranks env above
+  `settings.toml` for `output.directory` and `output.overwrite`, so the two keys are required
+  and injected.
+- Required artifacts, exact names: `colors.yaml`, `colors.conf`, `colors.gtk.css`,
+  `colors.adw.css`, `colors.sequences`, `colors.rasi`, `colors.kitty`, `colors.btop.theme`.
+  `recursive` is `false` and `min_count` is `8`.
+- `tpr generate` also writes the canonical `theme.json`; it is **not** part of this record. The
+  record names only the eight files the runtime palette-entry cache accepts, so an unrecorded
+  ninth file cannot make the cache reject the entry. The adoption adapter copies only the eight.
+- Timeout 60 s (local-first, like `csg`/`itr`; container runs use the adapter's own timeout).
+- The runtime's env allowlist currently forwards `COLORSCHEME__`, `WALLPAPER__`,
+  `ICON_RENDERER__` and `XDG_` (`dotfiles-runtime` `src/runtime/adapters/env.py:47-52`).
+  Forwarding `THEME__` belongs to the adoption slice, together with the tag re-pin; this contract
+  only records the keys the invocation needs.
+
+Evidence: `theme-producer` `src/theme_producer/cli/generate_cmd.py:25-37` (positional `image`,
+repeatable `--format`), `src/theme_producer/adapters/projections/registry.py:71-116,149-160`
+(the eight filenames and the consumer-facing format names),
+`src/theme_producer/adapters/settings/config_resolver.py:121-125`
+(`ResolutionPolicy(env_prefix="THEME")` plus the `output.directory`/`output.overwrite`
+`OverrideRule`s), and `tests/integration/test_cli_local.py:19-64` (`test_local_generate_writes_theme_json_and_all_eight_projections`:
+`theme.json` plus the eight projections). The `theme.json` exclusion is recorded in REQ-010 as a
+non-goal. Verify (in `theme-producer`):
+`sed -n '25,37p' src/theme_producer/cli/generate_cmd.py` and
+`sed -n '71,116p;149,160p' src/theme_producer/adapters/projections/registry.py`.
 
 ## The child environment
 

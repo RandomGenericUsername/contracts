@@ -19,11 +19,11 @@ consumed by:
 - the Python runtime (`dotfiles-v3` / `src/runtime`), and
 - `ags-platform` (the event-contract client).
 
-The invocation contract is the single source of truth for how the runtime invokes the three
-installed consoles (`csg`, `weg`, `itr`): argv template, required env keys and injected
+The invocation contract is the single source of truth for how the runtime invokes the four
+installed consoles (`csg`, `weg`, `itr`, `tpr`): argv template, required env keys and injected
 overrides, required artifacts, exit-code semantics, default timeout. It is **versioned**, and the
-Python runtime plus **all three CLIs** pin the **same `contracts` tag** — not merely a compatible
-range — so one record and one conformance kit serve four consumers. A contract change is a new
+Python runtime plus **all four CLIs** pin the **same `contracts` tag** — not merely a compatible
+range — so one record and one conformance kit serve five consumers. A contract change is a new
 tag that every consumer re-pins; literals are not duplicated in consumer tests.
 
 ## Contract files
@@ -75,3 +75,9 @@ program-tuple and refresh-result schemas plus the fixed `palette-refresh` protoc
 `cli-invocation-contract` to 0.3.0 (`CONTRACT_VERSION` `0.3.0`, `DATA_VERSION` `2`, invocation
 data unchanged). It is schema/protocol source only, with no runtime or app code in this repo —
 see `CHANGELOG.md` and the releases.
+
+`v0.4.0` (`cli-invocation-contract` 0.4.0) adds the `tpr` theme-producer record (REQ-010):
+`tpr generate {wallpaper}` with the eight `--format` values, the `THEME__OUTPUT__*` env overrides,
+the eight exact consumer artifacts and a 60 s timeout. `DATA_VERSION` stays `2` and the `csg`,
+`weg` and `itr` records are unchanged. `theme.json` is deliberately not part of the record — see
+`CONTRACT.md` and `CHANGELOG.md`.

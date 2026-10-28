@@ -18,14 +18,14 @@ def _write(tmp_path: Path, document: object) -> Path:
 
 def test_default_load_returns_all_records() -> None:
     records = load()
-    assert sorted(records) == ["csg", "itr", "weg"]
+    assert sorted(records) == ["csg", "itr", "tpr", "weg"]
     assert all(isinstance(record, dict) for record in records.values())
 
 
 def test_explicit_path_is_honoured(tmp_path: Path) -> None:
     path = _write(tmp_path, {"contract_version": DATA_VERSION, "clis": load()})
     records = load(path)
-    assert sorted(records) == ["csg", "itr", "weg"]
+    assert sorted(records) == ["csg", "itr", "tpr", "weg"]
     assert records["csg"]["binary"] == "csg"
 
 
@@ -33,6 +33,7 @@ def test_get_returns_one_record() -> None:
     assert get("csg")["binary"] == "csg"
     assert get("weg")["binary"] == "weg"
     assert get("itr")["binary"] == "itr"
+    assert get("tpr")["binary"] == "tpr"
 
 
 def test_unknown_cli_raises_unknown_cli_error() -> None:
@@ -41,6 +42,7 @@ def test_unknown_cli_raises_unknown_cli_error() -> None:
     assert isinstance(caught.value, KeyError)
     assert "nope" in str(caught.value)
     assert "csg" in str(caught.value)
+    assert "tpr" in str(caught.value)
 
 
 def test_version_mismatch_raises_value_error(tmp_path: Path) -> None:

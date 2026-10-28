@@ -13,6 +13,7 @@ from cli_invocation_contract.testkit import (
 
 WALLPAPER = "/w/wallpaper.png"
 CSG_FILENAMES = get("csg")["artifacts"]["filenames"]
+TPR_FILENAMES = get("tpr")["artifacts"]["filenames"]
 
 
 def csg_argv(executable: str = "csg") -> list[str]:
@@ -31,6 +32,28 @@ def csg_env(output_dir: str = "/work/pal") -> dict[str, str]:
 def write_csg_artifacts(root: Path, names: list[str] | None = None):
     def run() -> int:
         for name in names if names is not None else CSG_FILENAMES:
+            (root / name).write_text("artifact", encoding="utf-8")
+        return 0
+
+    return run
+
+
+def tpr_argv(executable: str = "tpr") -> list[str]:
+    return [executable, "generate", WALLPAPER, *get("tpr")["argv"][2:]]
+
+
+def tpr_env(output_dir: str = "/work/theme") -> dict[str, str]:
+    return {
+        "THEME__OUTPUT__DIRECTORY": output_dir,
+        "THEME__OUTPUT__OVERWRITE": "true",
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/test",
+    }
+
+
+def write_tpr_artifacts(root: Path, names: list[str] | None = None):
+    def run() -> int:
+        for name in names if names is not None else TPR_FILENAMES:
             (root / name).write_text("artifact", encoding="utf-8")
         return 0
 
@@ -61,6 +84,18 @@ def test_itr_optional_mappings_file_may_be_omitted_or_present() -> None:
     assert_consumer_invocation(
         get("itr"), "itr", ["itr", "render", "/spine/icon-mappings/icons.yaml"], env
     )
+
+
+def test_tpr_recorded_invocation_is_accepted() -> None:
+    assert_consumer_invocation(get("tpr"), "tpr", tpr_argv(), tpr_env())
+
+
+def test_fake_tpr_writes_all_eight_artifacts(tmp_path: Path) -> None:
+    found = assert_cli_writes_artifacts(
+        get("tpr"), "tpr", write_tpr_artifacts(tmp_path), tmp_path
+    )
+    assert [path.name for path in found] == sorted(TPR_FILENAMES)
+    assert len(found) == 8
 
 
 def test_fake_csg_writes_all_exact_artifacts(tmp_path: Path) -> None:
