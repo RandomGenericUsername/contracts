@@ -10,7 +10,7 @@
 
 ## Requirements
 
-- [REQ-010-tpr-invocation-record/ticket.md](./REQ-010-tpr-invocation-record/ticket.md) — Record the tpr invocation contract | `in-progress` | openspec: tpr-invocation-record
+- [REQ-010-tpr-invocation-record/ticket.md](./REQ-010-tpr-invocation-record/ticket.md) — Record the tpr invocation contract | `done` | openspec: tpr-invocation-record | tag: v0.4.0
 
 ## Bugs
 
@@ -18,7 +18,7 @@
 
 ## Ops tasks
 
-(none)
+- [OPS-003-index-status-sync](./OPS-003-index-status-sync/ticket.md) — Sync REQ-010 INDEX status and acceptance with the shipped v0.4.0 tag | `done` | worktree: .worktrees/OPS-003/ | branch: ticket/OPS-003-index-status-sync
 
 ## Spikes
 

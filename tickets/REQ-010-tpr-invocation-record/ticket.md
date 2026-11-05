@@ -35,16 +35,18 @@ contract doc.
 
 ## Acceptance
 
-- [ ] `invocation-contract.json` has a `tpr` record matching the values above; the other records are
+- [x] `invocation-contract.json` has a `tpr` record matching the values above; the other records are
   byte-identical.
-- [ ] `CONTRACT_VERSION = "0.4.0"`, `DATA_VERSION = 2`, `pyproject.toml` version `0.4.0`.
-- [ ] `tests/test_record.py`, `test_loader.py`, `test_testkit_positive.py`,
+- [x] `CONTRACT_VERSION = "0.4.0"`, `DATA_VERSION = 2`, `pyproject.toml` version `0.4.0`.
+- [x] `tests/test_record.py`, `test_loader.py`, `test_testkit_positive.py`,
   `test_testkit_negative.py` cover `tpr` (record fields, env, artifacts, argv, drift rejection).
-- [ ] `CONTRACT.md` documents the fourth record and the 60 s timeout.
-- [ ] `CHANGELOG.md` has a `0.4.0` entry citing this ticket; `README.md` status names `v0.4.0`.
-- [ ] `make test`, `make check-symmetry`, `uv build` and
-  `openspec validate --strict tpr-invocation-record` exit 0.
-- [ ] Annotated tag `v0.4.0` after the merge (orchestrator).
+- [x] `CONTRACT.md` documents the fourth record and the 60 s timeout.
+- [x] `CHANGELOG.md` has a `0.4.0` entry citing this ticket; `README.md` status names `v0.4.0`.
+- [x] `make test`, `make check-symmetry`, `uv build` exit 0 (re-run 2026-11-05);
+  the change is archived at `openspec/changes/archive/2026-10-28-tpr-invocation-record`,
+  so the named strict validate is no longer an active-change command;
+  `openspec validate --all` is green (10 passed).
+- [x] Annotated tag `v0.4.0` after the merge (orchestrator).
 
 ## Evidence
 
