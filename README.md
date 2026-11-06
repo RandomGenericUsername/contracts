@@ -14,10 +14,17 @@ Canonical contract sources for the AGS platform, one repo.
    `dotfiles-provision`, `dotfiles-runtime`, `ags-platform`, and every app repo.
 4. **Appearance plane v2** — `appearance.md` plus
    `schemas/appearance-manifest.schema.json`, `schemas/appearance-json.schema.json`
-   and `schemas/appearance-artifact.schema.json`. One generated
-   `cache/appearance/<hash>/` entry, one repointed `current/appearance` hop, and
-   the nested surface/state/type/ink/layout/mode token model. v2 supersedes the
-   frozen v1 skin-plane artifacts; there is no v1.1 hotfix.
+   and `schemas/appearance-artifact.schema.json`. The nested
+   surface/state/type/ink/layout/mode token model and the composed-sheet rules.
+   v2 supersedes the frozen v1 skin-plane artifacts; there is no v1.1 hotfix.
+5. **Generations v3** — `generations.md` plus
+   `schemas/generation-manifest.schema.json`,
+   `appearance-refresh.md` and
+   `schemas/appearance-refresh-result.schema.json`. One immutable
+   `state/generations/<genHash>/` unit, one atomic `state/current` pointer, one
+   `converge(intent)` pipeline (daemon queue or CLI `flock` fallback), and a
+   generation-bound `appearance-refresh` apply/ack. The v2 appearance token
+   vocabulary and skins are unchanged.
 
 The event contract is the single source of truth for the runtime ↔ AGS event seam. It is
 consumed by:
@@ -46,11 +53,27 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 - `schemas/program-tuple.schema.json` — the one `ags-platform` / `contracts` /
   `dotfiles-assets` tag tuple per install.
 - `schemas/ags-app-refresh-result.schema.json` — the runtime-owned per-app
-  refresh result/log record.
-- `appearance.md` — the Appearance plane v2 contract (generation, the single
-  `current/appearance` hop, the nested v2 token model, mode resolution,
-  template flattening, one-provider composition, the `palette-refresh`
-  whole-appearance handler, systemd user units, drift gates, built-in skins).
+  refresh result/log record (v2 provenance; the v3 ack is
+  `schemas/appearance-refresh-result.schema.json`).
+- `generations.md` — the frozen Generations v3 interface: the
+  `state/generations/<genHash>/` layout, the manifest, the single atomic
+  `state/current` commit and crash matrix, consumer read/watch rules, artifact
+  locality/immutability, lane policy, mode identity, GC/pins, no-polling rules
+  and the refresh protocol.
+- `schemas/generation-manifest.schema.json` — the v3 generation manifest
+  (`version: 3`, generation hash, created/committed metadata, layer entry
+  hashes + relative paths, skin, appearance targets, mode and intent/source).
+- `appearance-refresh.md` — the generation-bound
+  `["appearance-refresh", "<genHash>"]` request and the
+  applied/deferred/failed response union; a response hash must equal the
+  request.
+- `schemas/appearance-refresh-result.schema.json` — the v3 refresh response
+  union (`applied`, `deferred`, `failed`) with a required generation hash.
+- `appearance.md` — the Appearance plane v2 token/composition contract (nested
+  v2 token model, mode resolution, template flattening, one-provider
+  composition, systemd user units, drift gates, built-in skins). Its pointer
+  and `palette-refresh` mechanics are superseded by `generations.md` and
+  `appearance-refresh.md`; the token vocabulary and skins are unchanged.
 - `schemas/appearance-manifest.schema.json` — the v2 authored manifest
   (`schemaVersion: 2`, nested surface/state/type/ink/layout groups, optional
   same-shape `mode.dark`/`mode.light` overrides, structure/variant forbidden).
@@ -64,7 +87,8 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   `schemas/skin-json.schema.json`, `skins.md` — the frozen v1 skin-plane
   contract. Superseded by the Appearance plane v2; retained as the historical
   source for the existing v1 fixtures and gates.
-- `ags-app-refresh.md` — the fixed `palette-refresh` request/response protocol.
+- `ags-app-refresh.md` — the v2 `palette-refresh` request/response protocol,
+  retained for provenance and superseded by `appearance-refresh.md`.
 
 ## The `cli-invocation-contract` package
 
@@ -77,7 +101,9 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   fake CLI (never a real binary).
 - `Makefile` — `make sync` (uv), `make test` (event-contract unittest + schema fixtures +
   pytest), `make schema-test` (AGS app contract fixtures), `make skin-test` (skin-plane
-  fixtures), `make appearance-test` (appearance-plane v2 fixtures), `make build` (sdist + wheel).
+  fixtures), `make appearance-test` (appearance-plane v2 fixtures),
+  `make generations-test` (Generations v3 manifest + refresh-result fixtures),
+  `make build` (sdist + wheel).
   The wheel carries `invocation-contract.json` as package data, so `load()` works from an
   installed tag.
 
@@ -136,3 +162,12 @@ overrides, and three new schemas plus `appearance.md`. The existing `palette-ref
 must now re-apply the whole appearance, and AGS apps run as systemd user units. v1 skin artifacts
 are retired; there is no v1.1 hotfix. `DATA_VERSION` stays `2` and the invocation records are
 byte-identical.
+
+`v0.8.0` (`cli-invocation-contract` 0.8.0) is the Generations v3 major (REQ-016): one immutable
+`state/generations/<genHash>/` unit with a last-written `manifest.json`, one atomic
+`state/current -> generations/<genHash>` pointer, one `converge(intent)` pipeline serialized by the
+daemon job queue or the CLI `flock` fallback, and the generation-bound
+`["appearance-refresh", "<genHash>"]` protocol with applied/deferred/failed responses. Runtime
+writes stay under `state/`; consumers read through `current/` and pass events, not sleeps. The v2
+appearance token vocabulary and built-in skins are unchanged. `DATA_VERSION` stays `2` and the
+invocation records are byte-identical.

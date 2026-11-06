@@ -9,6 +9,78 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.8.0] - 2026-11-06
+
+Major release: Generations v3 (ticket
+[`REQ-016`](./tickets/REQ-016-generations-v3/ticket.md)). One committed
+generation, one convergence pipeline and a generation-bound apply/ack replace
+the v2 multi-pointer and two-pipeline mechanics. This is a new major; the v2
+appearance token vocabulary, composed-sheet rules and built-in skins are
+unchanged.
+
+### Added
+
+- `generations.md` — the normative Generations v3 interface: the immutable
+  `state/generations/<genHash>/` layout (`manifest.json`, `palette/`,
+  `appearance/<configDir>.css` + `tokens.json`, `icons/`, `effects/`,
+  wallpaper and in-generation compatibility aliases), the one atomic
+  `state/current` commit transaction and crash matrix, consumer read/watch
+  rules, artifact locality/immutability, the explicit `refresh`/`supervision`/
+  `launch` lane policy, mode identity, the GC/pin contract, event-driven
+  no-polling rules and the refresh protocol.
+- `schemas/generation-manifest.schema.json` — draft-07, `version: 3`,
+  `generationHash` (64 lowercase hex), created/committed metadata, required
+  `wallpaper`/`palette` layers plus optional `effects`/`icons`, each with an
+  entry hash and a generation-local relative path; `skin {name, entryHash,
+  mode}`, `appearance {tokensPath, targets[]}`, `mode`, `intent` and `source`
+  metadata. `additionalProperties: false` at every level; structure/variant
+  keys, literal hex and paths that escape the generation are rejected.
+- Positive `glass-dark`/`paper-light` generation manifests and negative
+  fixtures for a stale layer path, an unknown layer, a wrong hash, a missing
+  mode, extra keys, structure/variant and literal hex.
+- `appearance-refresh.md` — the generation-bound
+  `["appearance-refresh", "<genHash>"]` request, the
+  applied/deferred/failed response union, the response-hash-equals-request rule,
+  the resolve-the-requested-generation rule, state preservation and the ledger
+  policy. A v3 app never acks "whatever `current` is", and the v2
+  `{"ok":true}` ack is invalid.
+- `schemas/appearance-refresh-result.schema.json` — draft-07 response union:
+  `{applied: genHash}` | `{deferred: reason, genHash}` |
+  `{failed: reason, retryable, genHash}` with a required 64-hex generation and
+  no extra keys.
+- Positive/negative refresh-result fixtures, including the rejected v2 boolean
+  ack.
+- `tests/test_generations_contract.py` and `make generations-test`: manifest and
+  response schema gates, identity consistency checks, response/ack mismatch
+  rejection for every variant, and documentation/protocol pins.
+
+### Changed
+
+- `ags-app-refresh.md` is retained for provenance and marked **superseded** by
+  `appearance-refresh.md`; its `palette-refresh` request and `{"ok":true}` ack
+  are not valid v3 acks.
+- `appearance.md` keeps the v2 token vocabulary, mode resolution, template
+  flattening, one-provider composition and built-in skins; a v3 note points its
+  pointer/refresh mechanics at `generations.md` and `appearance-refresh.md`.
+- `README.md` lists the v3 generation interface, schema and refresh protocol,
+  and the `make generations-test` gate.
+- `cli-invocation-contract` bumped `0.7.0` → `0.8.0`: `CONTRACT_VERSION =
+  "0.8.0"`, `DATA_VERSION = 2` unchanged. `invocation-contract.json` and the
+  `csg`/`weg`/`itr`/`tpr` records are byte-identical.
+
+### Removed
+
+- Nothing at the artifact level in this repo. The v3 contract retires the v2
+  multi-pointer read path and the boolean ack for v3 consumers; the runtime,
+  platform, provisioning and app implementations adopt the tag in their own
+  waves.
+
+### Release
+
+- Annotated tag `v0.8.0` on the merged release commit; the wheel + sdist are
+  built from that commit, not from a working tree. No runtime, platform, assets,
+  provisioning or app code was changed in this repo.
+
 ## [0.7.0] - 2026-11-06
 
 Major release: the Appearance plane v2 (ticket

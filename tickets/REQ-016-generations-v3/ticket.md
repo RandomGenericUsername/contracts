@@ -2,7 +2,7 @@
 id: REQ-016
 title: "Generations v3: one committed generation, one convergence pipeline, generation-bound apply/ack"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -77,29 +77,29 @@ runtime, platform, assets, provisioning or app code.
 
 ## Acceptance
 
-- [ ] `generations.md` freezes the generation layout, manifest fields, single
+- [x] `generations.md` freezes the generation layout, manifest fields, single
   pointer commit and crash matrix, consumer read/watch rules, artifact
   locality/immutability, lane policy, mode identity, GC/pin contract,
   no-polling rules and refresh protocol.
-- [ ] `schemas/generation-manifest.schema.json` is draft-07, self-named,
+- [x] `schemas/generation-manifest.schema.json` is draft-07, self-named,
   frozen, `version: 3`, requires every manifest field and rejects stale/unknown
   layers, wrong hashes, missing mode, extra keys, structure/variant and
   literal hex.
-- [ ] Positive/negative generation-manifest fixtures exist and pass/fail as
+- [x] Positive/negative generation-manifest fixtures exist and pass/fail as
   named by the tests.
-- [ ] `appearance-refresh.md` freezes the `["appearance-refresh", "<genHash>"]`
+- [x] `appearance-refresh.md` freezes the `["appearance-refresh", "<genHash>"]`
   request and the three response variants, requires the response hash to equal
   the request, and pins the "resolve the requested generation" rule.
-- [ ] `schemas/appearance-refresh-result.schema.json` is draft-07, self-named,
+- [x] `schemas/appearance-refresh-result.schema.json` is draft-07, self-named,
   frozen, accepts exactly the three v3 variants and rejects the old boolean
   `{"ok":true}` ack.
-- [ ] Tests reject a response/ack whose hash differs from the request and pin
+- [x] Tests reject a response/ack whose hash differs from the request and pin
   the protocol and documentation statements.
-- [ ] `ags-app-refresh.md` remains for provenance and is marked superseded by
+- [x] `ags-app-refresh.md` remains for provenance and is marked superseded by
   the v3 protocol; the v2 appearance token vocabulary and skins are unchanged.
-- [ ] `make test`, `make skin-test`, `make appearance-test` and
+- [x] `make test`, `make skin-test`, `make appearance-test` and
   `make schema-test` exit 0.
-- [ ] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`,
+- [x] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`,
   `pyproject.toml`, `src/cli_invocation_contract/__init__.py`, `uv.lock` and
   the version test agree on `0.8.0`; annotated tag `v0.8.0` points at the merged
   release commit and no existing tag moved.
@@ -118,6 +118,47 @@ runtime, platform, assets, provisioning or app code.
   live `state/current` listing.
 - Boolean ack without a generation: `contracts/ags-app-refresh.md:64-78`
   (frozen v2 table) and the RFC §1.3 evidence.
+
+## Verification
+
+Commands run from the worktree root (`.worktrees/REQ-016/`, branch
+`ticket/REQ-016-generations-v3`, base `4c0c536`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| Full repo gate | `make test` | `Ran 10 tests ... OK`; `372 passed in 1.47s`, exit 0 |
+| Frozen v1 skin gates still green | `make skin-test` | `110 passed in 0.41s`, exit 0 |
+| Appearance v2 token/skin contract unchanged | `make appearance-test` | `99 passed in 0.97s`, exit 0 |
+| AGS app contract unchanged | `make schema-test` | `40 passed in 0.07s`, exit 0 |
+| Generations v3 schema/protocol gate | `make generations-test` | `54 passed in 0.11s`, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.8.0 2` |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `4c0c536` | `docs(tickets): plan the generations v3 contract (REQ-016)` |
+| `d8f4aa9` | `chore(REQ-016): start — record worktree/branch, move to in-progress` |
+| `20dbcea` | `feat(REQ-016): freeze generations v3 and generation-bound refresh` |
+| release commit (the `v0.8.0` tag target) | `chore(REQ-016): release v0.8.0` |
+
+### Status
+
+**Done on `ticket/REQ-016-generations-v3`.** The v3 interface is in
+`generations.md`, `appearance-refresh.md` and the two new schemas, with
+fixtures under `tests/fixtures/generations-contract/` and
+`tests/test_generations_contract.py`. Merge to `main` fast-forward, then create
+the annotated `v0.8.0` tag on the merged release commit; no existing tag moves.
+
+### Notes
+
+- Staging is a sibling `generations/.staging-*` directory so the publish
+  `rename` is same-filesystem, matching the commit transaction in the RFC.
+  A separate cross-filesystem `state/staging/` is not a v3 mechanism.
+- `state/gc-pins.json` is retention metadata only; it is not a read path and
+  not a second commit pointer.
+- No runtime, platform, assets, provisioning or app code was changed in this
+  repo.
 
 ## Non-goals
 
