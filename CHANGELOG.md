@@ -9,6 +9,49 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.5.2] - 2026-11-05
+
+Patch release: freeze the skin artifact interface (ticket
+[`REQ-013`](./tickets/REQ-013-skin-artifact-interface/ticket.md)). No vocabulary change; the 23
+tokens and the six manifest groups are unchanged.
+
+### Added
+
+- `skins.md` normative **"Template set and consumer artifacts"** section: the template set lives
+  with the skin data (`dotfiles-assets/skins/templates/`), is independent of the selected
+  manifest, and has one `<configDir>.gtk.css.j2` per target config dir rendering
+  `<configDir>.css`. `{{SKIN_<TOKEN>}}` normalizes a token name to uppercase with
+  non-alphanumerics → `_` (`radius-panel` → `SKIN_RADIUS_PANEL`); unknown or unresolved
+  placeholders fail closed. Outputs are `current/skins/<configDir>.css` per target plus one
+  shared `current/skin.json`; pointers are `config/<configDir>/skin.css` →
+  `current/skins/<configDir>.css` and `config/<configDir>/skin.json` → `current/skin.json`
+  (bar `configDir = ags`).
+- `schemas/skin-json.schema.json` — draft-07 schema for the resolved grouped token map:
+  `version` `const 1`, the six groups required, each group requiring exactly its v1 tokens with
+  the same value types as `skin-token.schema.json`, and `additionalProperties: false` at the
+  root and in every group. It validates a runtime `skin.json` without the manifest wrapper.
+- Positive/negative fixtures under `tests/fixtures/skin-contract/skin-json/`: a valid grouped
+  map plus rejected flat tokens, string numerics, `structure`/`variant` groups and an unknown
+  group. `tests/test_skin_contract.py` checks the schema, fixtures, version and the cross-check
+  against the existing vocabulary.
+
+### Changed
+
+- `skins.md` now names the palette-independent cache key
+  `sha256(templates_hash ‖ manifest_hash)` consistently (the existing runtime fact used
+  `template_set_hash`).
+- `README.md` lists the new schema and the expanded `skins.md` scope; `CONTRACT.md` records the
+  `0.5.2` release.
+- `cli-invocation-contract` bumped `0.5.1` → `0.5.2`: `CONTRACT_VERSION = "0.5.2"`,
+  `DATA_VERSION = 2` unchanged. `invocation-contract.json` and the `csg`/`weg`/`itr`/`tpr`
+  records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.5.2` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- Consumers re-pin this exact tag and consume the skin schemas + `skins.md` from its repo root.
+
 ## [0.5.1] - 2026-11-05
 
 Patch release: freeze the skin value/unit convention (ticket

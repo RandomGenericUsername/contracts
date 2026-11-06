@@ -55,19 +55,19 @@ layout and one resolved-token document:
 
 ## Acceptance
 
-- [ ] `skins.md` contains the normative "Template set and consumer artifacts" section with
+- [x] `skins.md` contains the normative "Template set and consumer artifacts" section with
   the template naming/placeholder rule, inputs/outputs, pointers (`configDir = ags` for the
   bar), the exact `skin.json` shape, and the read-order/refresh/fail-closed rules.
-- [ ] `schemas/skin-json.schema.json` is valid draft-07 with `$id`
+- [x] `schemas/skin-json.schema.json` is valid draft-07 with `$id`
   `https://dotfiles.local/schemas/skin-json.schema.json`, `version` `const 1`, the six groups
   required, the 23 tokens typed identically to `skin-token.schema.json`, and
   `additionalProperties: false` at the root and in every group.
-- [ ] Positive fixture `skin-json/glass.valid.json` validates; negative fixtures reject flat
+- [x] Positive fixture `skin-json/glass.valid.json` validates; negative fixtures reject flat
   tokens, `"12px"`/`"12"` string numerics, `structure`/`variant` groups and an unknown group.
-- [ ] `tests/test_skin_contract.py` covers the new schema and its fixtures, including the
+- [x] `tests/test_skin_contract.py` covers the new schema and its fixtures, including the
   cross-check against the existing 23-token vocabulary and six groups.
-- [ ] `make test`, `make skin-test` and `make schema-test` exit 0.
-- [ ] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, the package version,
+- [x] `make test`, `make skin-test` and `make schema-test` exit 0.
+- [x] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, the package version,
   `uv.lock` and `CONTRACT_VERSION` agree on `0.5.2`; annotated tag `v0.5.2` points at the
   merged release commit and no existing tag moved.
 
@@ -87,6 +87,39 @@ layout and one resolved-token document:
   (`configDir: ags`, `spineLink: ags`).
 - Contract source of truth today: `skins.md`, `schemas/skin-token.schema.json`,
   `schemas/skin-manifest.schema.json`, `tests/test_skin_contract.py`.
+- Implementation evidence: `schemas/skin-json.schema.json` (the resolved grouped map),
+  `tests/fixtures/skin-contract/skin-json/` (one valid plus five negative fixtures), the
+  normative section in `skins.md`, and the new cases in `tests/test_skin_contract.py`.
+
+## Verification
+
+Commands run from the worktree root (`.worktrees/REQ-013/`, branch
+`ticket/REQ-013-skin-artifact-interface`, base `bd1cd3e`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| Resolved `skin.json` schema + positive/negative fixtures + doc pins | `make skin-test` | `103 passed in 0.38s`, exit 0 |
+| Full repo gate (event tests + all pytest suites) | `make test` | `Ran 10 tests in 0.037s ... OK`; `212 passed in 0.57s`, exit 0 |
+| AGS app schema gate unchanged | `make schema-test` | `40 passed in 0.07s`, exit 0 |
+| No generated drift | `make contracts-drift` | symmetric contract/generated agree; regenerate-and-diff clean, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.5.2 2` |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `bd1cd3e` | `docs(tickets): plan the skin artifact interface (REQ-013)` |
+| `42cef95` | `chore(REQ-013): start — record worktree/branch, move to in-progress` |
+| `4ecf622` | `feat(REQ-013): freeze the skin artifact interface in the contract` |
+| release commit (the `v0.5.2` tag target) | `chore(REQ-013): release v0.5.2` |
+
+### Status
+
+**Done on `ticket/REQ-013-skin-artifact-interface`.** The artifact interface is frozen in
+`skins.md` and `schemas/skin-json.schema.json` with fixtures and tests. The 23-token vocabulary
+and the six manifest groups are unchanged; no runtime, assets or app code was changed in this
+repo. Merge to `main` fast-forward, then create the annotated `v0.5.2` tag on the merged release
+commit.
 
 ## Non-goals
 

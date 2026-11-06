@@ -103,3 +103,9 @@ package data.
 (REQ-012): the twelve numeric tokens are unitless JSON numbers, CSS expansion renders them as
 `<number>px`, and `cell-pad` is the only `"Npx Npx"` string token. The vocabulary is unchanged;
 `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+`v0.5.2` (`cli-invocation-contract` 0.5.2) is a patch that freezes the skin artifact interface
+(REQ-013): the shared `<configDir>.gtk.css.j2` template set, the `current/skins/<configDir>.css`
++ shared `current/skin.json` outputs, the consumer pointers, and the grouped
+`schemas/skin-json.schema.json`. The 23-token vocabulary is unchanged; `DATA_VERSION` stays `2`
+and the invocation records are byte-identical.
