@@ -24,3 +24,5 @@ jobs:
         run: make test
       - name: AGS app contract schemas (draft-07 + positive/negative fixtures)
         run: make schema-test
+      - name: Frozen skin-plane schemas (draft-07 + positive/negative fixtures)
+        run: make skin-test

@@ -41,6 +41,12 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   `dotfiles-assets` tag tuple per install.
 - `schemas/ags-app-refresh-result.schema.json` — the runtime-owned per-app
   refresh result/log record.
+- `schemas/skin-token.schema.json` — the frozen skin-plane v1 token vocabulary
+  (23 tokens in six groups, palette-role paint grammar).
+- `schemas/skin-manifest.schema.json` — the skin manifest (`schemaVersion`, `name`,
+  the six token groups), with structure/variant forbidden.
+- `skins.md` — the skin-plane contract (selection, cache key, appearance hash,
+  refresh lanes, one-provider composition, drift gates, built-in skins).
 - `ags-app-refresh.md` — the fixed `palette-refresh` request/response protocol.
 
 ## The `cli-invocation-contract` package
@@ -53,7 +59,8 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 - `tests/` — record completeness, loader behaviour, and positive/negative kit paths against a
   fake CLI (never a real binary).
 - `Makefile` — `make sync` (uv), `make test` (event-contract unittest + schema fixtures +
-  pytest), `make schema-test` (AGS app contract fixtures only), `make build` (sdist + wheel).
+  pytest), `make schema-test` (AGS app contract fixtures), `make skin-test` (skin-plane
+  fixtures), `make build` (sdist + wheel).
   The wheel carries `invocation-contract.json` as package data, so `load()` works from an
   installed tag.
 

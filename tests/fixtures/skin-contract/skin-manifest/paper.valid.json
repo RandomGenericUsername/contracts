@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "name": "paper",
+  "groups": {
+    "shape": {
+      "radius-panel": 6,
+      "radius-card": 4,
+      "radius-cell": 3,
+      "radius-pill": 20,
+      "border-w": 1
+    },
+    "rhythm": {
+      "gap": 8,
+      "cell-pad": "5px 9px"
+    },
+    "surface": {
+      "bg-panel": "transparent",
+      "bg-card": "color-mix(in srgb, @surface 92%, transparent)",
+      "border": "1px solid alpha(@outline, 0.5)",
+      "shadow": "0 2px 8px alpha(@shadow, 0.18)",
+      "blur": "none"
+    },
+    "ink": {
+      "ink": "@on_surface",
+      "ink-dim": "color-mix(in srgb, @on_surface_variant 70%, transparent)",
+      "accent": "@tertiary",
+      "ink-over": "auto"
+    },
+    "type": {
+      "font-family": "serif",
+      "title-size": 16,
+      "text-size": 13
+    },
+    "layout": {
+      "panel-width": 420,
+      "bt-list-spacing": 10,
+      "bar-row-height": 34,
+      "chip-min": 80
+    }
+  }
+}
