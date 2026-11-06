@@ -19,7 +19,7 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.6.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.7.0"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
 - `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
@@ -30,11 +30,15 @@ release added the frozen skin-plane schemas and `skins.md`. The `0.5.1` patch fr
 value/unit convention (unitless numeric tokens, `<number>px` at CSS expansion, `cell-pad` as the
 only `"Npx Npx"` string). The `0.5.2` patch freezes the skin artifact interface (template set,
 consumer pointers and the resolved `skin.json` schema) without changing the token vocabulary. The
-`0.6.0` minor adds the `shape.hairline-w` token (24 tokens total): `border-w` owns the outer
+The `0.6.0` minor adds the `shape.hairline-w` token (24 tokens total): `border-w` owns the outer
 panel/frame border, `hairline-w` owns the card/row-action/badge hairlines, the row/cell stays
 borderless, and layout tokens are consumed only by widgets through `skinValue()` — templates must
-not expand them. Across `0.5.0`–`0.6.0` the invocation data is byte-identical, so `DATA_VERSION`
-stays `2` while the release version moves with the repo tag.
+not expand them. The `0.7.0` major replaces the v1 skin plane with the Appearance plane v2:
+one generated `cache/appearance/<hash>/` entry, one atomically repointed `current/appearance`
+hop, the nested `surface`/`state`/`type`/`ink`/`layout` token model, optional same-shape
+`mode.dark`/`mode.light` overrides, three v2 schemas and `appearance.md`. v1 skin artifacts are
+retired; there is no v1.1 hotfix. Across `0.5.0`–`0.7.0` the invocation data is byte-identical,
+so `DATA_VERSION` stays `2` while the release version moves with the repo tag.
 
 | Field | Meaning |
 |---|---|
@@ -58,7 +62,7 @@ Evidence: `invocation-contract.json` `contract_version` and
 `src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
 comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
-→ `0.6.0 2`.
+→ `0.7.0 2`.
 
 ## Per-CLI record
 

@@ -12,6 +12,12 @@ Canonical contract sources for the AGS platform, one repo.
    protocol in `ags-app-refresh.md`. Draft-07 schemas with positive/negative
    fixtures (`tests/test_ags_app_contract.py`), consumed by `dotfiles-v3`,
    `dotfiles-provision`, `dotfiles-runtime`, `ags-platform`, and every app repo.
+4. **Appearance plane v2** — `appearance.md` plus
+   `schemas/appearance-manifest.schema.json`, `schemas/appearance-json.schema.json`
+   and `schemas/appearance-artifact.schema.json`. One generated
+   `cache/appearance/<hash>/` entry, one repointed `current/appearance` hop, and
+   the nested surface/state/type/ink/layout/mode token model. v2 supersedes the
+   frozen v1 skin-plane artifacts; there is no v1.1 hotfix.
 
 The event contract is the single source of truth for the runtime ↔ AGS event seam. It is
 consumed by:
@@ -41,16 +47,23 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   `dotfiles-assets` tag tuple per install.
 - `schemas/ags-app-refresh-result.schema.json` — the runtime-owned per-app
   refresh result/log record.
-- `schemas/skin-token.schema.json` — the frozen skin-plane v1 token vocabulary
-  (24 tokens in six groups, palette-role paint grammar).
-- `schemas/skin-manifest.schema.json` — the skin manifest (`schemaVersion`, `name`,
-  the six token groups), with structure/variant forbidden.
-- `schemas/skin-json.schema.json` — the resolved `skin.json` token map
-  (`version: 1` plus the six grouped token maps), validated without the
-  manifest wrapper.
-- `skins.md` — the skin-plane contract (selection, template set, consumer
-  artifacts and pointers, cache key, appearance hash, refresh lanes,
-  one-provider composition, drift gates, built-in skins).
+- `appearance.md` — the Appearance plane v2 contract (generation, the single
+  `current/appearance` hop, the nested v2 token model, mode resolution,
+  template flattening, one-provider composition, the `palette-refresh`
+  whole-appearance handler, systemd user units, drift gates, built-in skins).
+- `schemas/appearance-manifest.schema.json` — the v2 authored manifest
+  (`schemaVersion: 2`, nested surface/state/type/ink/layout groups, optional
+  same-shape `mode.dark`/`mode.light` overrides, structure/variant forbidden).
+- `schemas/appearance-json.schema.json` — the resolved, mode-resolved
+  `tokens.json` token map (`version: 2` plus the five groups), validated without
+  the manifest wrapper.
+- `schemas/appearance-artifact.schema.json` — `appearance.json` metadata
+  (`version: 2`, skin, mode, palette/skin/appearance/generation hashes and the
+  `tokens.json` ref).
+- `schemas/skin-token.schema.json`, `schemas/skin-manifest.schema.json`,
+  `schemas/skin-json.schema.json`, `skins.md` — the frozen v1 skin-plane
+  contract. Superseded by the Appearance plane v2; retained as the historical
+  source for the existing v1 fixtures and gates.
 - `ags-app-refresh.md` — the fixed `palette-refresh` request/response protocol.
 
 ## The `cli-invocation-contract` package
@@ -64,7 +77,7 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   fake CLI (never a real binary).
 - `Makefile` — `make sync` (uv), `make test` (event-contract unittest + schema fixtures +
   pytest), `make schema-test` (AGS app contract fixtures), `make skin-test` (skin-plane
-  fixtures), `make build` (sdist + wheel).
+  fixtures), `make appearance-test` (appearance-plane v2 fixtures), `make build` (sdist + wheel).
   The wheel carries `invocation-contract.json` as package data, so `load()` works from an
   installed tag.
 
@@ -115,3 +128,11 @@ now owns only the outer panel/frame border while `hairline-w` owns the card tile
 badge hairlines, and the row/cell stays borderless. The vocabulary becomes 24 tokens; the layout
 tokens are consumed only by widgets through `skinValue()` and must not be expanded by templates.
 `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+`v0.7.0` (`cli-invocation-contract` 0.7.0) is the Appearance plane v2 major (REQ-015): one
+generated `cache/appearance/<hash>/` entry, one atomically repointed `current/appearance` hop, the
+nested surface/state/type/ink/layout token model, optional same-shape `mode.dark`/`mode.light`
+overrides, and three new schemas plus `appearance.md`. The existing `palette-refresh` transport
+must now re-apply the whole appearance, and AGS apps run as systemd user units. v1 skin artifacts
+are retired; there is no v1.1 hotfix. `DATA_VERSION` stays `2` and the invocation records are
+byte-identical.

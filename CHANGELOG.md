@@ -9,6 +9,66 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.7.0] - 2026-11-06
+
+Major release: the Appearance plane v2 (ticket
+[`REQ-015`](./tickets/REQ-015-appearance-plane-v2/ticket.md)). One generated appearance, one
+atomically repointed hop, and the nested role/state/type/mode token model. This is a new major,
+not a v1.1 hotfix; the v1 skin-plane artifacts are retired.
+
+### Added
+
+- `appearance.md` — the normative Appearance plane v2 contract: the
+  `cache/appearance/<hash>/` generation (`colors.yaml`, `tokens.json`, `appearance.json`, one
+  composed `<configDir>.css` per target), the single `current/appearance` pointer, the stable
+  `config/<configDir>/appearance.css` convenience link, the inotify rationale for watching the
+  repointed hop, one provider at USER priority 800 installed last, one monitor and one apply,
+  the whole-appearance `palette-refresh` handler, systemd user units with `KillMode=control-group`,
+  the v1 workarounds retired, fail-closed/drift rules and the built-in skins.
+- `schemas/appearance-manifest.schema.json` — the v2 authored manifest (`schemaVersion: 2`,
+  nested `surface`/`state`/`type`/`ink`/`layout` groups, optional same-shape
+  `mode.dark`/`mode.light` overrides, `additionalProperties: false` at every level).
+- `schemas/appearance-json.schema.json` — the resolved, mode-resolved `tokens.json` token map
+  (`version: 2` plus the five groups).
+- `schemas/appearance-artifact.schema.json` — `appearance.json` metadata (`version: 2`, `skin`,
+  `mode`, `paletteHash`, `skinHash`, `appearanceHash`, `generationHash`, `tokenRef`).
+- v2 `glass`/`flat`/`paper` manifest fixtures and resolved token fixtures, including
+  `paper-light.valid.json`; the v1 values are converted faithfully and `paper` uses explicit
+  `mode.light` overrides instead of palette guessing.
+- `tests/test_appearance_contract.py` and `make appearance-test`: positive/negative fixtures for
+  literal hex, transition, structure/variant, an unknown surface role, an incomplete mode override,
+  unit-bearing numeric strings, a layout token in a template and template conditionals, plus a
+  pure flattening/resolution check (`surface.panel.bg` → `{{SKIN_SURFACE_PANEL_BG}}`).
+
+### Changed
+
+- The appearance token model replaces the flat v1 vocabulary with nested per-role surface tokens
+  (`panel`/`card`/`cell`/`control`/`pill`), explicit interaction states
+  (`hover`/`selected`/`focus`/`disabled` with `fill`/`ink`/`ring`), shared type sizes and
+  letter-spacing, an `accent-muted` ink, namespaced `layout.<app>` metrics, and optional
+  `mode.dark`/`mode.light` group overrides selected at generation.
+- `appearance.md` records the investigation evidence: the v1 first-hop/second-hop watch mismatch,
+  the palette-only `theme.apply()` handlers, and the orphaned gjs child that held
+  `org.freedesktop.Notifications` until `ags quit -i notifications`.
+- `README.md` and `CONTRACT.md` describe the v2 plane and the `0.7.0` release; `appearance.md` and
+  the three v2 schemas are listed as the current appearance sources, with the v1 skin files marked
+  superseded.
+- `cli-invocation-contract` bumped `0.6.0` → `0.7.0`: `CONTRACT_VERSION = "0.7.0"`,
+  `DATA_VERSION = 2` unchanged. `invocation-contract.json` and the `csg`/`weg`/`itr`/`tpr`
+  records are byte-identical.
+
+### Removed
+
+- The v1 skin-plane artifacts (`skin.css`, `skin.json`, `current/skins/`, `current/skin.json`)
+  are retired by the contract. There is no v1.1 hotfix and no dual-publish window; consumers
+  re-pin `v0.7.0` and adopt the single `current/appearance` hop.
+
+### Release
+
+- Annotated tag `v0.7.0` on the merged release commit; the wheel + sdist are built from that
+  commit, not from a working tree. No runtime, platform, assets or app code was changed in this
+  repo.
+
 ## [0.6.0] - 2026-11-05
 
 Minor release: split the panel border from the hairlines and make the layout metrics

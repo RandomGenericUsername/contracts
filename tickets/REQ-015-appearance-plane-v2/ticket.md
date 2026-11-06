@@ -2,7 +2,7 @@
 id: REQ-015
 title: "Appearance plane v2: one generated appearance and one repointed hop"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -83,26 +83,26 @@ are frozen; this is a new major (`v0.7.0`), not a `v1.1` hotfix.
 
 ## Acceptance
 
-- [ ] `appearance.md` defines the `cache/appearance/<hash>/` generation, its four artifact
+- [x] `appearance.md` defines the `cache/appearance/<hash>/` generation, its four artifact
   kinds, the single `current/appearance` hop, the stable consumer link, the inotify rationale,
   the one-provider/monitor/apply rule and the whole-appearance `palette-refresh` handling.
-- [ ] `appearance.md` documents the nested v2 token model, mode resolution before template
+- [x] `appearance.md` documents the nested v2 token model, mode resolution before template
   expansion, placeholder flattening, value/unit rules, and that templates have no conditionals.
-- [ ] `schemas/appearance-manifest.schema.json` is draft-07, self-named, frozen, `schemaVersion: 2`,
+- [x] `schemas/appearance-manifest.schema.json` is draft-07, self-named, frozen, `schemaVersion: 2`,
   and enforces the surface roles, state roles, type/ink/layout groups and optional same-shape
   mode overrides with `additionalProperties: false` at every level.
-- [ ] `schemas/appearance-json.schema.json` is draft-07, self-named, frozen, `version: 2`, and
+- [x] `schemas/appearance-json.schema.json` is draft-07, self-named, frozen, `version: 2`, and
   validates a fully resolved token document with the same group shapes as the manifest.
-- [ ] `schemas/appearance-artifact.schema.json` is draft-07, self-named, frozen, `version: 2`, and
+- [x] `schemas/appearance-artifact.schema.json` is draft-07, self-named, frozen, `version: 2`, and
   requires `skin`, `mode`, `paletteHash`, `skinHash`, `appearanceHash`, `generationHash` and
   `tokenRef`.
-- [ ] Positive `glass`/`flat`/`paper` manifests and resolved token documents validate; the v1
+- [x] Positive `glass`/`flat`/`paper` manifests and resolved token documents validate; the v1
   values are converted faithfully and `paper` carries explicit `mode.light` overrides.
-- [ ] Negatives for literal hex, transition, structure/variant, layout token in a template, a
+- [x] Negatives for literal hex, transition, structure/variant, layout token in a template, a
   missing/incomplete mode override and an unknown surface role are rejected by the contract and
   tests.
-- [ ] `make test`, `make skin-test` and `make schema-test` exit 0.
-- [ ] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, `pyproject.toml`,
+- [x] `make test`, `make skin-test` and `make schema-test` exit 0.
+- [x] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, `pyproject.toml`,
   `src/cli_invocation_contract/__init__.py`, `uv.lock` and the version test agree on `0.7.0`;
   annotated tag `v0.7.0` points at the merged release commit and no existing tag moved.
 
@@ -126,6 +126,37 @@ are frozen; this is a new major (`v0.7.0`), not a `v1.1` hotfix.
   `ags-apps/wallpaper-selector/style.css` and `ags-apps/capture-tool/style.css` selected/hover
   states; `ags-apps/notifications/style.css` small metadata type.
 - Frozen v1 values to convert: `tests/fixtures/skin-contract/skin-manifest/{glass,flat,paper}.valid.json`.
+
+## Verification
+
+Commands run from the worktree root (`.worktrees/REQ-015/`, branch
+`ticket/REQ-015-appearance-plane-v2`, base `fb91382`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| Appearance v2 schema + fixture gates | `make appearance-test` | `99 passed in 0.84s`, exit 0 |
+| Frozen v1 skin gates still green | `make skin-test` | `110 passed in 0.37s`, exit 0 |
+| AGS app schema gate unchanged | `make schema-test` | `40 passed in 0.06s`, exit 0 |
+| Full repo gate (event tests + all pytest suites) | `make test` | `Ran 10 tests in 0.034s ... OK`; `318 passed in 1.31s`, exit 0 |
+| No generated drift | `make contracts-drift` | symmetric contract/generated agree; regenerate-and-diff clean, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.7.0 2` |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `fb91382` | `docs(tickets): plan the appearance plane v2 (REQ-015)` |
+| `018fd4d` | `chore(REQ-015): start — record worktree/branch, move to in-progress` |
+| `cf7d6f9` | `feat(REQ-015): generate one appearance and watch one repointed hop` |
+| release commit (the `v0.7.0` tag target) | `chore(REQ-015): release v0.7.0` |
+
+### Status
+
+**Done on `ticket/REQ-015-appearance-plane-v2`.** The Appearance plane v2 contract is in
+`appearance.md` and the three `schemas/appearance-*.schema.json` files, with v2 fixtures and
+`tests/test_appearance_contract.py`. No runtime, platform, assets or app code was changed in this
+repo. Merge to `main` fast-forward, then create the annotated `v0.7.0` tag on the merged release
+commit; no existing tag moves.
 
 ## Non-goals
 
