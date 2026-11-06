@@ -11,7 +11,7 @@
 ## Requirements
 
 - [REQ-010-tpr-invocation-record/ticket.md](./REQ-010-tpr-invocation-record/ticket.md) — Record the tpr invocation contract | `done` | openspec: tpr-invocation-record | tag: v0.4.0
-- [REQ-011-skin-plane-contract](./REQ-011-skin-plane-contract/ticket.md) — Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures) | `proposed` | links: none
+- [REQ-011-skin-plane-contract](./REQ-011-skin-plane-contract/ticket.md) — Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures) | `in-progress` | worktree: .worktrees/REQ-011/ | branch: ticket/REQ-011-skin-plane-contract
 
 ## Bugs
 

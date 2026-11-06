@@ -2,13 +2,13 @@
 id: REQ-011
 title: "Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures)"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-011/
+branch: ticket/REQ-011-skin-plane-contract
 ---
 
 # Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures)
