@@ -2,13 +2,13 @@
 id: REQ-015
 title: "Appearance plane v2: one generated appearance and one repointed hop"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-015/
+branch: ticket/REQ-015-appearance-plane-v2
 ---
 
 # Appearance plane v2: one generated appearance and one repointed hop
