@@ -1,4 +1,4 @@
-.PHONY: help validate generate check-symmetry contracts-drift drift sync test schema-test skin-test build
+.PHONY: help validate generate check-symmetry contracts-drift drift sync test schema-test skin-test appearance-test build
 
 help:
 	@echo "validate          Validate the event contract"
@@ -9,6 +9,7 @@ help:
 	@echo "test              Run the event-contract tests, schema fixtures and package tests"
 	@echo "schema-test       Validate the AGS app contract schemas + positive/negative fixtures"
 	@echo "skin-test         Validate the frozen skin-plane schemas + positive/negative fixtures"
+	@echo "appearance-test   Validate the appearance-plane v2 schemas + fixtures"
 	@echo "build             Build the cli-invocation-contract sdist + wheel"
 
 validate:
@@ -56,6 +57,9 @@ schema-test:
 
 skin-test:
 	uv run pytest -q tests/test_skin_contract.py
+
+appearance-test:
+	uv run pytest -q tests/test_appearance_contract.py
 
 build:
 	uv build

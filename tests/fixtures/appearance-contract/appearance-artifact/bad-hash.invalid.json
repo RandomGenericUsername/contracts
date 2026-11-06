@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "skin": "glass",
+  "mode": "dark",
+  "paletteHash": "ABC",
+  "skinHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "appearanceHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "generationHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "tokenRef": "tokens.json"
+}

@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "surface": {
+    "panel": {
+      "bg": "@surface",
+      "border": "transparent",
+      "border-width": 0,
+      "radius": 0,
+      "padding": 6,
+      "shadow": "none",
+      "blur": "none"
+    },
+    "card": {
+      "bg": "@surface_container",
+      "border": "@outline_variant",
+      "border-width": 0,
+      "radius": 0,
+      "padding": 4
+    },
+    "cell": {
+      "bg": "transparent",
+      "border": "transparent",
+      "border-width": 0,
+      "radius": 0,
+      "padding": 4,
+      "hover-bg": "alpha(@on_surface, 0.1)"
+    },
+    "control": {
+      "bg": "@surface_container",
+      "border": "@outline_variant",
+      "border-width": 0,
+      "radius": 0,
+      "padding": 4,
+      "font-size": 11,
+      "font-weight": 500
+    },
+    "pill": {
+      "bg": "@surface_container_high",
+      "border": "@outline_variant",
+      "border-width": 0,
+      "radius": 0,
+      "padding": 2,
+      "font-size": 10,
+      "letter-spacing": 0
+    }
+  },
+  "state": {
+    "hover": {
+      "fill": "alpha(@on_surface, 0.1)",
+      "ink": "@on_surface",
+      "ring": "@outline"
+    },
+    "selected": {
+      "fill": "@primary_container",
+      "ink": "@on_primary_container",
+      "ring": "@primary"
+    },
+    "focus": {
+      "fill": "transparent",
+      "ink": "@on_surface",
+      "ring": "@outline"
+    },
+    "disabled": {
+      "fill": "transparent",
+      "ink": "alpha(@on_surface, 0.45)",
+      "ring": "transparent"
+    }
+  },
+  "type": {
+    "font-family": "monospace",
+    "font-weight": 400,
+    "letter-spacing": 0,
+    "size-caption": 10,
+    "size-meta": 11,
+    "size-body": 11,
+    "size-title": 14,
+    "size-display": 18
+  },
+  "ink": {
+    "ink": "on_surface",
+    "ink-dim": "on_surface_variant",
+    "accent": "primary",
+    "accent-muted": "alpha(@primary, 0.4)",
+    "ink-over": "auto"
+  },
+  "layout": {
+    "bar": {
+      "panel-width": 360,
+      "bt-list-spacing": 6,
+      "bar-row-height": 30,
+      "chip-min": 64
+    }
+  }
+}

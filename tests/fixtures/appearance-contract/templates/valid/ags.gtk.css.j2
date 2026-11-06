@@ -1,0 +1,29 @@
+/* v2 template: placeholders are flattened token paths; no conditionals. */
+window {
+  font-family: {{SKIN_TYPE_FONT_FAMILY}};
+  font-size: {{SKIN_TYPE_SIZE_BODY}};
+  color: {{SKIN_INK_INK}};
+}
+
+surface.panel {
+  background: {{SKIN_SURFACE_PANEL_BG}};
+  border: {{SKIN_SURFACE_PANEL_BORDER_WIDTH}} solid {{SKIN_SURFACE_PANEL_BORDER}};
+  border-radius: {{SKIN_SURFACE_PANEL_RADIUS}};
+  padding: {{SKIN_SURFACE_PANEL_PADDING}};
+  box-shadow: {{SKIN_SURFACE_PANEL_SHADOW}};
+}
+
+.cell:hover {
+  background: {{SKIN_SURFACE_CELL_HOVER_BG}};
+}
+
+.row:hover {
+  background: {{SKIN_STATE_HOVER_FILL}};
+  color: {{SKIN_STATE_HOVER_INK}};
+  outline-color: {{SKIN_STATE_HOVER_RING}};
+}
+
+.badge {
+  font-size: {{SKIN_SURFACE_PILL_FONT_SIZE}};
+  letter-spacing: {{SKIN_SURFACE_PILL_LETTER_SPACING}};
+}
