@@ -9,6 +9,44 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.5.0] - 2026-11-05
+
+Minor release: the frozen skin-plane v1 contract (ticket
+[`REQ-011`](./tickets/REQ-011-skin-plane-contract/ticket.md)).
+
+### Added
+
+- `schemas/skin-token.schema.json` — the frozen 23-token skin vocabulary in six groups
+  (`shape`, `rhythm`, `surface`, `ink`, `type`, `layout`) with the palette-role paint grammar:
+  `transparent`, `@<role>`, `alpha(@<role>, 0..1)`, `color-mix(in srgb, @<role> <pct>%,
+  transparent|@<role>)`, and gradients/shadows composed from those. No literal hex.
+- `schemas/skin-manifest.schema.json` — `schemaVersion`, `name`, and the six groups with
+  `additionalProperties: false` at every level; structure/variant/order/presence keys and
+  `*variant*` tokens are rejected. The palette enum is exactly the 51-role `palette.v1`
+  vocabulary (50 Material roles + `on_backdrop`).
+- `skins.md` — the skin contract: selection in runtime `desired.json`, the palette-independent
+  cache key `sha256(template_set_hash ‖ manifest_hash)`, the appearance hash including the skin
+  hash, the palette-refresh/restart lanes (bar = restart), the single `Gtk.CssProvider` at USER
+  priority (800) re-installed last, the module-scoped monitor GC rule, the near-black
+  missing-palette failure, drift-gate expectations, and the `glass`/`flat`/`paper` built-ins.
+- Positive/negative fixtures and `tests/test_skin_contract.py`, plus `make skin-test` and a CI
+  step. Negatives cover literal hex, `transition`, structure/variant, unknown token, `blur(` as
+  a value, an unknown palette role and `%` inside `calc()`.
+
+### Changed
+
+- `cli-invocation-contract` bumped `0.4.0` → `0.5.0`: `CONTRACT_VERSION = "0.5.0"` (equal to the
+  `v0.5.0` tag without its `v`), `DATA_VERSION = 2` (the invocation data shape is unchanged).
+  The `csg`, `weg`, `itr` and `tpr` records are byte-identical.
+- `README.md` and `CONTRACT.md` name `v0.5.0`; the skin schemas are repo-root sources and are
+  deliberately not wheel package data.
+
+### Release
+
+- Annotated tag `v0.5.0` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- Consumers re-pin this exact tag; the skin contract is consumed from the tag's repo root.
+
 ## [0.4.0] - 2026-10-28
 
 Minor release: the `tpr` (theme producer) record joins the invocation contract (ticket

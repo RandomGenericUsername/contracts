@@ -2,7 +2,7 @@
 id: REQ-011
 title: "Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures)"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -59,20 +59,20 @@ No runtime, app or host code lives here; this is schema and protocol source only
 
 ## Acceptance
 
-- [ ] `schemas/skin-token.schema.json` is draft-07 valid, `$id`-self-named, frozen-status, and
+- [x] `schemas/skin-token.schema.json` is draft-07 valid, `$id`-self-named, frozen-status, and
   names exactly the 23 v1 tokens with the grammar above.
-- [ ] `schemas/skin-manifest.schema.json` is draft-07 valid, requires `schemaVersion`, `name` and
+- [x] `schemas/skin-manifest.schema.json` is draft-07 valid, requires `schemaVersion`, `name` and
   the six groups, and rejects extra keys at every level.
-- [ ] The palette role enum is exactly the 51-role `palette.v1` vocabulary, including
+- [x] The palette role enum is exactly the 51-role `palette.v1` vocabulary, including
   `on_backdrop`.
-- [ ] Positive fixtures for `glass`, `flat` and `paper` are accepted; negatives for literal
+- [x] Positive fixtures for `glass`, `flat` and `paper` are accepted; negatives for literal
   hex, transition, structure/variant, unknown token, `blur(` as a value, unknown palette role
   and `%` inside `calc()` are rejected.
-- [ ] `skins.md` records selection, cache key, appearance hash, refresh lanes, provider
+- [x] `skins.md` records selection, cache key, appearance hash, refresh lanes, provider
   composition, forbidden categories, drift-gate expectations, `ink-over: auto`, and the
   glass/flat/paper built-ins.
-- [ ] `make test` (which includes the skin schema fixtures) exits 0; `make skin-test` exits 0.
-- [ ] `CHANGELOG.md`, `tickets/INDEX.md`, `README.md`, `CONTRACT.md`, the package version and
+- [x] `make test` (which includes the skin schema fixtures) exits 0; `make skin-test` exits 0.
+- [x] `CHANGELOG.md`, `tickets/INDEX.md`, `README.md`, `CONTRACT.md`, the package version and
   `CONTRACT_VERSION` agree on `0.5.0`; annotated tag `v0.5.0` points at the merged release
   commit and no existing tag moved.
 
@@ -86,6 +86,40 @@ No runtime, app or host code lives here; this is schema and protocol source only
   `src/theme_producer/domain/enums.py::MaterialRole` and `docs/VOCABULARY.md`.
 - Existing schema/test style: `schemas/ags-app-manifest.schema.json`,
   `tests/test_ags_app_contract.py`.
+
+### Verification
+
+Commands run from the worktree root (`.worktrees/REQ-011/`, branch
+`ticket/REQ-011-skin-plane-contract`, base `16555cd`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| Schemas draft-07 valid, frozen, self-named | `make skin-test` | `39 passed in 0.11s`, exit 0; `test_every_schema_is_draft_07_self_valid_and_frozen` checks `$schema`/`$id`/`status` and `Draft7Validator.check_schema` |
+| Positive + negative fixtures | `make skin-test` | `glass`/`flat`/`paper` accepted; literal hex, transition key/value, structure, variant token, unknown token, `blur(` value, `%` in `calc()`, unknown role and extra top-level key rejected |
+| Token vocabulary == manifest groups | `make skin-test` | `23` flat tokens equal the union of the six group property sets, exit 0 |
+| Palette enum is exactly palette.v1 | `make skin-test` | `51` roles, set equality with `palette.v1`, `on_backdrop` present |
+| Runtime facts pinned in the doc | `make skin-test` | `test_skins_doc_pins_the_runtime_contract` asserts `desired.json`, `skin: "<name>"`, cache key, appearance hash, `Gtk.CssProvider`, priority `800`, re-installed last, module scope, near-black, `ink-over`, glass/flat/paper, restart |
+| Full repo gate | `make test` | `Ran 10 tests in 0.035s` → `OK`; `148 passed in 0.25s`, exit 0 |
+| AGS app schema gate unchanged | `make schema-test` | `40 passed in 0.06s`, exit 0 |
+| Symmetric regenerate-and-diff | `make contracts-drift` | `[drift] symmetric: contract and generated/ agree`; `git diff --exit-code generated/` clean, exit 0 |
+| Package build | `make build` | `Successfully built dist/cli_invocation_contract-0.5.0.tar.gz` and `...-0.5.0-py3-none-any.whl`, exit 0 |
+| Version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.5.0 2`, exit 0 |
+| Wheel metadata | `unzip -p dist/cli_invocation_contract-0.5.0-py3-none-any.whl cli_invocation_contract-0.5.0.dist-info/METADATA \| grep -m1 '^Version:'` | `Version: 0.5.0`, exit 0 |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `16555cd` | `docs(tickets): plan the frozen skin-plane contract (REQ-011)` |
+| `aff160b` | `chore(REQ-011): start — record worktree/branch, move to in-progress` |
+| `e4f4f59` | `feat(REQ-011): add the frozen skin-plane token and manifest contracts` |
+| release commit (the `v0.5.0` tag target) | `chore(REQ-011): release v0.5.0 for the skin-plane contract` |
+
+### Status
+
+**Done on `ticket/REQ-011-skin-plane-contract`.** The frozen token/manifest schemas,
+`skins.md`, fixtures and gates are in the implementation commit. No runtime, app or host code was
+changed. Merge to `main`, then create the annotated `v0.5.0` tag on the merged release commit.
 
 ## Non-goals
 

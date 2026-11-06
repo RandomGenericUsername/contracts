@@ -88,3 +88,9 @@ see `CHANGELOG.md` and the releases.
 the eight exact consumer artifacts and a 60 s timeout. `DATA_VERSION` stays `2` and the `csg`,
 `weg` and `itr` records are unchanged. `theme.json` is deliberately not part of the record — see
 `CONTRACT.md` and `CHANGELOG.md`.
+
+`v0.5.0` (`cli-invocation-contract` 0.5.0) adds the frozen skin-plane contract (REQ-011): the
+23-token vocabulary and the six-group manifest schemas, plus `skins.md` for selection, cache key,
+appearance hash, refresh lanes and the one-provider composition rule. `DATA_VERSION` stays `2`
+and the invocation records are byte-identical; the skin schemas are repo-root sources, not wheel
+package data.
