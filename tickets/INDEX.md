@@ -14,6 +14,7 @@
 - [REQ-011-skin-plane-contract](./REQ-011-skin-plane-contract/ticket.md) — Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures) | `done` | tag: v0.5.0
 - [REQ-012-skin-units](./REQ-012-skin-units/ticket.md) — Freeze skin value types and units (numeric tokens are unitless numbers) | `done` | tag: v0.5.1
 - [REQ-013-skin-artifact-interface](./REQ-013-skin-artifact-interface/ticket.md) — Freeze the skin artifact interface (template set, pointers, skin.json) | `done` | tag: v0.5.2
+- [REQ-014-skin-hairline-layout-ownership](./REQ-014-skin-hairline-layout-ownership/ticket.md) — Split the panel border from the hairlines and make layout metrics TSX-owned | `proposed` | worktree: none | branch: none
 
 ## Bugs
 
