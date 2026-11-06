@@ -2,13 +2,13 @@
 id: REQ-016
 title: "Generations v3: one committed generation, one convergence pipeline, generation-bound apply/ack"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-016/
+branch: ticket/REQ-016-generations-v3
 ---
 
 # Generations v3: one committed generation, one convergence pipeline, generation-bound apply/ack
