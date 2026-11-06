@@ -2,7 +2,7 @@
 id: REQ-012
 title: "Freeze skin value types and units (numeric tokens are unitless numbers)"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -50,18 +50,18 @@ vocabulary change and not a change to the numeric typing:
 
 ## Acceptance
 
-- [ ] `skins.md` has a normative "Value types and units" section covering all twelve numeric
+- [x] `skins.md` has a normative "Value types and units" section covering all twelve numeric
   tokens as unitless numbers, the expander's `<number>px` rendering rule, `cell-pad` as the only
-  length-pair string module, the layout-token dual use, and `font-family: "inherit"`.
-- [ ] Both skin schemas carry descriptions/examples for the convention with the 23-token
+  length-pair string token, the layout-token dual use, and `font-family: "inherit"`.
+- [x] Both skin schemas carry descriptions/examples for the convention with the 23-token
   vocabulary and the six groups unchanged.
-- [ ] `tests/test_skin_contract.py` rejects `"12px"` (token and manifest), accepts `12`, rejects
+- [x] `tests/test_skin_contract.py` rejects `"12px"` (token and manifest), accepts `12`, rejects
   `"8px"`/`"8 9"`/`"8px 9px 10px"` for `cell-pad`, and proves the documented expander example
   renders `12` → `12px`.
-- [ ] `skins.md` states the consumer vendoring/validation rule (canonical schema, not a local
+- [x] `skins.md` states the consumer vendoring/validation rule (canonical schema, not a local
   lookalike).
-- [ ] `make test`, `make skin-test` and `make schema-test` exit 0.
-- [ ] `CHANGELOG.md`, `tickets/INDEX.md`, the package version and `CONTRACT_VERSION` agree on
+- [x] `make test`, `make skin-test` and `make schema-test` exit 0.
+- [x] `CHANGELOG.md`, `tickets/INDEX.md`, the package version and `CONTRACT_VERSION` agree on
   `0.5.1`; annotated tag `v0.5.1` points at the merged release commit and no existing tag moved.
 
 ## Evidence
@@ -76,6 +76,36 @@ vocabulary change and not a change to the numeric typing:
   `readSkinToken` only coerces a bare numeric string, so `"312px"` falls back.
 - Contract source of truth: `skins.md` (token table), `schemas/skin-token.schema.json`,
   `schemas/skin-manifest.schema.json`, `tests/test_skin_contract.py`.
+
+## Verification
+
+Commands run from the worktree root (`.worktrees/REQ-012/`, branch
+`ticket/REQ-012-skin-units`, base `0625b56`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| Numeric tokens reject `"12px"`/accept `12`; `cell-pad` is `"Npx Npx"`; expander `12` → `12px` | `make skin-test` | `70 passed in 0.25s`, exit 0 |
+| Full repo gate (event tests + all pytest suites) | `make test` | `Ran 10 tests ... OK`; `179 passed in 0.33s`, exit 0 |
+| AGS app schema gate unchanged | `make schema-test` | `40 passed in 0.06s`, exit 0 |
+| No generated drift | `make contracts-drift` | regenerate-and-diff clean, exit 0 |
+| Package build + version constants | `make build`; `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | wheel + sdist `0.5.1`; `0.5.1 2` |
+| Wheel metadata | `unzip -p dist/cli_invocation_contract-0.5.1-py3-none-any.whl cli_invocation_contract-0.5.1.dist-info/METADATA \| grep -m1 '^Version:'` | `Version: 0.5.1` |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `c8ceff4` | `docs(tickets): plan the skin value/unit freeze (REQ-012)` |
+| `84bfa7d` | `chore(REQ-012): start — record worktree/branch, move to in-progress` |
+| `bc54358` | `fix(REQ-012): freeze skin value types and units in the contract` |
+| release commit (the `v0.5.1` tag target) | `chore(REQ-012): release v0.5.1` |
+
+### Status
+
+**Done on `ticket/REQ-012-skin-units`.** The convention is frozen in `skins.md`, both canonical
+schemas and the skin tests. No token was added, renamed or removed (23 tokens, six groups). No
+runtime, assets or app code was changed in this repo. Merge to `main` fast-forward, then create
+the annotated `v0.5.1` tag on the merged release commit.
 
 ## Non-goals
 

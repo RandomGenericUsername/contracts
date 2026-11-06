@@ -94,3 +94,8 @@ the eight exact consumer artifacts and a 60 s timeout. `DATA_VERSION` stays `2` 
 appearance hash, refresh lanes and the one-provider composition rule. `DATA_VERSION` stays `2`
 and the invocation records are byte-identical; the skin schemas are repo-root sources, not wheel
 package data.
+
+`v0.5.1` (`cli-invocation-contract` 0.5.1) is a patch that freezes the skin value/unit convention
+(REQ-012): the twelve numeric tokens are unitless JSON numbers, CSS expansion renders them as
+`<number>px`, and `cell-pad` is the only `"Npx Npx"` string token. The vocabulary is unchanged;
+`DATA_VERSION` stays `2` and the invocation records are byte-identical.

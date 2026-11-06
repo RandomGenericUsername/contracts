@@ -9,6 +9,44 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.5.1] - 2026-11-05
+
+Patch release: freeze the skin value/unit convention (ticket
+[`REQ-012`](./tickets/REQ-012-skin-units/ticket.md)). No vocabulary change; the 23 tokens and
+the six manifest groups are unchanged.
+
+### Added
+
+- `skins.md` normative **"Value types and units"** section: the twelve numeric tokens
+  (`radius-panel`, `radius-card`, `radius-cell`, `radius-pill`, `border-w`, `gap`, `title-size`,
+  `text-size`, `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`) are unitless JSON
+  numbers in the manifest and in the resolved `skin.json`; CSS expansion renders them as
+  `<number>px` and the expander must not store units. `cell-pad` is the only literal
+  `"Npx Npx"` length-pair token; layout tokens are read by `skinValue()` as numbers and may also
+  appear in CSS placeholders; the default skin's `font-family` may be `"inherit"`.
+- A consumer rule in `skins.md`: vendor and validate against this repo's canonical schemas, not
+  a local lookalike such as a repo-local `skins/schema.json` that accepts `"12px"`.
+
+### Changed
+
+- Both skin schemas now document the convention in their descriptions/examples (unitless
+  numbers, `cell-pad` as `"Npx Npx"`, `font-family: "inherit"`). The vocabulary, groups, palette
+  enum and forbidden-construct rules are untouched.
+- `tests/test_skin_contract.py` rejects `"12px"` for every numeric token (flat and manifest
+  documents) while accepting `12`, requires `cell-pad` to be exactly `"Npx Npx"`, pins the schema
+  descriptions, and proves the documented expander example renders `12` → `12px`. New negative
+  fixtures: `numeric-string.invalid.json` and `cell-pad-single.invalid.json` in both schema
+  fixture dirs.
+- `cli-invocation-contract` bumped `0.5.0` → `0.5.1`: `CONTRACT_VERSION = "0.5.1"`,
+  `DATA_VERSION = 2` unchanged. `invocation-contract.json` and the `csg`/`weg`/`itr`/`tpr`
+  records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.5.1` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- Consumers re-pin this exact tag and consume the skin schemas + `skins.md` from its repo root.
+
 ## [0.5.0] - 2026-11-05
 
 Minor release: the frozen skin-plane v1 contract (ticket

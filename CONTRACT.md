@@ -19,15 +19,17 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.5.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.5.1"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
 - `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
 The `0.3.0` release added the standalone AGS app contract (`schemas/` + `ags-app-refresh.md`)
 without changing `invocation-contract.json`. The `0.4.0` release added the `tpr` record: an
 additive data change with the record shape unchanged, so `DATA_VERSION` stays `2`. The `0.5.0`
-release adds the frozen skin-plane schemas and `skins.md`; the invocation data is byte-identical,
-so `DATA_VERSION` stays `2` while the release version moves with the repo tag.
+release added the frozen skin-plane schemas and `skins.md`. The `0.5.1` patch freezes the skin
+value/unit convention (unitless numeric tokens, `<number>px` at CSS expansion, `cell-pad` as the
+only `"Npx Npx"` string). Across `0.5.0`/`0.5.1` the invocation data is byte-identical, so
+`DATA_VERSION` stays `2` while the release version moves with the repo tag.
 
 | Field | Meaning |
 |---|---|
@@ -51,7 +53,7 @@ Evidence: `invocation-contract.json` `contract_version` and
 `src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
 comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
-→ `0.5.0 2`.
+→ `0.5.1 2`.
 
 ## Per-CLI record
 
