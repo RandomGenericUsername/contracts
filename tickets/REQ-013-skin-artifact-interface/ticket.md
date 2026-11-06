@@ -2,13 +2,13 @@
 id: REQ-013
 title: "Freeze the skin artifact interface (template set, pointers, skin.json)"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-013/
+branch: ticket/REQ-013-skin-artifact-interface
 ---
 
 # Freeze the skin artifact interface (template set, pointers, skin.json)
