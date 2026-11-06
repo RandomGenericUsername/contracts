@@ -1,4 +1,10 @@
-# AGS app refresh protocol — `palette-refresh`
+# AGS app refresh protocol — `palette-refresh` (superseded)
+
+> **Superseded by v3.** This document is retained for provenance. The live
+> protocol is [`appearance-refresh.md`](./appearance-refresh.md): the request is
+> `["appearance-refresh", "<genHash>"]` and every response names the applied
+> generation. The v2 `palette-refresh` request and `{"ok":true}` ack are not
+> valid v3 acks because they cannot identify the generation that was applied.
 
 The fixed request/response protocol between `dotfiles-runtime` and a running
 **live** standalone AGS app after an appearance change. The runtime is the only

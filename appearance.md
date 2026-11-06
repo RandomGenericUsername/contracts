@@ -9,6 +9,14 @@
 > [`schemas/appearance-artifact.schema.json`](./schemas/appearance-artifact.schema.json).
 > This repo owns the contract only; the runtime renderer, `skinValue()`, and the AGS apps live
 > elsewhere.
+>
+> **v3 note.** The token vocabulary, mode resolution and composed-sheet rules
+> below are unchanged. The v3 generation layout, single commit pointer,
+> convergence pipeline and generation-bound refresh are frozen in
+> [`generations.md`](./generations.md) and
+> [`appearance-refresh.md`](./appearance-refresh.md); the v2
+> `current/appearance` pointer family and `palette-refresh` ack are superseded
+> for v3 consumers.
 
 An appearance is **palette + skin + mode**, composed once and consumed through **one atomically
 repointed hop**. Structure is outside the appearance plane: an appearance may not describe layout
