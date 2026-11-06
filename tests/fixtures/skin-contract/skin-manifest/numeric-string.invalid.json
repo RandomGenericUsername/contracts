@@ -7,7 +7,8 @@
       "radius-card": "12px",
       "radius-cell": "12px",
       "radius-pill": "12px",
-      "border-w": "1.5px"
+      "border-w": "1.5px",
+      "hairline-w": "1px"
     },
     "rhythm": {
       "gap": "8px",

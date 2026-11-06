@@ -5,7 +5,8 @@
     "radius-card": 14,
     "radius-cell": 10,
     "radius-pill": 999,
-    "border-w": 1
+    "border-w": 0,
+    "hairline-w": 0
   },
   "rhythm": {
     "gap": 10,

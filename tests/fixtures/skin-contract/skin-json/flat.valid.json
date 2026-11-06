@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "shape": {
+    "radius-panel": 0,
+    "radius-card": 0,
+    "radius-cell": 0,
+    "radius-pill": 0,
+    "border-w": 0,
+    "hairline-w": 0
+  },
+  "rhythm": {
+    "gap": 6,
+    "cell-pad": "4px 8px"
+  },
+  "surface": {
+    "bg-panel": "@surface",
+    "bg-card": "@surface_container",
+    "border": "1px solid @outline_variant",
+    "shadow": "none",
+    "blur": "none"
+  },
+  "ink": {
+    "ink": "on_surface",
+    "ink-dim": "on_surface_variant",
+    "accent": "primary",
+    "ink-over": "auto"
+  },
+  "type": {
+    "font-family": "monospace",
+    "title-size": 14,
+    "text-size": 11
+  },
+  "layout": {
+    "panel-width": 360,
+    "bt-list-spacing": 6,
+    "bar-row-height": 30,
+    "chip-min": 64
+  }
+}

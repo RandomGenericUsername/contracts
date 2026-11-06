@@ -4,6 +4,7 @@
   "radius-cell": 3,
   "radius-pill": 20,
   "border-w": 1,
+  "hairline-w": 1,
   "gap": 8,
   "cell-pad": "5px 9px",
   "bg-panel": "transparent",

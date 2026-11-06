@@ -31,7 +31,7 @@ INVALID_FIXTURES = sorted(FIXTURE_DIR.glob("*/*.invalid.json"))
 
 GROUPS = ("shape", "surface", "ink", "type", "rhythm", "layout")
 
-# The twelve numeric tokens and the manifest group each one lives in. These are
+# The thirteen numeric tokens and the manifest group each one lives in. These are
 # unitless JSON numbers; only cell-pad is a literal "Npx Npx" CSS length pair.
 NUMERIC_TOKEN_GROUPS = {
     "radius-panel": "shape",
@@ -39,6 +39,7 @@ NUMERIC_TOKEN_GROUPS = {
     "radius-cell": "shape",
     "radius-pill": "shape",
     "border-w": "shape",
+    "hairline-w": "shape",
     "gap": "rhythm",
     "title-size": "type",
     "text-size": "type",
@@ -231,6 +232,31 @@ def test_layout_tokens_are_numbers_and_surface_has_the_blur_exception() -> None:
         assert surface[token]["$ref"].endswith("/paint")
 
 
+def test_hairline_w_is_a_required_shape_number_in_all_three_schemas() -> None:
+    token_schema = _load(SCHEMAS["skin-token"])
+    assert len(token_schema["properties"]) == 24
+    assert token_schema["properties"]["hairline-w"]["$ref"].endswith("/number")
+    assert "hairline-w" in token_schema["required"]
+
+    manifest_shape = _load(SCHEMAS["skin-manifest"])["properties"]["groups"][
+        "properties"
+    ]["shape"]
+    skin_json_shape = _load(SCHEMAS["skin-json"])["properties"]["shape"]
+    for shape in (manifest_shape, skin_json_shape):
+        assert shape["properties"]["hairline-w"] == {"$ref": "#/definitions/number"}
+        assert "hairline-w" in shape["required"]
+
+    flat_document = _load(FIXTURE_DIR / "skin-token" / "glass.valid.json")
+    manifest_document = _load(FIXTURE_DIR / "skin-manifest" / "glass.valid.json")
+    resolved_document = _load(FIXTURE_DIR / "skin-json" / "glass.valid.json")
+    assert flat_document["hairline-w"] == 1
+    assert manifest_document["groups"]["shape"]["hairline-w"] == 1
+    assert resolved_document["shape"]["hairline-w"] == 1
+    assert _errors("skin-token", flat_document) == []
+    assert _errors("skin-manifest", manifest_document) == []
+    assert _errors("skin-json", resolved_document) == []
+
+
 @pytest.mark.parametrize(
     ("token", "group"), sorted(NUMERIC_TOKEN_GROUPS.items())
 )
@@ -346,6 +372,54 @@ def test_skins_doc_freezes_the_value_types_and_units() -> None:
         "skins/schema.json",
     ):
         assert needle in text
+
+
+def test_skins_doc_freezes_hairlines_and_layout_ownership() -> None:
+    text = (REPO_ROOT / "skins.md").read_text(encoding="utf-8")
+    for needle in (
+        "Border ownership and row geometry (normative)",
+        "`border-w` is the **outer panel/frame border** only",
+        "`hairline-w` is the **card tile, row action and badge hairline** only",
+        "The row/cell itself has **no border**",
+        "`.settings-net` row has `border: none`",
+        "`54px` instead of `50px`",
+        "thirteen numeric",
+        "`border-w`, `hairline-w`, `gap`",
+        "consumed ONLY by `skinValue()`",
+        "Templates MUST NOT expand layout tokens into CSS",
+        "no `min-width`, `margin` or `min-height`",
+        "Layout metrics are TSX-owned.",
+        "to avoid dual ownership",
+        "may still appear in `skin.json`",
+        "the 24-token",
+    ):
+        assert needle in text
+
+
+def test_skins_doc_documents_the_built_in_border_values() -> None:
+    text = (REPO_ROOT / "skins.md").read_text(encoding="utf-8")
+    for needle in (
+        "Border values: `border-w` `1.5`, `hairline-w` `1`",
+        "values: `border-w` `0`, `hairline-w` `0`",
+        "values: `border-w` `1`, `hairline-w` `1`",
+    ):
+        assert needle in text
+
+    expected = {
+        "glass": (1.5, 1),
+        "flat": (0, 0),
+        "paper": (1, 1),
+    }
+    for name, (border_w, hairline_w) in expected.items():
+        manifest = _load(FIXTURE_DIR / "skin-manifest" / f"{name}.valid.json")
+        resolved = _load(FIXTURE_DIR / "skin-json" / f"{name}.valid.json")
+        flat = _load(FIXTURE_DIR / "skin-token" / f"{name}.valid.json")
+        assert manifest["groups"]["shape"]["border-w"] == border_w
+        assert resolved["shape"]["border-w"] == border_w
+        assert flat["border-w"] == border_w
+        assert manifest["groups"]["shape"]["hairline-w"] == hairline_w
+        assert resolved["shape"]["hairline-w"] == hairline_w
+        assert flat["hairline-w"] == hairline_w
 
 
 def test_skins_doc_pins_the_runtime_contract() -> None:

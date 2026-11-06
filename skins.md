@@ -18,7 +18,7 @@ function of the selected palette and the selected skin; structure belongs to the
   "schemaVersion": 1,
   "name": "glass",
   "groups": {
-    "shape":   { "radius-panel": 18, "radius-card": 14, "radius-cell": 10, "radius-pill": 999, "border-w": 1 },
+    "shape":   { "radius-panel": 18, "radius-card": 14, "radius-cell": 10, "radius-pill": 999, "border-w": 1.5, "hairline-w": 1 },
     "rhythm":  { "gap": 10, "cell-pad": "6px 10px" },
     "surface": {
       "bg-panel": "linear-gradient(180deg, alpha(@surface, 0.72), alpha(@surface_container, 0.82))",
@@ -48,7 +48,8 @@ manifest, group and token levels.
 | Group | Token | Value |
 | --- | --- | --- |
 | shape | `radius-panel`, `radius-card`, `radius-cell`, `radius-pill` | non-negative **unitless number** (`12`), rendered as `12px` in CSS |
-| shape | `border-w` | **unitless number** (`1.5`), rendered as `1.5px` in CSS |
+| shape | `border-w` | **unitless number** (`1.5`) — the outer panel/frame border, rendered as `1.5px` in CSS |
+| shape | `hairline-w` | **unitless number** (`1`) — card tile, row action and badge hairlines, rendered as `1px` in CSS; the row/cell itself has no border (the template uses `none`) |
 | rhythm | `gap` | **unitless number** (`8`), rendered as `8px` in CSS |
 | rhythm | `cell-pad` | string `"Npx Npx"` — the only literal length-pair token (e.g. `"8px 9px"`) |
 | surface | `bg-panel`, `bg-card`, `border`, `shadow` | CSS paint composed only from palette role expressions (below) |
@@ -57,7 +58,22 @@ manifest, group and token levels.
 | ink | `ink-over` | exactly `auto` (derived; see below) |
 | type | `font-family` | string; the default skin may use `"inherit"` |
 | type | `title-size`, `text-size` | **unitless number**, rendered as px in CSS |
-| layout | `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min` | **unitless number** consumed by `skinValue()`; may also appear in CSS placeholders, rendered with px |
+| layout | `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min` | **unitless number** consumed ONLY by `skinValue()`; never expanded by a template into CSS |
+
+### Border ownership and row geometry (normative)
+
+`border-w` and `hairline-w` split one visual job into two owned values:
+
+- `border-w` is the **outer panel/frame border** only.
+- `hairline-w` is the **card tile, row action and badge hairline** only.
+- The row/cell itself has **no border**: the template uses `border: none` there. Do not give the
+  row a transparent border to force a token into its stylesheet.
+
+This split exists because one `border-w` cannot reproduce the real stylesheet (panel `1.5px`,
+card/row-action/badge `1px`, cell `0`/`none`). It is also a rendering constraint: the source
+`.settings-net` row has `border: none`, so its height must not change. A transparent-border
+workaround made the measured row `54px` instead of `50px`; the contract therefore keeps the cell
+borderless and exposes the hairlines as a separate token.
 
 ### Surface paint grammar
 
@@ -93,11 +109,11 @@ depends on the wallpaper and the palette.
 
 ## Value types and units (normative)
 
-The contract separates the **stored value** from its **CSS rendering**. The twelve numeric
+The contract separates the **stored value** from its **CSS rendering**. The thirteen numeric
 tokens are **unitless JSON numbers** in the authored manifest and in the resolved `skin.json`:
 
-`radius-panel`, `radius-card`, `radius-cell`, `radius-pill`, `border-w`, `gap`, `title-size`,
-`text-size`, `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`.
+`radius-panel`, `radius-card`, `radius-cell`, `radius-pill`, `border-w`, `hairline-w`, `gap`,
+`title-size`, `text-size`, `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`.
 
 - Store `12`, `1.5`, `312` — **never** `"12px"`, `"1.5px"` or `"312px"`. A string in any of
   these positions is invalid against both canonical schemas and is rejected by the runtime
@@ -109,9 +125,12 @@ tokens are **unitless JSON numbers** in the authored manifest and in the resolve
   `"Npx Npx"` (for example `"8px 9px"`). The expander passes it through unchanged.
 - The paint (`bg-panel`, `bg-card`, `border`, `shadow`), `blur`, ink (`ink`, `ink-dim`,
   `accent`) and `font-family` tokens are CSS/role-expression strings, not numeric tokens.
-- The layout tokens (`panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`) are consumed
-  by `skinValue()` as numbers **and** may appear in CSS placeholders, where they render with
-  `px` exactly like the other numeric tokens.
+- The layout tokens (`panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`) are
+  **layout metrics owned by the widgets**: they are consumed ONLY by `skinValue()` as numbers.
+  Templates MUST NOT expand layout tokens into CSS — no `min-width`, `margin` or `min-height`
+  from a layout token — to avoid dual ownership (a widget and a stylesheet both claiming the
+  same size). Layout metrics are TSX-owned. The tokens may still appear in `skin.json` for
+  consumers.
 - `font-family` for the default skin may be `"inherit"`.
 
 The rendering rule, as a single example:
@@ -152,6 +171,10 @@ runtime `skin.json` directly against it, without the manifest wrapper.
 - An unknown placeholder (a `SKIN_*` name that no token normalizes to), and any `{{SKIN_`
   left unresolved after substitution, is an **error**. Expansion fails closed; it never passes
   a placeholder through.
+- Layout tokens (`panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`) are **not**
+  template inputs. A template MUST NOT expand them into CSS (`min-width`, `margin`,
+  `min-height`); widgets own those metrics through `skinValue()`. They still appear in
+  `skin.json` for consumers.
 
 ### Expansion inputs and outputs
 
@@ -246,18 +269,19 @@ These are contract facts, not implementation in this repo.
   loaded.
 - **Drift-gate expectations.** A skin drift gate must assert a known ink (for example the resolved
   `on_surface`/`on_backdrop` color of a rendered probe) so a missing palette provider (near-black)
-  or a stale skin fails the gate. Schema gates also assert the exact six groups, the 23-token
+  or a stale skin fails the gate. Schema gates also assert the exact six groups, the 24-token
   vocabulary, the 51-role palette enum, and the forbidden constructs above.
 
 ## Built-in skins (v1)
 
 - **`glass`** — the default skin, and the app fallback parity target. Translucent panels/cards,
-  rounded corners, blur and a soft shadow.
-- **`flat`** — zero radii, no blur, no shadow, solid role paint; minimal elevation.
+  rounded corners, blur and a soft shadow. Border values: `border-w` `1.5`, `hairline-w` `1`.
+- **`flat`** — zero radii, no blur, no shadow, solid role paint; minimal elevation. Border
+  values: `border-w` `0`, `hairline-w` `0`.
 - **`paper`** — the role-based ink/palette axis: clean rules and light-weight borders with ink
-  taken from the palette roles. `paper` does **not** force a light look by itself; a light look
-  depends on the selected palette (a light palette + `paper` reads as light, a dark palette +
-  `paper` stays dark).
+  taken from the palette roles. Border values: `border-w` `1`, `hairline-w` `1`. `paper` does
+  **not** force a light look by itself; a light look depends on the selected palette (a light
+  palette + `paper` reads as light, a dark palette + `paper` stays dark).
 
 The runtime falls back to `glass` when no valid skin is selected, matching the app fallback.
 
