@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "name": "glass",
+  "groups": {
+    "shape": {
+      "radius-panel": "12px",
+      "radius-card": "12px",
+      "radius-cell": "12px",
+      "radius-pill": "12px",
+      "border-w": "1.5px"
+    },
+    "rhythm": {
+      "gap": "8px",
+      "cell-pad": "6px 10px"
+    },
+    "surface": {
+      "bg-panel": "linear-gradient(180deg, alpha(@surface, 0.72), alpha(@surface_container, 0.82))",
+      "bg-card": "alpha(@surface_container_high, 0.55)",
+      "border": "1px solid color-mix(in srgb, @outline 60%, transparent)",
+      "shadow": "0 8px 24px alpha(@shadow, 0.35)",
+      "blur": "blur(18px) saturate(1.2)"
+    },
+    "ink": {
+      "ink": "@on_surface",
+      "ink-dim": "alpha(@on_surface_variant, 0.8)",
+      "accent": "@primary",
+      "ink-over": "auto"
+    },
+    "type": {
+      "font-family": "Inter, sans-serif",
+      "title-size": "12.5px",
+      "text-size": "13px"
+    },
+    "layout": {
+      "panel-width": "312px",
+      "bt-list-spacing": "4px",
+      "bar-row-height": "28px",
+      "chip-min": "48px"
+    }
+  }
+}

@@ -9,6 +9,7 @@ once.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,25 @@ VALID_FIXTURES = sorted(FIXTURE_DIR.glob("*/*.valid.json"))
 INVALID_FIXTURES = sorted(FIXTURE_DIR.glob("*/*.invalid.json"))
 
 GROUPS = ("shape", "surface", "ink", "type", "rhythm", "layout")
+
+# The twelve numeric tokens and the manifest group each one lives in. These are
+# unitless JSON numbers; only cell-pad is a literal "Npx Npx" CSS length pair.
+NUMERIC_TOKEN_GROUPS = {
+    "radius-panel": "shape",
+    "radius-card": "shape",
+    "radius-cell": "shape",
+    "radius-pill": "shape",
+    "border-w": "shape",
+    "gap": "rhythm",
+    "title-size": "type",
+    "text-size": "type",
+    "panel-width": "layout",
+    "bt-list-spacing": "layout",
+    "bar-row-height": "layout",
+    "chip-min": "layout",
+}
+
+CSS_LENGTH_PLACEHOLDER = re.compile(r"<([a-z][a-z0-9-]*)>")
 
 PALETTE_V1_ROLES = {
     "background",
@@ -167,6 +187,8 @@ def test_palette_enum_is_exactly_palette_v1() -> None:
         ("calc-percent.invalid.json", "calc"),
         ("unknown-role.invalid.json", "brand"),
         ("extra-top-level.invalid.json", "structure"),
+        ("numeric-string.invalid.json", "is not of type 'number'"),
+        ("cell-pad-single.invalid.json", "does not match"),
     ],
 )
 def test_named_negative_fixture_reports_the_offending_construct(
@@ -206,6 +228,123 @@ def test_layout_tokens_are_numbers_and_surface_has_the_blur_exception() -> None:
     assert surface["blur"]["$ref"].endswith("/blurValue")
     for token in ("bg-panel", "bg-card", "border", "shadow"):
         assert surface[token]["$ref"].endswith("/paint")
+
+
+@pytest.mark.parametrize(
+    ("token", "group"), sorted(NUMERIC_TOKEN_GROUPS.items())
+)
+def test_numeric_token_rejects_a_px_string_and_accepts_a_number(
+    token: str, group: str
+) -> None:
+    token_document = _load(FIXTURE_DIR / "skin-token" / "glass.valid.json")
+    token_document[token] = "12px"
+    assert _errors("skin-token", token_document) != []
+
+    token_document[token] = 12
+    assert _errors("skin-token", token_document) == []
+
+    manifest = _load(FIXTURE_DIR / "skin-manifest" / "glass.valid.json")
+    manifest["groups"][group][token] = "12px"
+    assert _errors("skin-manifest", manifest) != []
+
+    manifest["groups"][group][token] = 12
+    assert _errors("skin-manifest", manifest) == []
+
+
+def test_every_numeric_token_resolves_to_a_unitless_number_definition() -> None:
+    for schema_name in ("skin-token", "skin-manifest"):
+        schema = _load(SCHEMAS[schema_name])
+        if schema_name == "skin-token":
+            properties = schema["properties"]
+        else:
+            properties = {
+                token: definition
+                for group in GROUPS
+                for token, definition in schema["properties"]["groups"]["properties"][
+                    group
+                ]["properties"].items()
+            }
+        for token in NUMERIC_TOKEN_GROUPS:
+            ref = properties[token]["$ref"]
+            definition = schema["definitions"][ref.split("/")[-1]]
+            assert definition["type"] == "number"
+            assert "unitless" in definition["description"]
+            assert definition["examples"]
+            assert all(
+                isinstance(value, (int, float)) for value in definition["examples"]
+            )
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["8px", "8", "8 9", "8 9px", "8px 9", "8px 9px 10px", "8.5px 9px"],
+)
+def test_cell_pad_requires_exactly_two_integer_pixel_lengths(value: str) -> None:
+    token_document = _load(FIXTURE_DIR / "skin-token" / "glass.valid.json")
+    token_document["cell-pad"] = value
+    assert _errors("skin-token", token_document) != []
+
+    manifest = _load(FIXTURE_DIR / "skin-manifest" / "glass.valid.json")
+    manifest["groups"]["rhythm"]["cell-pad"] = value
+    assert _errors("skin-manifest", manifest) != []
+
+
+@pytest.mark.parametrize("value", ["8px 9px", "0px 0px"])
+def test_cell_pad_accepts_two_integer_pixel_lengths(value: str) -> None:
+    token_document = _load(FIXTURE_DIR / "skin-token" / "glass.valid.json")
+    token_document["cell-pad"] = value
+    assert _errors("skin-token", token_document) == []
+
+    manifest = _load(FIXTURE_DIR / "skin-manifest" / "glass.valid.json")
+    manifest["groups"]["rhythm"]["cell-pad"] = value
+    assert _errors("skin-manifest", manifest) == []
+
+
+def test_schema_descriptions_state_the_unit_convention() -> None:
+    for schema_name in ("skin-token", "skin-manifest"):
+        definitions = _load(SCHEMAS[schema_name])["definitions"]
+        assert "unitless" in definitions["number"]["description"].lower()
+        assert "unitless" in definitions["nonNegativeNumber"]["description"].lower()
+        assert "Npx Npx" in definitions["cellPad"]["description"]
+        assert "inherit" in definitions["fontFamily"]["description"]
+        top_level = _load(SCHEMAS[schema_name])["description"]
+        assert "unitless" in top_level.lower()
+        assert "Npx Npx" in top_level
+
+
+def test_skins_doc_expander_renders_numbers_as_px() -> None:
+    text = (REPO_ROOT / "skins.md").read_text(encoding="utf-8")
+    template = "border-radius: <radius-card>; width: <panel-width>;"
+    assert template in text
+    assert (
+        "expanded:  border-radius: 12px; width: 312px;" in text
+    )
+
+    def expand(snippet: str, values: dict[str, int]) -> str:
+        return CSS_LENGTH_PLACEHOLDER.sub(
+            lambda match: f"{values[match.group(1)]}px", snippet
+        )
+
+    assert (
+        expand(template, {"radius-card": 12, "panel-width": 312})
+        == "border-radius: 12px; width: 312px;"
+    )
+
+
+def test_skins_doc_freezes_the_value_types_and_units() -> None:
+    text = (REPO_ROOT / "skins.md").read_text(encoding="utf-8")
+    for needle in (
+        "Value types and units (normative)",
+        "unitless JSON numbers",
+        "as `<number>px`",
+        "cell-pad",
+        "literal CSS length-pair string",
+        "font-family` for the default skin may be `\"inherit\"`",
+        "MUST vendor",
+        "local lookalike",
+        "skins/schema.json",
+    ):
+        assert needle in text
 
 
 def test_skins_doc_pins_the_runtime_contract() -> None:

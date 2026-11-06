@@ -46,17 +46,17 @@ manifest, group and token levels.
 
 | Group | Token | Value |
 | --- | --- | --- |
-| shape | `radius-panel`, `radius-card`, `radius-cell`, `radius-pill` | non-negative number = px |
-| shape | `border-w` | number |
-| rhythm | `gap` | number |
-| rhythm | `cell-pad` | string `"Npx Npx"` |
+| shape | `radius-panel`, `radius-card`, `radius-cell`, `radius-pill` | non-negative **unitless number** (`12`), rendered as `12px` in CSS |
+| shape | `border-w` | **unitless number** (`1.5`), rendered as `1.5px` in CSS |
+| rhythm | `gap` | **unitless number** (`8`), rendered as `8px` in CSS |
+| rhythm | `cell-pad` | string `"Npx Npx"` — the only literal length-pair token (e.g. `"8px 9px"`) |
 | surface | `bg-panel`, `bg-card`, `border`, `shadow` | CSS paint composed only from palette role expressions (below) |
 | surface | `blur` | `none` or `"blur(<n>px) [saturate(<n>)]"` |
 | ink | `ink`, `ink-dim`, `accent` | a `palette.v1` role name, or a role expression |
 | ink | `ink-over` | exactly `auto` (derived; see below) |
-| type | `font-family` | string |
-| type | `title-size`, `text-size` | number |
-| layout | `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min` | number, consumed by `skinValue()`, never emitted as CSS |
+| type | `font-family` | string; the default skin may use `"inherit"` |
+| type | `title-size`, `text-size` | **unitless number**, rendered as px in CSS |
+| layout | `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min` | **unitless number** consumed by `skinValue()`; may also appear in CSS placeholders, rendered with px |
 
 ### Surface paint grammar
 
@@ -90,6 +90,47 @@ legal value is `auto`, which tells the runtime to use the palette's documented
 `on_backdrop` role for the band. A skin cannot pin a fixed role there, because the correct ink
 depends on the wallpaper and the palette.
 
+## Value types and units (normative)
+
+The contract separates the **stored value** from its **CSS rendering**. The twelve numeric
+tokens are **unitless JSON numbers** in the authored manifest and in the resolved `skin.json`:
+
+`radius-panel`, `radius-card`, `radius-cell`, `radius-pill`, `border-w`, `gap`, `title-size`,
+`text-size`, `panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`.
+
+- Store `12`, `1.5`, `312` — **never** `"12px"`, `"1.5px"` or `"312px"`. A string in any of
+  these positions is invalid against both canonical schemas and is rejected by the runtime
+  parser (`numeric tokens must be finite`).
+- When a numeric token placeholder is used in a **CSS length position**, the expander renders it
+  as `<number>px`. The manifest and the resolved `skin.json` stay unitless: the expander MUST
+  NOT store units in either document.
+- `cell-pad` is the **only** token whose value is a literal CSS length-pair string, exactly
+  `"Npx Npx"` (for example `"8px 9px"`). The expander passes it through unchanged.
+- The paint (`bg-panel`, `bg-card`, `border`, `shadow`), `blur`, ink (`ink`, `ink-dim`,
+  `accent`) and `font-family` tokens are CSS/role-expression strings, not numeric tokens.
+- The layout tokens (`panel-width`, `bt-list-spacing`, `bar-row-height`, `chip-min`) are consumed
+  by `skinValue()` as numbers **and** may appear in CSS placeholders, where they render with
+  `px` exactly like the other numeric tokens.
+- `font-family` for the default skin may be `"inherit"`.
+
+The rendering rule, as a single example:
+
+```text
+manifest:  "radius-card": 12
+           "panel-width": 312
+template:  border-radius: <radius-card>; width: <panel-width>;
+expanded:  border-radius: 12px; width: 312px;
+```
+
+### Consumers
+
+Consumer repos MUST vendor this repo's canonical schemas
+([`schemas/skin-token.schema.json`](./schemas/skin-token.schema.json),
+[`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json)) and validate
+manifests and the resolved `skin.json` against them. A local lookalike schema — for example a
+repo-local `skins/schema.json` that accepts `"12px"` strings — is **not** this contract;
+validating against it produces values the runtime parser rejects at app start.
+
 ## Explicitly rejected constructs
 
 The schemas reject these **by construction** (positive/negative fixtures in
@@ -103,6 +144,8 @@ The schemas reject these **by construction** (positive/negative fixtures in
 - `blur(` as a value — only the `blur` token may contain `blur(...)`;
 - `%` inside `calc()` — `calc(1px + 10%)` is invalid;
 - unknown palette roles — every `@reference` must be a `palette.v1` role;
+- unit-bearing numeric tokens — `"12px"` where a unitless number is required; `cell-pad` is the
+  only `"Npx Npx"` string token;
 - out-of-range `alpha()` and malformed `color-mix()` color atoms.
 
 ## Runtime facts
@@ -159,5 +202,7 @@ uv run pytest -q tests/test_skin_contract.py
 ```
 
 This validates both schemas as draft-07, accepts the `glass`/`flat`/`paper` fixtures, rejects every
-named negative fixture, checks the token/group vocabulary and the exact 51-role palette enum, and
-pins the runtime-fact strings in this document.
+named negative fixture, checks the token/group vocabulary and the exact 51-role palette enum, pins
+the runtime-fact strings in this document, and enforces the value/unit convention: every numeric
+token rejects `"12px"` and accepts `12`, `cell-pad` requires `"Npx Npx"`, and the expander example
+above renders `12` → `12px`.

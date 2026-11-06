@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://dotfiles.local/schemas/skin-token.schema.json",
   "title": "Frozen skin token vocabulary v1",
-  "description": "One complete flat skin token set for the frozen v1 skin plane. A skin maps palette/ink, paint, type and rhythm/density; it never carries structure. Surface paint is composed only from palette.v1 role expressions (no literal hex).",
+  "description": "One complete flat skin token set for the frozen v1 skin plane. A skin maps palette/ink, paint, type and rhythm/density; it never carries structure. Surface paint is composed only from palette.v1 role expressions (no literal hex). Numeric tokens are unitless JSON numbers (for example 12); the CSS expander renders them as <number>px and units are never stored in the manifest or skin.json. cell-pad is the only literal length-pair string (\"Npx Npx\").",
   "status": "frozen",
   "type": "object",
   "additionalProperties": false,
@@ -263,14 +263,20 @@
     },
     "nonNegativeNumber": {
       "type": "number",
-      "minimum": 0
+      "minimum": 0,
+      "description": "A non-negative, unitless JSON number (for example 12). In a CSS length position the expander renders it as <number>px; a unit string such as \"12px\" is invalid.",
+      "examples": [12, 1.5, 312]
     },
     "number": {
-      "type": "number"
+      "type": "number",
+      "description": "A unitless JSON number (for example 12 or 1.5). In a CSS length position the expander renders it as <number>px; a unit string such as \"12px\" is invalid.",
+      "examples": [12, 1.5, 312]
     },
     "fontFamily": {
       "type": "string",
       "minLength": 1,
+      "description": "A CSS font-family string; the default skin may use \"inherit\".",
+      "examples": ["inherit", "Inter, sans-serif"],
       "allOf": [
         {
           "$ref": "#/definitions/noForbiddenValue"
@@ -280,7 +286,8 @@
     "cellPad": {
       "type": "string",
       "pattern": "^\\d+px \\d+px$",
-      "description": "Exactly two pixel lengths, \"Npx Npx\"."
+      "description": "Exactly two pixel lengths, \"Npx Npx\". This is the only token that stores a literal CSS length-pair string; the numbers stay integers and carry their px units.",
+      "examples": ["8px 9px"]
     }
   }
 }
