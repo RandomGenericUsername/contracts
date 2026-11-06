@@ -2,13 +2,13 @@
 id: REQ-012
 title: "Freeze skin value types and units (numeric tokens are unitless numbers)"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-012/
+branch: ticket/REQ-012-skin-units
 ---
 
 # Freeze skin value types and units (numeric tokens are unitless numbers)

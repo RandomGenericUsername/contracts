@@ -12,7 +12,7 @@
 
 - [REQ-010-tpr-invocation-record/ticket.md](./REQ-010-tpr-invocation-record/ticket.md) — Record the tpr invocation contract | `done` | openspec: tpr-invocation-record | tag: v0.4.0
 - [REQ-011-skin-plane-contract](./REQ-011-skin-plane-contract/ticket.md) — Frozen skin-plane contract v1 (token vocabulary, manifest, docs, fixtures) | `done` | tag: v0.5.0
-- [REQ-012-skin-units](./REQ-012-skin-units/ticket.md) — Freeze skin value types and units (numeric tokens are unitless numbers) | `proposed` | lane: 2
+- [REQ-012-skin-units](./REQ-012-skin-units/ticket.md) — Freeze skin value types and units (numeric tokens are unitless numbers) | `in-progress` | worktree: .worktrees/REQ-012/ | branch: ticket/REQ-012-skin-units
 
 ## Bugs
 
