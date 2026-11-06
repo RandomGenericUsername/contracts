@@ -42,7 +42,7 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
 - `schemas/ags-app-refresh-result.schema.json` — the runtime-owned per-app
   refresh result/log record.
 - `schemas/skin-token.schema.json` — the frozen skin-plane v1 token vocabulary
-  (23 tokens in six groups, palette-role paint grammar).
+  (24 tokens in six groups, palette-role paint grammar).
 - `schemas/skin-manifest.schema.json` — the skin manifest (`schemaVersion`, `name`,
   the six token groups), with structure/variant forbidden.
 - `schemas/skin-json.schema.json` — the resolved `skin.json` token map
@@ -109,3 +109,9 @@ package data.
 + shared `current/skin.json` outputs, the consumer pointers, and the grouped
 `schemas/skin-json.schema.json`. The 23-token vocabulary is unchanged; `DATA_VERSION` stays `2`
 and the invocation records are byte-identical.
+
+`v0.6.0` (`cli-invocation-contract` 0.6.0) adds the `shape.hairline-w` token (REQ-014): `border-w`
+now owns only the outer panel/frame border while `hairline-w` owns the card tile, row action and
+badge hairlines, and the row/cell stays borderless. The vocabulary becomes 24 tokens; the layout
+tokens are consumed only by widgets through `skinValue()` and must not be expanded by templates.
+`DATA_VERSION` stays `2` and the invocation records are byte-identical.

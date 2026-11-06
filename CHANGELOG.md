@@ -9,6 +9,49 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.6.0] - 2026-11-05
+
+Minor release: split the panel border from the hairlines and make the layout metrics
+TSX-owned (ticket [`REQ-014`](./tickets/REQ-014-skin-hairline-layout-ownership/ticket.md)).
+The vocabulary grows from 23 to 24 tokens; the six manifest groups are unchanged.
+
+### Added
+
+- `shape.hairline-w` in `schemas/skin-token.schema.json`,
+  `schemas/skin-manifest.schema.json` and `schemas/skin-json.schema.json` — a unitless
+  numeric token rendered as `<n>px` in a CSS length position. `border-w` now owns only the
+  outer panel/frame border; `hairline-w` owns the card tile, row action and badge hairlines.
+  The row/cell has no border (the template uses `none`).
+- Positive `skin-json` fixtures for `flat` and `paper`, alongside `glass`, so all three
+  built-in token maps are validated directly.
+
+### Changed
+
+- `skins.md` documents the border ownership split in a new normative **"Border ownership and
+  row geometry"** section and records the rendering consequence: the source `.settings-net` row
+  has `border: none`, and the transparent-border workaround changed its measured height from
+  `50px` to `54px`.
+- `skins.md` strengthens the layout rule: `panel-width`, `bt-list-spacing`, `bar-row-height`
+  and `chip-min` are consumed ONLY by widgets through `skinValue()`; templates MUST NOT expand
+  them into CSS (`min-width`, `margin`, `min-height`). Layout metrics are TSX-owned; the tokens
+  may still appear in `skin.json` for consumers.
+- Built-in border values are documented and mirrored in the fixtures: `glass` `border-w 1.5` /
+  `hairline-w 1`; `flat` `border-w 0` / `hairline-w 0`; `paper` `border-w 1` / `hairline-w 1`.
+- `tests/test_skin_contract.py` covers `hairline-w` in all three schemas, rejects a numeric
+  string for it, validates the `flat`/`paper` resolved maps and pins the new doc statements.
+- `README.md` lists 24 tokens and the `0.6.0` release; `CONTRACT.md` records the new token and
+  release.
+- `cli-invocation-contract` bumped `0.5.2` → `0.6.0`: `CONTRACT_VERSION = "0.6.0"`,
+  `DATA_VERSION = 2` unchanged. `invocation-contract.json` and the `csg`/`weg`/`itr`/`tpr`
+  records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.6.0` on the merged release commit, with the wheel + sdist built from that
+  commit, not from a working tree.
+- Consumers re-pin this exact tag; the assets/runtime/platform repos add `hairline-w`, stop
+  expanding layout tokens in templates, and keep the row borderless.
+
 ## [0.5.2] - 2026-11-05
 
 Patch release: freeze the skin artifact interface (ticket

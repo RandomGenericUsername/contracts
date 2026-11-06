@@ -2,7 +2,7 @@
 id: REQ-014
 title: "Split the panel border from the hairlines and make layout metrics TSX-owned"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -57,22 +57,22 @@ other 23):
 
 ## Acceptance
 
-- [ ] `hairline-w` is a required numeric `shape` token in all three frozen schemas, typed
+- [x] `hairline-w` is a required numeric `shape` token in all three frozen schemas, typed
   identically to `border-w` (`#/definitions/number`), taking the vocabulary to 24 tokens.
-- [ ] `skins.md` names `border-w` as the outer panel/frame border and `hairline-w` as the card
+- [x] `skins.md` names `border-w` as the outer panel/frame border and `hairline-w` as the card
   tile, row action and badge hairlines; it states the row/cell has no border and records the
   `54px` vs `50px` row-height consequence.
-- [ ] `skins.md` states the layout tokens are consumed only by widgets through `skinValue()` and
+- [x] `skins.md` states the layout tokens are consumed only by widgets through `skinValue()` and
   that templates MUST NOT expand them into CSS (`min-width`/`margin`/`min-height`), while they
   may still appear in `skin.json`; the old "may appear in CSS placeholders" allowance is gone.
-- [ ] `skins.md` documents `glass` `border-w 1.5` / `hairline-w 1`, `flat` `border-w 0` /
+- [x] `skins.md` documents `glass` `border-w 1.5` / `hairline-w 1`, `flat` `border-w 0` /
   `hairline-w 0`, `paper` `border-w 1` / `hairline-w 1`; the three valid fixtures carry those
   values.
-- [ ] `tests/test_skin_contract.py` covers `hairline-w` numeric-string rejection in the token,
+- [x] `tests/test_skin_contract.py` covers `hairline-w` numeric-string rejection in the token,
   manifest and `skin.json` documents, includes it in the `skin.json`/manifest cross-check, and
   pins the new doc statements.
-- [ ] `make test`, `make skin-test` and `make schema-test` exit 0.
-- [ ] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, `pyproject.toml`,
+- [x] `make test`, `make skin-test` and `make schema-test` exit 0.
+- [x] `CHANGELOG.md`, `README.md`, `CONTRACT.md`, `tickets/INDEX.md`, `pyproject.toml`,
   `src/cli_invocation_contract/__init__.py`, `uv.lock` and the version test agree on `0.6.0`;
   annotated tag `v0.6.0` points at the merged release commit and no existing tag moved.
 
@@ -104,7 +104,34 @@ other 23):
 
 ## Verification
 
-Filled in on the ticket branch after the gates run.
+Commands run from the worktree root (`.worktrees/REQ-014/`, branch
+`ticket/REQ-014-skin-hairline-layout-ownership`, base `efb8348`).
+
+| Claim | Command | Result |
+| --- | --- | --- |
+| `hairline-w` schema/doc/fixture gates | `make skin-test` | `110 passed in 0.47s`, exit 0 |
+| Full repo gate (event tests + all pytest suites) | `make test` | `Ran 10 tests in 0.049s ... OK`; `219 passed in 0.61s`, exit 0 |
+| AGS app schema gate unchanged | `make schema-test` | `40 passed in 0.08s`, exit 0 |
+| No generated drift | `make contracts-drift` | symmetric contract/generated agree; regenerate-and-diff clean, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.6.0 2` |
+
+### Commits
+
+| Commit | Subject |
+| --- | --- |
+| `efb8348` | `docs(tickets): plan the hairline/layout-ownership correction (REQ-014)` |
+| `ef6e981` | `chore(REQ-014): start — record worktree/branch, move to in-progress` |
+| `fe8c7aa` | `feat(REQ-014): split panel border from hairlines and make layout TSX-owned` |
+| release commit (the `v0.6.0` tag target) | `chore(REQ-014): release v0.6.0` |
+
+### Status
+
+**Done on `ticket/REQ-014-skin-hairline-layout-ownership`.** The contract now has 24 tokens:
+`border-w` owns the outer panel/frame border and the new `shape.hairline-w` owns the card tile,
+row action and badge hairlines, with the row/cell borderless. The layout tokens are consumed only
+by widgets through `skinValue()`; templates must not expand them. No runtime, assets or app code
+was changed in this repo. Merge to `main` fast-forward, then create the annotated `v0.6.0` tag on
+the merged release commit.
 
 ## Non-goals
 

@@ -72,8 +72,8 @@ TPR_ARGV = [
 
 
 def test_contract_version_is_the_release_version() -> None:
-    # AD-11: the version a CLI reports equals the pinned `contracts` tag (v0.5.2).
-    assert CONTRACT_VERSION == "0.5.2"
+    # AD-11: the version a CLI reports equals the pinned `contracts` tag (v0.6.0).
+    assert CONTRACT_VERSION == "0.6.0"
 
 
 def test_data_version_is_the_json_shape_version() -> None:
