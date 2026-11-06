@@ -2,8 +2,9 @@
 
 > **Status: frozen v1.** The vocabulary below comes from executed GTK 4.24 probes and is the
 > only skin surface the platform accepts. The machine-readable forms are
-> [`schemas/skin-token.schema.json`](./schemas/skin-token.schema.json) and
-> [`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json). This repo owns the
+> [`schemas/skin-token.schema.json`](./schemas/skin-token.schema.json),
+> [`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json) and
+> [`schemas/skin-json.schema.json`](./schemas/skin-json.schema.json). This repo owns the
 > contract only; the runtime renderer, `skinValue()`, and the AGS apps live elsewhere.
 
 A skin is **palette/ink mapping + paint + rhythm/density**. Structure is deliberately outside the
@@ -126,10 +127,82 @@ expanded:  border-radius: 12px; width: 312px;
 
 Consumer repos MUST vendor this repo's canonical schemas
 ([`schemas/skin-token.schema.json`](./schemas/skin-token.schema.json),
-[`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json)) and validate
-manifests and the resolved `skin.json` against them. A local lookalike schema — for example a
-repo-local `skins/schema.json` that accepts `"12px"` strings — is **not** this contract;
-validating against it produces values the runtime parser rejects at app start.
+[`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json),
+[`schemas/skin-json.schema.json`](./schemas/skin-json.schema.json)) and validate manifests and
+the resolved `skin.json` against them. A local lookalike schema — for example a repo-local
+`skins/schema.json` that accepts `"12px"` strings — is **not** this contract; validating
+against it produces values the runtime parser rejects at app start.
+
+## Template set and consumer artifacts (normative)
+
+This section freezes how a selected skin becomes files on disk. The resolved-token document is
+[`schemas/skin-json.schema.json`](./schemas/skin-json.schema.json); consumers validate a
+runtime `skin.json` directly against it, without the manifest wrapper.
+
+### Template set
+
+- The template set lives with the skin data, in `dotfiles-assets/skins/templates/`, and is
+  **independent of the selected manifest**: the same templates render every built-in skin.
+- There is exactly **one template per target config directory**, named
+  `<configDir>.gtk.css.j2`; the expander renders `<configDir>.css`. `configDir` is the
+  consumer's config directory name (for the bar, `ags` — see the pointers below).
+- A placeholder is `{{SKIN_<TOKEN>}}`. The token name is uppercased and every run of
+  non-alphanumeric characters becomes `_` (leading/trailing `_` trimmed): `radius-panel` →
+  `SKIN_RADIUS_PANEL`, `font-family` → `SKIN_FONT_FAMILY`.
+- An unknown placeholder (a `SKIN_*` name that no token normalizes to), and any `{{SKIN_`
+  left unresolved after substitution, is an **error**. Expansion fails closed; it never passes
+  a placeholder through.
+
+### Expansion inputs and outputs
+
+- **Inputs.** The manifest is the selected skin: grouped tokens with the value types and units
+  of v0.5.1. The templates are the shared set above. The manifest does not choose a template
+  and does not carry a per-app map.
+- **Outputs.** Exactly `current/skins/<configDir>.css` per target config directory, plus
+  **one shared** `current/skin.json` for all consumers. There is no per-app `skin.json`.
+
+### Pointers (consumer contract)
+
+For every target config directory:
+
+```text
+{install}/config/<configDir>/skin.css   -> current/skins/<configDir>.css
+{install}/config/<configDir>/skin.json  -> current/skin.json
+```
+
+For the bar today `configDir = ags` (dotfiles-v3 `apps.yaml`, bar `configDir: ags`); every
+other app uses its own `configDir`. Apps resolve the CSS through
+`$XDG_CONFIG_HOME/<configDir>/skin.css`, which is spine-linked to the pointer above.
+
+### `skin.json` shape
+
+The document is exactly:
+
+```text
+{"version": 1, "<group>": {"<token>": <unitless number|string>, ...}, ...}
+```
+
+- `version` is the integer `1`.
+- The six groups are `shape`, `surface`, `ink`, `type`, `rhythm`, `layout`; all six are
+  required, each group has exactly the tokens in the table above, and
+  `additionalProperties: false` applies at the root and inside every group.
+- Numeric tokens are raw JSON numbers (`12`, `1.5`, `312`), never strings. String tokens are
+  emitted as-is (`"6px 10px"`, `"@on_surface"`, `"inherit"`).
+- There are no extra keys, no flat token map, and no `structure`/`variant` group.
+
+### Read order and refresh
+
+- **Selection.** The runtime reads the selected skin from `desired.json` `skin`; the default is
+  `glass`.
+- **Cache key.** A compiled skin is cached under
+  `sha256(templates_hash ‖ manifest_hash)` and is palette-independent.
+- **Appearance hash.** The appearance hash includes the skin hash, so a skin change is an
+  appearance change.
+- **Refresh.** Live apps refresh through the existing `palette-refresh` request; the bar stays
+  restart-only. No new refresh protocol is introduced.
+- **Fail closed.** Missing or invalid artifacts (template, manifest, expanded CSS, or
+  `skin.json`) abort expansion/publication or consumer load; no partial artifact is published
+  and a consumer keeps its previous skin instead of painting an invalid one.
 
 ## Explicitly rejected constructs
 
@@ -155,7 +228,7 @@ These are contract facts, not implementation in this repo.
 - **Selection.** The selected skin lives in the runtime `desired.json` as
   `skin: "<name>"`. There is no per-app skin choice in v1.
 - **Cache key.** Skins are palette-independent. A compiled skin is cached under
-  `sha256(template_set_hash ‖ manifest_hash)`; changing the palette does not change this key.
+  `sha256(templates_hash ‖ manifest_hash)`; changing the palette does not change this key.
 - **Appearance hash.** The appearance hash includes the skin hash. A skin change is therefore an
   appearance change and flows through the same comparison/ledger as a palette change.
 - **Refresh lanes.** Skin refresh rides the existing palette-refresh/restart lanes. Live apps

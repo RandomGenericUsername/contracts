@@ -23,6 +23,7 @@ FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "skin-contract"
 SCHEMAS = {
     "skin-token": SCHEMA_DIR / "skin-token.schema.json",
     "skin-manifest": SCHEMA_DIR / "skin-manifest.schema.json",
+    "skin-json": SCHEMA_DIR / "skin-json.schema.json",
 }
 
 VALID_FIXTURES = sorted(FIXTURE_DIR.glob("*/*.valid.json"))
@@ -352,7 +353,7 @@ def test_skins_doc_pins_the_runtime_contract() -> None:
     for needle in (
         'desired.json',
         'skin: "<name>"',
-        "sha256(template_set_hash ‖ manifest_hash)",
+        "sha256(templates_hash ‖ manifest_hash)",
         "appearance hash",
         "Gtk.CssProvider",
         "USER priority (800)",
@@ -364,5 +365,97 @@ def test_skins_doc_pins_the_runtime_contract() -> None:
         "flat",
         "paper",
         "restart",
+    ):
+        assert needle in text
+
+
+def test_skin_json_requires_version_and_the_six_groups() -> None:
+    schema = _load(SCHEMAS["skin-json"])
+    assert schema["required"] == ["version", *GROUPS]
+    assert set(schema["properties"]) == {"version", *GROUPS}
+    assert schema["additionalProperties"] is False
+    assert schema["properties"]["version"]["const"] == 1
+    for group in GROUPS:
+        assert schema["properties"][group]["additionalProperties"] is False
+
+
+def test_skin_json_group_token_schemas_match_the_manifest() -> None:
+    skin_json_groups = _load(SCHEMAS["skin-json"])["properties"]
+    manifest_groups = _load(SCHEMAS["skin-manifest"])["properties"]["groups"][
+        "properties"
+    ]
+    for group in GROUPS:
+        assert skin_json_groups[group] == manifest_groups[group]
+
+
+@pytest.mark.parametrize("value", [0, 2, "1", None])
+def test_skin_json_rejects_a_version_other_than_one(value: Any) -> None:
+    document = _load(FIXTURE_DIR / "skin-json" / "glass.valid.json")
+    document["version"] = value
+    assert _errors("skin-json", document) != []
+
+
+def test_skin_json_requires_the_version_key() -> None:
+    document = _load(FIXTURE_DIR / "skin-json" / "glass.valid.json")
+    document.pop("version")
+    assert _errors("skin-json", document) != []
+
+
+@pytest.mark.parametrize(
+    ("fixture", "needle"),
+    [
+        ("flat-tokens.invalid.json", "radius-panel"),
+        ("string-numerics.invalid.json", "is not of type 'number'"),
+        ("structure-group.invalid.json", "structure"),
+        ("variant-group.invalid.json", "variant"),
+        ("unknown-group.invalid.json", "density"),
+    ],
+)
+def test_skin_json_named_negative_fixture_reports_the_offending_construct(
+    fixture: str, needle: str
+) -> None:
+    document = _load(FIXTURE_DIR / "skin-json" / fixture)
+    assert needle in _error_text("skin-json", document)
+
+
+@pytest.mark.parametrize(("token", "group"), sorted(NUMERIC_TOKEN_GROUPS.items()))
+def test_skin_json_numeric_token_rejects_a_string_and_accepts_a_number(
+    token: str, group: str
+) -> None:
+    document = _load(FIXTURE_DIR / "skin-json" / "glass.valid.json")
+    document[group][token] = "12px"
+    assert _errors("skin-json", document) != []
+
+    document[group][token] = 12
+    assert _errors("skin-json", document) == []
+
+
+def test_skin_json_keeps_string_tokens_verbatim() -> None:
+    document = _load(FIXTURE_DIR / "skin-json" / "glass.valid.json")
+    assert document["rhythm"]["cell-pad"] == "6px 10px"
+    assert document["ink"]["ink"] == "@on_surface"
+    assert _errors("skin-json", document) == []
+
+
+def test_skins_doc_freezes_the_template_set_and_consumer_artifacts() -> None:
+    text = (REPO_ROOT / "skins.md").read_text(encoding="utf-8")
+    for needle in (
+        "Template set and consumer artifacts (normative)",
+        "dotfiles-assets/skins/templates",
+        "<configDir>.gtk.css.j2",
+        "{{SKIN_<TOKEN>}}",
+        "SKIN_RADIUS_PANEL",
+        "current/skins/<configDir>.css",
+        "current/skin.json",
+        "{install}/config/<configDir>/skin.css",
+        "{install}/config/<configDir>/skin.json",
+        "$XDG_CONFIG_HOME/<configDir>/skin.css",
+        "configDir = ags",
+        "desired.json",
+        "sha256(templates_hash ‖ manifest_hash)",
+        "palette-refresh",
+        "restart-only",
+        "Fail closed",
+        "no flat token map",
     ):
         assert needle in text

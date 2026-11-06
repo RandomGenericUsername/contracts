@@ -45,8 +45,12 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   (23 tokens in six groups, palette-role paint grammar).
 - `schemas/skin-manifest.schema.json` — the skin manifest (`schemaVersion`, `name`,
   the six token groups), with structure/variant forbidden.
-- `skins.md` — the skin-plane contract (selection, cache key, appearance hash,
-  refresh lanes, one-provider composition, drift gates, built-in skins).
+- `schemas/skin-json.schema.json` — the resolved `skin.json` token map
+  (`version: 1` plus the six grouped token maps), validated without the
+  manifest wrapper.
+- `skins.md` — the skin-plane contract (selection, template set, consumer
+  artifacts and pointers, cache key, appearance hash, refresh lanes,
+  one-provider composition, drift gates, built-in skins).
 - `ags-app-refresh.md` — the fixed `palette-refresh` request/response protocol.
 
 ## The `cli-invocation-contract` package
