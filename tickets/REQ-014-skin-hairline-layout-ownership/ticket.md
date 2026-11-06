@@ -2,13 +2,13 @@
 id: REQ-014
 title: "Split the panel border from the hairlines and make layout metrics TSX-owned"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-014/
+branch: ticket/REQ-014-skin-hairline-layout-ownership
 ---
 
 # Split the panel border from the hairlines and make layout metrics TSX-owned
