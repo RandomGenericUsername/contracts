@@ -2,7 +2,7 @@
 id: REQ-017
 title: "Host defaults: optional skin host policy and generation host identity"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none

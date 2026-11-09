@@ -17,7 +17,7 @@
 - [REQ-014-skin-hairline-layout-ownership](./REQ-014-skin-hairline-layout-ownership/ticket.md) — Split the panel border from the hairlines and make layout metrics TSX-owned | `done` | tag: v0.6.0
 - [REQ-015-appearance-plane-v2](./REQ-015-appearance-plane-v2/ticket.md) — Appearance plane v2: one generated appearance and one repointed hop | `done` | tag: v0.7.0
 - [REQ-016-generations-v3](./REQ-016-generations-v3/ticket.md) — Generations v3: one committed generation, one convergence pipeline, generation-bound apply/ack | `done` | tag: v0.8.0
-- [REQ-017-host-defaults](./REQ-017-host-defaults/ticket.md) — Host defaults: optional skin host policy and generation host identity | `proposed` | worktree: .worktrees/REQ-017/ | branch: ticket/REQ-017-host-defaults
+- [REQ-017-host-defaults](./REQ-017-host-defaults/ticket.md) — Host defaults: optional skin host policy and generation host identity | `in-progress` | worktree: .worktrees/REQ-017/ | branch: ticket/REQ-017-host-defaults
 
 ## Bugs
 
