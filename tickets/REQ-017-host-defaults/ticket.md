@@ -2,7 +2,7 @@
 id: REQ-017
 title: "Host defaults: optional skin host policy and generation host identity"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -70,28 +70,28 @@ epic; this slice is the contract only.
 
 ## Acceptance
 
-- [ ] The appearance schema accepts optional `[host]` with a closed object,
+- [x] The appearance schema accepts optional `[host]` with a closed object,
   non-empty unique `inherit`, exactly the two Phase 1 token paths and
   `fallback` `skin|error` (default `skin`); manifests without host still
   validate.
-- [ ] The generation schema accepts an optional host block with `source`,
+- [x] The generation schema accepts an optional host block with `source`,
   `version`, `fingerprint` and non-empty `defaults`; `intent.host` is required
   when host is present; a no-host manifest remains valid.
-- [ ] Fixtures prove valid host manifests and reject empty/duplicate/unknown
+- [x] Fixtures prove valid host manifests and reject empty/duplicate/unknown
   inherit, bad fallback, host without `intent.host`, empty defaults, unknown
   defaults and invalid host source/hash.
-- [ ] A semantic fixture proves `intent.host != host.fingerprint` is rejected
+- [x] A semantic fixture proves `intent.host != host.fingerprint` is rejected
   by the documented runtime rule; the documentation states the schema cannot
   express equality.
-- [ ] `appearance.md` documents mode-override > host > skin fallback,
+- [x] `appearance.md` documents mode-override > host > skin fallback,
   headless/invalid fallback, `fallback="error"` fail-closed, the two-token
   allowlist and the no-gaps/padding/type/colours/no-literal-hex rule.
-- [ ] `appearance.v3` is documented with `hostHash` only for participating
+- [x] `appearance.v3` is documented with `hostHash` only for participating
   values and a `-` placeholder when none participate; queue keys stay
   host-free.
-- [ ] `make test`, `make skin-test`, `make appearance-test`,
+- [x] `make test`, `make skin-test`, `make appearance-test`,
   `make generations-test`, `make schema-test` and `make contracts-drift` exit 0.
-- [ ] Version metadata and `tests/test_record.py` agree on `0.9.0`; annotated
+- [x] Version metadata and `tests/test_record.py` agree on `0.9.0`; annotated
   tag `v0.9.0` points at the merged release commit; no existing tag moved.
 
 ## Evidence
@@ -118,27 +118,31 @@ Commands run from the worktree root (`.worktrees/REQ-017/`, branch
 
 | Claim | Command | Result |
 | --- | --- | --- |
-| Full repo gate | `make test` | pending |
-| Frozen v1 skin gates | `make skin-test` | pending |
-| Appearance contract | `make appearance-test` | pending |
-| Generation contract | `make generations-test` | pending |
-| AGS app contract | `make schema-test` | pending |
-| Symmetric drift gate | `make contracts-drift` | pending |
-| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | pending |
+| Full repo gate | `make test` | `Ran 10 tests ... OK`; `403 passed in 4.93s`, exit 0 |
+| Frozen v1 skin gates | `make skin-test` | `110 passed in 1.20s`, exit 0 |
+| Appearance contract | `make appearance-test` | `112 passed in 2.87s`, exit 0 |
+| Generation contract | `make generations-test` | `72 passed in 0.50s`, exit 0 |
+| AGS app contract | `make schema-test` | `40 passed in 0.19s`, exit 0 |
+| Symmetric drift gate | `make contracts-drift` | `[ok]` symmetric; regenerate-and-diff clean, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.9.0 2` |
 
 ### Commits
 
 | Commit | Subject |
 | --- | --- |
-| pending | `docs(tickets): plan the host-defaults contract (REQ-017)` |
-| pending | `chore(REQ-017): start — record worktree/branch, move to in-progress` |
-| pending | `feat(REQ-017): freeze the host-defaults contract` |
-| pending | `chore(REQ-017): release v0.9.0` |
+| `6c2aa84` | `docs(tickets): plan the host-defaults contract (REQ-017)` |
+| `c59e390` | `chore(REQ-017): start — record worktree/branch, move to in-progress` |
+| `21a0a7e` | `feat(REQ-017): freeze the host-defaults contract` |
+| release commit (the `v0.9.0` tag target) | `chore(REQ-017): release v0.9.0` |
 
 ### Status
 
-**Proposed.** No runtime, assets, composition, provisioning or app code is in
-this slice. Do not run a live apply.
+**Done on `ticket/REQ-017-host-defaults`.** The host policy, generation host
+block, `appearance.v3` identity and fixtures are frozen. Merge to `main`
+fast-forward, then create the annotated `v0.9.0` tag on the merged release
+commit and push `main` plus the tag; no existing tag moves. No runtime, assets,
+composition, provisioning or app code is in this slice, and no live apply was
+run.
 
 ## Downstream pins (not part of this slice)
 

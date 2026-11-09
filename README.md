@@ -15,16 +15,18 @@ Canonical contract sources for the AGS platform, one repo.
 4. **Appearance plane v2** — `appearance.md` plus
    `schemas/appearance-manifest.schema.json`, `schemas/appearance-json.schema.json`
    and `schemas/appearance-artifact.schema.json`. The nested
-   surface/state/type/ink/layout/mode token model and the composed-sheet rules.
-   v2 supersedes the frozen v1 skin-plane artifacts; there is no v1.1 hotfix.
+   surface/state/type/ink/layout/mode token model, the optional `[host]`
+   delegation policy and the composed-sheet rules. v2 supersedes the frozen v1
+   skin-plane artifacts; there is no v1.1 hotfix.
 5. **Generations v3** — `generations.md` plus
    `schemas/generation-manifest.schema.json`,
    `appearance-refresh.md` and
    `schemas/appearance-refresh-result.schema.json`. One immutable
    `state/generations/<genHash>/` unit, one atomic `state/current` pointer, one
    `converge(intent)` pipeline (daemon queue or CLI `flock` fallback), and a
-   generation-bound `appearance-refresh` apply/ack. The v2 appearance token
-   vocabulary and skins are unchanged.
+   generation-bound `appearance-refresh` apply/ack. The optional generation
+   `host` block records only participating delegated values. The v2 appearance
+   token vocabulary and skins are unchanged.
 
 The event contract is the single source of truth for the runtime ↔ AGS event seam. It is
 consumed by:
@@ -62,7 +64,8 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   and the refresh protocol.
 - `schemas/generation-manifest.schema.json` — the v3 generation manifest
   (`version: 3`, generation hash, created/committed metadata, layer entry
-  hashes + relative paths, skin, appearance targets, mode and intent/source).
+  hashes + relative paths, skin, appearance targets, mode, optional host
+  snapshot and intent/source).
 - `appearance-refresh.md` — the generation-bound
   `["appearance-refresh", "<genHash>"]` request and the
   applied/deferred/failed response union; a response hash must equal the
@@ -76,7 +79,8 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   `appearance-refresh.md`; the token vocabulary and skins are unchanged.
 - `schemas/appearance-manifest.schema.json` — the v2 authored manifest
   (`schemaVersion: 2`, nested surface/state/type/ink/layout groups, optional
-  same-shape `mode.dark`/`mode.light` overrides, structure/variant forbidden).
+  same-shape `mode.dark`/`mode.light` overrides, optional `[host]` delegation
+  policy, structure/variant forbidden).
 - `schemas/appearance-json.schema.json` — the resolved, mode-resolved
   `tokens.json` token map (`version: 2` plus the five groups), validated without
   the manifest wrapper.
@@ -171,3 +175,11 @@ daemon job queue or the CLI `flock` fallback, and the generation-bound
 writes stay under `state/`; consumers read through `current/` and pass events, not sleeps. The v2
 appearance token vocabulary and built-in skins are unchanged. `DATA_VERSION` stays `2` and the
 invocation records are byte-identical.
+
+`v0.9.0` (`cli-invocation-contract` 0.9.0) adds the optional **host-defaults** policy (REQ-017):
+a per-skin `[host]` allowlist for `surface.panel.radius` and `surface.panel.border-width`, with
+mode-override > host > skin-fallback precedence and `fallback: error` fail-closed. The generation
+manifest gains an optional host block and `intent.host`, and the appearance identity moves to
+`appearance.v3` with a `hostHash` over participating values only. No token type or `required`
+list changes; the v2 appearance vocabulary and existing manifests/generations remain valid.
+`DATA_VERSION` stays `2` and the invocation records are byte-identical.

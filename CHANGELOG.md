@@ -9,6 +9,46 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.9.0] - 2026-11-09
+
+Minor release: optional host defaults (ticket
+[`REQ-017`](./tickets/REQ-017-host-defaults/ticket.md)). A skin may delegate
+only an explicit allowlist of logical token paths to the live compositor.
+This is additive: existing manifests and generations without `[host]` remain
+valid, no token type or `required` list changes, and the v2 appearance token
+vocabulary is unchanged.
+
+### Added
+
+- `schemas/appearance-manifest.schema.json` — optional root `host` policy:
+  closed object, required non-empty unique `inherit` enum exactly
+  `surface.panel.radius` and `surface.panel.border-width`, optional `fallback`
+  enum `skin|error` defaulting to `skin`. The policy is not a token group and
+  cannot name layout, padding, gap, type, paint or colour paths.
+- `schemas/generation-manifest.schema.json` — optional `host` block
+  (`source: hyprland`, mapping `version: 1`, `fingerprint`, non-empty
+  `defaults` with only the participating delegated values) and optional
+  `intent.host`; `intent.host` is required when `host` is present and forbidden
+  when it is absent. Equality with `host.fingerprint` is documented as a
+  runtime validation rule because draft-07 cannot compare two properties.
+- `appearance.md` — host policy, precedence (mode override > host > skin
+  fallback), headless/invalid fallback, `fallback="error"` fail-closed and the
+  `appearance.v3` identity with a participating-only `hostHash` (`-` when no
+  delegated value participated; one-time identity churn accepted).
+- `generations.md` — host snapshot shape, identity rules and the host-free
+  daemon queue key (the host is read once inside `converge.lock`).
+- Positive/negative fixtures for the host policy and generation host shape,
+  plus a semantic fixture proving an `intent.host` / `host.fingerprint`
+  mismatch is rejected by runtime validation.
+
+### Changed
+
+- The appearance identity formula is now `appearance.v3`; existing v2
+  generations remain readable by their committed manifests and require no
+  cache migration beyond normal GC.
+- `cli-invocation-contract` and `CONTRACT_VERSION` move to `0.9.0`;
+  `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
 ## [0.8.0] - 2026-11-06
 
 Major release: Generations v3 (ticket
