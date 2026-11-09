@@ -82,6 +82,8 @@ INK_TOKENS = {"ink", "ink-dim", "accent", "accent-muted", "ink-over"}
 PLACEHOLDER = re.compile(r"\{\{SKIN_([A-Z0-9_]+)\}\}")
 CONDITIONAL = re.compile(r"\{%|%\}|\{\{#|\{\{/")
 
+HOST_PATHS = ["surface.panel.radius", "surface.panel.border-width"]
+
 #: Every numeric path in the v2 manifest/resolved shape, with a legal sample
 #: value. A unit-bearing string must be rejected at each path.
 NUMERIC_PATHS: dict[tuple[str, ...], float] = {
@@ -256,6 +258,11 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("flat-layout.invalid.json", "type 'object'"),
         ("missing-mode-override.invalid.json", "required"),
         ("unknown-mode.invalid.json", "sepia"),
+        ("host-empty-inherit.invalid.json", "non-empty"),
+        ("host-duplicate-inherit.invalid.json", "non-unique"),
+        ("host-unknown-inherit.invalid.json", "surface.card.radius"),
+        ("host-bad-fallback.invalid.json", "is not one of"),
+        ("host-extra-key.invalid.json", "colour"),
     ],
 )
 def test_named_manifest_negative_fixture_reports_the_offending_construct(
@@ -376,6 +383,51 @@ def test_mode_overrides_are_same_shape_group_replacements() -> None:
         for name, value in document.items():
             if isinstance(value, dict):
                 assert set(value) == set(base[name])
+
+
+def test_host_policy_is_optional_closed_and_allowlisted() -> None:
+    schema = _load(SCHEMAS["appearance-manifest"])
+    assert "host" in schema["properties"]
+    ref = schema["properties"]["host"]["$ref"].split("/")[-1]
+    policy = schema["definitions"][ref]
+
+    assert policy["type"] == "object"
+    assert policy["additionalProperties"] is False
+    assert policy["required"] == ["inherit"]
+    assert set(policy["properties"]) == {"inherit", "fallback"}
+
+    inherit = policy["properties"]["inherit"]
+    assert inherit["type"] == "array"
+    assert inherit["minItems"] == 1
+    assert inherit["uniqueItems"] is True
+    assert inherit["items"]["enum"] == HOST_PATHS
+
+    fallback = policy["properties"]["fallback"]
+    assert fallback["enum"] == ["skin", "error"]
+    assert fallback["default"] == "skin"
+
+
+def test_host_policy_is_not_a_token_group_and_no_host_manifest_stays_valid() -> None:
+    schema = _load(SCHEMAS["appearance-manifest"])
+    groups = schema["properties"]["groups"]
+    assert "host" not in groups["properties"]
+    assert "host" not in groups["required"]
+
+    glass = _load(FIXTURE_DIR / "appearance-manifest" / "glass.valid.json")
+    assert "host" not in glass
+    assert _errors("appearance-manifest", glass) == []
+
+    host_manifest = _load(FIXTURE_DIR / "appearance-manifest" / "host.valid.json")
+    assert host_manifest["host"] == {
+        "inherit": HOST_PATHS,
+        "fallback": "skin",
+    }
+    assert _errors("appearance-manifest", host_manifest) == []
+
+    resolved = resolve_tokens(host_manifest, "dark")
+    assert _errors("appearance-json", resolved) == []
+    assert isinstance(resolved["surface"]["panel"]["radius"], (int, float))
+    assert isinstance(resolved["surface"]["panel"]["border-width"], (int, float))
 
 
 def test_paper_light_is_explicit_and_resolves_before_validation() -> None:
@@ -584,5 +636,14 @@ def test_appearance_doc_pins_the_v2_contract() -> None:
         "no literal hex",
         "no transitions",
         "structure/variant",
+        "[host]",
+        "surface.panel.radius",
+        "surface.panel.border-width",
+        "mode override > host > skin fallback",
+        'fallback = "skin"',
+        'fallback = "error"',
+        "appearance.v3",
+        "hostHash",
+        "one-time identity churn",
     ):
         assert needle in text

@@ -167,7 +167,8 @@ and is written last inside staging.
 | `skin` | yes | `{name, entryHash, mode}`. `skin.mode` must equal the top-level `mode`. |
 | `appearance` | yes | `{tokensPath, targets[]}`. `tokensPath` is exactly `appearance/tokens.json`; each target is `{configDir, path}` with `path` = `appearance/<configDir>.css`. |
 | `mode` | yes | `dark` or `light`. A generation input and part of identity. |
-| `intent` | yes | The resolved intent snapshot: `wallpaper`, `palette`, `skin`, `mode`, plus optional `effects`/`icons` hashes. |
+| `host` | no | The resolved host snapshot, present only when at least one delegated token used the host: `{source, version, fingerprint, defaults}`. `defaults` records only the participating logical token paths. See §2.1.1. |
+| `intent` | yes | The resolved intent snapshot: `wallpaper`, `palette`, `skin`, `mode`, plus optional `effects`/`icons` hashes and optional `host`. |
 | `source` | yes | `{kind, intentHash, jobId?}`. `kind` is `daemon` or `cli`; `intentHash` is the `desired.json` snapshot hash; `jobId` is present for the daemon queue and absent for the CLI fallback. |
 
 `additionalProperties: false` applies at every object level. Every property name
@@ -182,6 +183,39 @@ segment, no `.`/`..` segment and no `#`. A path that points back into
 `cache/` or outside the generation is the v2 multi-pointer shape and is
 invalid.
 
+### 2.1.1 Optional host snapshot
+
+A host block is present only when the selected skin's `[host]` policy actually used at least one
+live host value in the selected mode. When no delegated value participated, omit `host` and
+`intent.host` entirely; a no-host generation keeps the same manifest shape as before this slice.
+
+```json
+"host": {
+  "source": "hyprland",
+  "version": 1,
+  "fingerprint": "<hostHash>",
+  "defaults": {
+    "surface.panel.radius": 0,
+    "surface.panel.border-width": 1
+  }
+}
+```
+
+- `source` is `hyprland` in Phase 1. Other compositor sources require a later contract enum
+  addition.
+- `version` is the host mapping version; `1` is `hyprland.paint.v1`.
+- `fingerprint` is the `hostHash` from `appearance.md`: canonical JSON of the mapping version and
+  only the participating logical token paths/values. It excludes the instance signature,
+  timestamps and `set` flags. A host change that does not alter a participating value is the same
+  fingerprint.
+- `defaults` is non-empty and closed. It may contain only `surface.panel.radius` (0..64) and
+  `surface.panel.border-width` (0..16), and only when that token actually used the host.
+- `intent.host` is required when `host` is present and must equal `host.fingerprint`. JSON Schema
+  enforces presence; equality is enforced by runtime manifest validation and by the contract
+  fixture gate, because draft-07 cannot compare two properties.
+- A host block with an empty `defaults`, an unknown default, an unknown source, a bad version or a
+  non-64-hex fingerprint is invalid.
+
 ### 2.2 Identity rules
 
 - `generationHash` is the canonical hash of the intent, layer hashes, mode and
@@ -191,6 +225,12 @@ invalid.
 - `skin.mode == mode`; `intent.mode == mode`; `intent.skin == skin.name`;
   `intent.wallpaper`/`intent.palette`/`intent.effects`/`intent.icons` equal the
   matching layer `entryHash` values when present.
+- When `host` is present, `intent.host == host.fingerprint`; when it is absent,
+  neither `host` nor `intent.host` is present. A host-participating generation
+  includes the fingerprint in the `appearance.v3` identity, the generation
+  intent hash and the generation hash. The queue key stays host-free: the host is read
+  once inside `converge.lock`, so two requests with the same desired state can
+  coalesce and the executing job resolves the current host.
 - `appearance.targets` is the only app-list input. Config dirs are unique and
   the platform carries no separate app list.
 - A manifest that fails any check fails closed: the consumer keeps its previous
@@ -235,6 +275,11 @@ The commit is one lock scope and one visible rename:
 - The CLI preflights the well-known name once. If the daemon owns it, the CLI
   **subscribes to `JobFinished` before submitting**, submits one converge job,
   and waits for the matching `job_id`/`genHash`. It does not poll state files.
+- The queue key stays host-free: the daemon queue key is the desired-state
+  snapshot and does not include a host snapshot. The host is read once inside
+  `converge.lock`; it participates in the generation identity, not in the
+  pre-lock queue key. A queued job executes against the host snapshot it reads
+  under the lock.
 - An identical intent/generation is coalesced. The newest queued intent
   supersedes older queued (not running) intents. A running job is never
   cancelled mid-commit. A job is idempotent and safe to retry by intent hash.

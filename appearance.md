@@ -17,6 +17,12 @@
 > [`appearance-refresh.md`](./appearance-refresh.md); the v2
 > `current/appearance` pointer family and `palette-refresh` ack are superseded
 > for v3 consumers.
+>
+> **v0.9.0 host note.** The optional root `[host]` policy delegates only an
+> explicit allowlist of logical token paths to the live compositor. It is not a
+> token group and does not change any token type; the resolved `tokens.json`
+> stays concrete. The host snapshot participates in `appearance.v3` identity
+> and the generation manifest host block.
 
 An appearance is **palette + skin + mode**, composed once and consumed through **one atomically
 repointed hop**. Structure is outside the appearance plane: an appearance may not describe layout
@@ -97,15 +103,28 @@ belong to `appearance.json`.
 | `mode` | Selected palette mode, `dark` or `light`. |
 | `paletteHash` | Content hash of the palette entry. |
 | `skinHash` | Content hash of the skin entry. |
-| `appearanceHash` | `sha256(paletteHash ‖ skinHash ‖ mode)`; also the cache directory name. |
+| `appearanceHash` | `sha256("appearance.v3" ‖ paletteHash ‖ skinHash ‖ mode ‖ hostHash)`; also the cache directory name. `hostHash` is `-` when no delegated value participated. |
 | `generationHash` | Content hash of the generated `colors.yaml`, `tokens.json` and every composed `<configDir>.css`, excluding `appearance.json`. |
 | `tokenRef` | Exactly `tokens.json`, the relative token document in this generation. |
 
 The canonical appearance hash is:
 
 ```text
-appearanceHash = sha256("appearance.v2\n" + paletteHash + "\n" + skinHash + "\n" + mode)
+hostHash = sha256(canonical-json({
+  "version": 1,
+  "values": { <only the logical token paths that used the host> }
+}))
+# hostHash is "-" when no delegated value participated.
+
+appearanceHash = sha256("appearance.v3\n" + paletteHash + "\n" + skinHash + "\n" + mode + "\n" + hostHash)
 ```
+
+`hostHash` includes only the participating token paths and their resolved values. It excludes the
+Hyprland instance signature, timestamps and the option `set` flag. A host change that does not
+alter a participating value must not create a new generation. Host mapping version `1` is
+`hyprland.paint.v1`; a mapping change bumps the version and therefore the hash. No-host
+generations use the `-` placeholder, so the v3 formula is used for every new generation and
+existing v2 generations remain valid without migration (one-time identity churn is expected).
 
 The palette cache and the skin cache stay independent. An appearance generation is their
 composition with a mode; it never mutates either cache entry. A palette-only change produces a new
@@ -233,6 +252,43 @@ because a partial nested merge is ambiguous and hard to validate.
 Generation selects exactly one mode from the palette mode and applies that override before writing
 `tokens.json` and before expanding templates. An appearance with no mode override uses the base
 groups for both modes. An override that is present but incomplete is invalid.
+
+### `host`
+
+The optional root `[host]` policy is an explicit delegation allowlist. It is **not** a token
+group and it does not make any token type dynamic: the authored manifest and the resolved
+`tokens.json` keep concrete numbers and strings.
+
+```toml
+[host]
+inherit = ["surface.panel.radius", "surface.panel.border-width"]
+fallback = "skin"          # "skin" (default) or "error"
+```
+
+Phase 1 supports exactly two logical paths:
+
+| Token path | Host source | Meaning |
+| --- | --- | --- |
+| `surface.panel.radius` | Hyprland `decoration:rounding` | outer panel/window corner |
+| `surface.panel.border-width` | Hyprland `general:border_size` | outer panel/window frame width |
+
+`inherit` must be non-empty and unique. A token not named in `inherit` is always the skin's
+explicit value. No padding, gap, type, paint, colour or `layout.<app>` path may be inherited, and
+a host value is never a literal hex or structure.
+
+Resolution precedence, highest first: **mode override > host > skin fallback**.
+
+1. a value supplied by the selected `mode.<mode>` group (the complete group is explicit; there is
+   no deep merge);
+2. the live host value for a token named in `inherit`;
+3. the skin's selected concrete value (the headless/invalid-host fallback).
+
+If the host is unavailable or a value is invalid, `fallback = "skin"` uses the skin value. With
+`fallback = "error"` the generation fails closed before publishing; the previous generation
+remains current. Host values are finite non-negative numbers in the supported ranges (radius
+`0..64`, border `0..16`); booleans, strings, vectors, negatives, NaN/infinity and unknown options
+are invalid. Reading effective values is a runtime concern; the contract only freezes the policy,
+the allowlist, the precedence and the identity rule.
 
 ## Value types and units (normative)
 

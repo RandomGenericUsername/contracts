@@ -114,6 +114,23 @@ def classify_response(request_hash: str, response: dict) -> str:
     return kind
 
 
+def validate_host_identity(manifest: dict[str, Any]) -> None:
+    """Enforce the host/intent equality JSON Schema cannot express.
+
+    The schema enforces presence: ``intent.host`` is required when ``host`` is
+    present and forbidden when it is absent. Equality is a runtime semantic
+    rule; this helper is its contract-level fixture gate.
+    """
+    host = manifest.get("host")
+    intent = manifest.get("intent", {})
+    if host is None:
+        if "host" in intent:
+            raise ValueError("intent.host is present without a host block")
+        return
+    if intent.get("host") != host.get("fingerprint"):
+        raise ValueError("intent.host does not equal host.fingerprint")
+
+
 @pytest.mark.parametrize("name", sorted(SCHEMAS))
 def test_every_schema_is_draft_07_self_valid_and_frozen(name: str) -> None:
     schema = _load(SCHEMAS[name])
@@ -145,6 +162,13 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("structure.invalid.json", "structure"),
         ("variant.invalid.json", "variant"),
         ("invalid-config-dir.invalid.json", "AGS"),
+        ("host-without-intent-host.invalid.json", "required property"),
+        ("host-empty-defaults.invalid.json", "non-empty"),
+        ("host-unknown-default.invalid.json", "surface.card.radius"),
+        ("host-bad-source.invalid.json", "sway"),
+        ("host-bad-fingerprint.invalid.json", "does not match"),
+        ("host-bad-version.invalid.json", "1 was expected"),
+        ("intent-host-without-host.invalid.json", "should not be valid"),
     ],
 )
 def test_named_manifest_negative_fixture_reports_the_offending_construct(
@@ -242,6 +266,72 @@ def test_manifest_skin_appearance_and_mode_fields() -> None:
         "daemon",
         "cli",
     ]
+
+
+def test_manifest_host_block_is_optional_closed_and_participating_only() -> None:
+    schema = _load(SCHEMAS["generation-manifest"])
+    assert "host" in schema["properties"]
+    ref = schema["properties"]["host"]["$ref"].split("/")[-1]
+    host = schema["definitions"][ref]
+
+    assert host["type"] == "object"
+    assert host["additionalProperties"] is False
+    assert host["required"] == ["source", "version", "fingerprint", "defaults"]
+    assert set(host["properties"]) == {
+        "source",
+        "version",
+        "fingerprint",
+        "defaults",
+    }
+    assert host["properties"]["source"]["enum"] == ["hyprland"]
+    assert host["properties"]["version"]["const"] == 1
+    assert host["properties"]["fingerprint"]["$ref"].endswith("/hash")
+
+    defaults = host["properties"]["defaults"]
+    assert defaults["additionalProperties"] is False
+    assert defaults["minProperties"] == 1
+    assert set(defaults["properties"]) == {
+        "surface.panel.radius",
+        "surface.panel.border-width",
+    }
+    assert defaults["properties"]["surface.panel.radius"]["maximum"] == 64
+    assert defaults["properties"]["surface.panel.border-width"]["maximum"] == 16
+
+    intent = schema["definitions"]["intent"]
+    assert "host" in intent["properties"]
+    assert intent["properties"]["host"]["$ref"].endswith("/hash")
+
+    conditional = schema["allOf"][0]
+    assert conditional["if"] == {"required": ["host"]}
+    assert conditional["then"]["properties"]["intent"]["required"] == ["host"]
+    assert conditional["else"]["properties"]["intent"]["not"]["required"] == ["host"]
+
+    no_host = _load(FIXTURE_DIR / "generation-manifest" / "glass-dark.valid.json")
+    assert "host" not in no_host
+    assert "host" not in no_host["intent"]
+    assert _errors("generation-manifest", no_host) == []
+
+
+def test_valid_host_manifest_records_only_participating_values() -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / "host.valid.json")
+    assert manifest["host"]["source"] == "hyprland"
+    assert manifest["host"]["version"] == 1
+    assert manifest["host"]["fingerprint"] == manifest["intent"]["host"]
+    assert manifest["host"]["defaults"] == {
+        "surface.panel.radius": 0,
+        "surface.panel.border-width": 1,
+    }
+    assert _errors("generation-manifest", manifest) == []
+    validate_host_identity(manifest)
+
+
+def test_host_identity_mismatch_is_rejected_semantically() -> None:
+    manifest = _load(
+        FIXTURE_DIR / "generation-manifest" / "host-intent-mismatch.semantic.json"
+    )
+    assert _errors("generation-manifest", manifest) == []
+    with pytest.raises(ValueError, match="does not equal host.fingerprint"):
+        validate_host_identity(manifest)
 
 
 def test_structure_and_variant_are_rejected_at_every_manifest_level() -> None:
@@ -445,5 +535,11 @@ def test_generations_doc_pins_the_v3_interface() -> None:
         "keep",
         "appearance-refresh",
         "superseded",
+        "host",
+        "hostHash",
+        "intent.host",
+        "host.fingerprint",
+        "queue key stays host-free",
+        "appearance.v3",
     ):
         assert needle in text
