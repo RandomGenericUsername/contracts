@@ -2,8 +2,8 @@
 id: REQ-018
 title: "Format-aware skin consumers: non-CSS appearance artifacts"
 kind: requirement
-status: proposed
-lane: TBD
+status: in-progress
+lane: 2
 links:
   design: dotfiles-v3/docs/110-format-aware-skin-consumers.md
   epic: dotfiles-v3/docs/epics/SKIN-CONSUMERS.md
