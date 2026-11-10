@@ -25,8 +25,10 @@ Canonical contract sources for the AGS platform, one repo.
    `state/generations/<genHash>/` unit, one atomic `state/current` pointer, one
    `converge(intent)` pipeline (daemon queue or CLI `flock` fallback), and a
    generation-bound `appearance-refresh` apply/ack. The optional generation
-   `host` block records only participating delegated values. The v2 appearance
-   token vocabulary and skins are unchanged.
+   `host` block records only participating delegated values. The optional
+   `appearance.artifacts` family adds honest non-CSS consumer artifacts next to
+   the frozen CSS `targets` family. The v2 appearance token vocabulary and
+   skins are unchanged.
 
 The event contract is the single source of truth for the runtime ↔ AGS event seam. It is
 consumed by:
@@ -64,8 +66,9 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   and the refresh protocol.
 - `schemas/generation-manifest.schema.json` — the v3 generation manifest
   (`version: 3`, generation hash, created/committed metadata, layer entry
-  hashes + relative paths, skin, appearance targets, mode, optional host
-  snapshot and intent/source).
+  hashes + relative paths, skin, frozen CSS appearance targets, optional
+  non-CSS `appearance.artifacts`, mode, optional host snapshot and
+  intent/source).
 - `appearance-refresh.md` — the generation-bound
   `["appearance-refresh", "<genHash>"]` request and the
   applied/deferred/failed response union; a response hash must equal the
@@ -183,3 +186,11 @@ manifest gains an optional host block and `intent.host`, and the appearance iden
 `appearance.v3` with a `hostHash` over participating values only. No token type or `required`
 list changes; the v2 appearance vocabulary and existing manifests/generations remain valid.
 `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+`v0.10.0` (`cli-invocation-contract` 0.10.0) adds the optional **format-aware consumer** family
+(REQ-018): `appearance.artifacts` is a separate `{consumer, path, format}` family for non-CSS
+outputs, while `appearance.targets` stays the frozen `{configDir, path}` CSS family. `format` is
+`rasi|conf|theme` (CSS is excluded), `path` must equal `appearance/<consumer>.<format>`, and
+consumers/paths are unique across both families. `rasi` ships first for rofi; `conf`/`theme` are
+reserved for kitty/btop without a template. The generation manifest stays `version: 3`, existing
+CSS-only manifests remain valid, and `DATA_VERSION` stays `2` with byte-identical invocation data.

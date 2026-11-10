@@ -9,6 +9,45 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.10.0] - 2026-11-10
+
+Minor release: format-aware non-CSS appearance consumers (ticket
+[`REQ-018`](./tickets/REQ-018-format-aware-consumers/ticket.md)). This is
+additive: the generation manifest stays `version: 3`, every CSS-only generation
+and `v0.9.0` fixture remains valid, and `appearance.targets` is unchanged.
+
+### Added
+
+- `schemas/generation-manifest.schema.json` — optional `appearance.artifacts`
+  family: a non-empty array of closed `{consumer, path, format}` objects.
+  `consumer` uses the existing safe lowercase config-dir segment (no dots),
+  `format` is exactly `rasi|conf|theme` (CSS is excluded), and `path` matches
+  `appearance/<consumer>.<ext>` with an allowed non-CSS extension. The draft-07
+  schema enforces shape and allowed extensions; runtime validation, verify and
+  the contract fixture gate enforce `path == appearance/<consumer>.<format>`
+  and consumer/path uniqueness across `artifacts` and `targets`.
+- `generations.md` — the second target family, its cross-property and
+  uniqueness rules, AGS unknown-key tolerance, the re-pin requirement for
+  strict validators, the no-fake-CSS rule and the reserved `conf`/`theme`
+  formats.
+- `appearance.md` — the frozen CSS family vs the optional non-CSS family, the
+  format/extension/consumer equality rule, the AGS compatibility note and the
+  rofi-first, kitty/btop-palette-only policy.
+- Positive fixtures for a CSS-only manifest, `rasi`, `conf`, `theme` and all
+  formats together; negative fixtures for a duplicate consumer/path, an
+  extension/format mismatch, an unknown format, an extra key, a missing field,
+  a dotted consumer and an empty array.
+
+### Changed
+
+- `cli-invocation-contract` and `CONTRACT_VERSION` move to `0.10.0`;
+  `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.10.0` on the merged release commit. No runtime, platform,
+  assets, provisioning, composition or app code was changed in this repo.
+
 ## [0.9.0] - 2026-11-09
 
 Minor release: optional host defaults (ticket

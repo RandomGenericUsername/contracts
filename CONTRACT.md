@@ -19,7 +19,7 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.9.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.10.0"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
 - `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
@@ -44,9 +44,13 @@ generation-bound `appearance-refresh` protocol. The v2 appearance token vocabula
 unchanged. The `0.9.0` minor adds the optional host-defaults policy: a per-skin `[host]` allowlist
 for `surface.panel.radius` and `surface.panel.border-width`, mode-override > host > skin-fallback
 precedence, `fallback: error` fail-closed, an optional generation `host` block plus `intent.host`,
-and `appearance.v3` identity with a participating-only `hostHash`. Across `0.5.0`–`0.9.0` the
-invocation data is byte-identical, so `DATA_VERSION` stays `2` while the release version moves
-with the repo tag.
+and `appearance.v3` identity with a participating-only `hostHash`. The `0.10.0` minor adds the
+optional `appearance.artifacts` family: separate `{consumer, path, format}` entries for non-CSS
+consumers (`format` `rasi|conf|theme`), with `targets` remaining the frozen CSS family, a
+runtime-enforced `appearance/<consumer>.<format>` path rule and cross-family consumer/path
+uniqueness. The generation manifest stays `version: 3`. Across `0.5.0`–`0.10.0` the invocation
+data is byte-identical, so `DATA_VERSION` stays `2` while the release version moves with the repo
+tag.
 
 | Field | Meaning |
 |---|---|
@@ -70,7 +74,7 @@ Evidence: `invocation-contract.json` `contract_version` and
 `src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
 comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
-→ `0.9.0 2`.
+→ `0.10.0 2`.
 
 ## Per-CLI record
 

@@ -18,7 +18,7 @@
 - [REQ-015-appearance-plane-v2](./REQ-015-appearance-plane-v2/ticket.md) — Appearance plane v2: one generated appearance and one repointed hop | `done` | tag: v0.7.0
 - [REQ-016-generations-v3](./REQ-016-generations-v3/ticket.md) — Generations v3: one committed generation, one convergence pipeline, generation-bound apply/ack | `done` | tag: v0.8.0
 - [REQ-017-host-defaults](./REQ-017-host-defaults/ticket.md) — Host defaults: optional skin host policy and generation host identity | `done` | worktree: .worktrees/REQ-017/ | branch: ticket/REQ-017-host-defaults | tag: v0.9.0
-- [REQ-018-format-aware-consumers](./REQ-018-format-aware-consumers/ticket.md) — Format-aware skin consumers: non-CSS appearance artifacts | `in-progress` | design: dotfiles-v3/docs/110-format-aware-skin-consumers.md | worktree: .worktrees/REQ-018/ | branch: ticket/REQ-018-format-aware-consumers
+- [REQ-018-format-aware-consumers](./REQ-018-format-aware-consumers/ticket.md) — Format-aware skin consumers: non-CSS appearance artifacts | `done` | design: dotfiles-v3/docs/110-format-aware-skin-consumers.md | worktree: .worktrees/REQ-018/ | branch: ticket/REQ-018-format-aware-consumers | tag: v0.10.0
 
 ## Bugs
 
