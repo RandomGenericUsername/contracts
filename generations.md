@@ -76,7 +76,8 @@ state/
         tokens.json                       # mode-resolved v2 tokens
         ags.css
         ags-notifications.css
-        ...                               # one <configDir>.css per target
+        ...                               # one <configDir>.css per CSS target
+        rofi.rasi                         # optional non-CSS consumer artifact
       # compatibility aliases INSIDE this generation (never pointers)
       colors.yaml -> palette/colors.yaml
       colors.gtk.css -> palette/colors.gtk.css
@@ -136,6 +137,9 @@ and is written last inside staging.
     "targets": [
       { "configDir": "ags", "path": "appearance/ags.css" },
       { "configDir": "ags-notifications", "path": "appearance/ags-notifications.css" }
+    ],
+    "artifacts": [
+      { "consumer": "rofi", "path": "appearance/rofi.rasi", "format": "rasi" }
     ]
   },
   "mode": "dark",
@@ -165,7 +169,7 @@ and is written last inside staging.
 | `committed` | yes | `at` (date-time) and optional `jobId`: when `current` was atomically swapped to this generation. |
 | `layers` | yes | `wallpaper` and `palette` required; `effects` and `icons` optional. Each layer is `{entryHash, path}`. |
 | `skin` | yes | `{name, entryHash, mode}`. `skin.mode` must equal the top-level `mode`. |
-| `appearance` | yes | `{tokensPath, targets[]}`. `tokensPath` is exactly `appearance/tokens.json`; each target is `{configDir, path}` with `path` = `appearance/<configDir>.css`. |
+| `appearance` | yes | `{tokensPath, targets[], artifacts[]?}`. `tokensPath` is exactly `appearance/tokens.json`; each target is `{configDir, path}` with `path` = `appearance/<configDir>.css`. The optional `artifacts` family is `{consumer, path, format}`; see §2.1.2. |
 | `mode` | yes | `dark` or `light`. A generation input and part of identity. |
 | `host` | no | The resolved host snapshot, present only when at least one delegated token used the host: `{source, version, fingerprint, defaults}`. `defaults` records only the participating logical token paths. See §2.1.1. |
 | `intent` | yes | The resolved intent snapshot: `wallpaper`, `palette`, `skin`, `mode`, plus optional `effects`/`icons` hashes and optional `host`. |
@@ -216,6 +220,67 @@ live host value in the selected mode. When no delegated value participated, omit
 - A host block with an empty `defaults`, an unknown default, an unknown source, a bad version or a
   non-64-hex fingerprint is invalid.
 
+### 2.1.2 Optional non-CSS appearance artifacts
+
+A generation may publish a second, separate appearance family for consumers
+whose output is not CSS. The family is optional; a CSS-only generation omits it
+and remains byte-identical to a `v0.9.0` generation. It is additive at
+`version: 3`: the manifest version does not change and no CSS target changes.
+
+```json
+"appearance": {
+  "tokensPath": "appearance/tokens.json",
+  "targets": [
+    { "configDir": "gtk3", "path": "appearance/gtk3.css" },
+    { "configDir": "gtk4", "path": "appearance/gtk4.css" }
+  ],
+  "artifacts": [
+    { "consumer": "rofi", "path": "appearance/rofi.rasi", "format": "rasi" }
+  ]
+}
+```
+
+- `consumer` is the same safe lowercase segment as `configDir`
+  (`^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$`); dots are forbidden, so GTK uses the
+  aliases `gtk3`/`gtk4` as ordinary CSS targets rather than `gtk-3.0`.
+- `path` is exactly `appearance/<consumer>.<format>` and lives inside the same
+  generation as `tokens.json` and the CSS targets.
+- `format` is `rasi`, `conf` or `theme`. CSS is deliberately excluded: every
+  CSS consumer belongs to `appearance.targets`, so there is exactly one way to
+  express a CSS sheet. An unknown format fails closed.
+- The object is closed and requires all three fields. It carries identities and
+  a path only: no colours, structure, variants, transitions or app list.
+- `artifacts` is non-empty and its entries are not exact duplicates when
+  present.
+
+The CSS family stays frozen: `appearance.targets` is still
+`{configDir, path}` with `path` exactly `appearance/<configDir>.css`, and its
+semantics are byte-identical to `v0.9.0`. AGS consumers and the platform parser
+read only `appearance.tokensPath`, `appearance.targets` and `mode`; **AGS consumers ignore**
+the extra `appearance.artifacts` key, so adding it does not break an old AGS pin. The strict JSON-Schema validators from `v0.9.0` do reject
+the unknown key, so every in-tree validator must re-pin this release before an
+artifact-emitting runtime ships. This repo has no AGS parser harness; the
+runtime/AGS handoff input is the valid fixture
+`tests/fixtures/generations-contract/generation-manifest/artifacts-rasi.valid.json`.
+The downstream parser test must accept that document and still expose only the
+CSS `targets` list.
+
+**Cross-property rules.** Draft-07 cannot compare properties or enforce
+uniqueness of a field across array items. Runtime manifest validation, verify
+and the contract fixture gate therefore enforce:
+
+1. `consumer` is unique across `artifacts` and `targets`.
+2. artifact `path` values are unique within `artifacts` (and cannot collide
+   with a CSS target path, which has a different extension).
+3. `path` equals `appearance/<consumer>.<format>`; the extension must match the
+   declared `format` and the consumer in the same entry.
+
+**Format policy and reserved formats.** `rasi` is the first shipping format
+(rofi). `conf` and `theme` are accepted and reserved even though no template
+ships yet: kitty and btop stay palette-only in this phase. There is no fake CSS
+for a non-CSS consumer, and no non-CSS extension may appear in `targets`. A future template must match its consumer and format; discovering an
+unknown template suffix must fail closed rather than silently drop the file.
+
 ### 2.2 Identity rules
 
 - `generationHash` is the canonical hash of the intent, layer hashes, mode and
@@ -231,8 +296,10 @@ live host value in the selected mode. When no delegated value participated, omit
   intent hash and the generation hash. The queue key stays host-free: the host is read
   once inside `converge.lock`, so two requests with the same desired state can
   coalesce and the executing job resolves the current host.
-- `appearance.targets` is the only app-list input. Config dirs are unique and
-  the platform carries no separate app list.
+- `appearance.targets` is the only CSS app-list input; optional
+  `appearance.artifacts` separately names non-CSS consumers. Config dirs and
+  artifact consumers are unique across both families, and neither family reads
+  a separate app list.
 - A manifest that fails any check fails closed: the consumer keeps its previous
   provider, reports the mismatch and retries on the next generation event.
 
@@ -320,8 +387,9 @@ A consumer MUST:
   `$XDG_STATE_HOME/dotfiles/current/appearance/<configDir>.css` and
   `$XDG_STATE_HOME/dotfiles/current/appearance/tokens.json`. This is one hop
   from state to the generation.
-- Take the target config dir list from `manifest.appearance.targets`; it MUST
-  NOT carry a separate app list.
+- A CSS consumer takes its target config dir list from
+  `manifest.appearance.targets`; a non-CSS consumer takes its own entry from
+  `manifest.appearance.artifacts`. Neither carries a separate app list.
 - Watch `$XDG_STATE_HOME/dotfiles/current` (or its parent, for the atomic
   `MOVED_TO` event) for a generation change. It MUST NOT watch an app tag, an
   install-spine convenience link, or `current/appearance` as a proxy for the

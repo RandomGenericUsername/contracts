@@ -49,6 +49,8 @@ MANIFEST_REQUIRED = {
     "source",
 }
 HASH_PATTERN = "^[0-9a-f]{64}$"
+CONSUMER_PATTERN = "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+ARTIFACT_FORMATS = ("rasi", "conf", "theme")
 
 
 def _load(path: Path) -> Any:
@@ -131,6 +133,47 @@ def validate_host_identity(manifest: dict[str, Any]) -> None:
         raise ValueError("intent.host does not equal host.fingerprint")
 
 
+def validate_appearance_families(manifest: dict[str, Any]) -> None:
+    """Enforce the cross-property rules draft-07 cannot express.
+
+    ``appearance.targets`` stays the CSS family. ``appearance.artifacts`` is
+    the optional non-CSS family. Consumers and paths are unique across both
+    families, and every artifact path is exactly
+    ``appearance/<consumer>.<format>``. The schema enforces shape and allowed
+    extensions; this helper is the contract-level runtime rule gate.
+    """
+    appearance = manifest["appearance"]
+    seen_consumers: set[str] = set()
+    seen_paths: set[str] = set()
+
+    for target in appearance.get("targets", []):
+        consumer = target["configDir"]
+        path = target["path"]
+        if consumer in seen_consumers:
+            raise ValueError(f"duplicate appearance consumer {consumer!r}")
+        if path in seen_paths:
+            raise ValueError(f"duplicate appearance path {path!r}")
+        seen_consumers.add(consumer)
+        seen_paths.add(path)
+
+    for artifact in appearance.get("artifacts", []):
+        consumer = artifact["consumer"]
+        path = artifact["path"]
+        artifact_format = artifact["format"]
+        if consumer in seen_consumers:
+            raise ValueError(f"duplicate appearance consumer {consumer!r}")
+        if path in seen_paths:
+            raise ValueError(f"duplicate appearance path {path!r}")
+        expected = f"appearance/{consumer}.{artifact_format}"
+        if path != expected:
+            raise ValueError(
+                f"artifact path {path!r} must equal {expected!r} "
+                "(consumer and format)"
+            )
+        seen_consumers.add(consumer)
+        seen_paths.add(path)
+
+
 @pytest.mark.parametrize("name", sorted(SCHEMAS))
 def test_every_schema_is_draft_07_self_valid_and_frozen(name: str) -> None:
     schema = _load(SCHEMAS[name])
@@ -169,6 +212,12 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("host-bad-fingerprint.invalid.json", "does not match"),
         ("host-bad-version.invalid.json", "1 was expected"),
         ("intent-host-without-host.invalid.json", "should not be valid"),
+        ("unknown-format.invalid.json", "is not one of"),
+        ("extra-artifact-key.invalid.json", "colour"),
+        ("missing-format.invalid.json", "'format' is a required property"),
+        ("consumer-with-dot.invalid.json", "does not match"),
+        ("empty-artifacts.invalid.json", "should be non-empty"),
+        ("duplicate-path.invalid.json", "non-unique"),
     ],
 )
 def test_named_manifest_negative_fixture_reports_the_offending_construct(
@@ -332,6 +381,106 @@ def test_host_identity_mismatch_is_rejected_semantically() -> None:
     assert _errors("generation-manifest", manifest) == []
     with pytest.raises(ValueError, match="does not equal host.fingerprint"):
         validate_host_identity(manifest)
+
+
+def test_css_only_manifest_is_unchanged_and_artifacts_are_optional() -> None:
+    schema = _load(SCHEMAS["generation-manifest"])
+    appearance = schema["definitions"]["appearance"]
+    assert appearance["required"] == ["tokensPath", "targets"]
+    assert "artifacts" in appearance["properties"]
+    assert appearance["properties"]["artifacts"]["minItems"] == 1
+    assert appearance["properties"]["artifacts"]["uniqueItems"] is True
+
+    # The pre-v0.10.0 fixture and its byte-for-byte copy remain valid with no
+    # artifacts key, and targets are untouched.
+    for fixture in ("glass-dark.valid.json", "css-only.valid.json"):
+        manifest = _load(FIXTURE_DIR / "generation-manifest" / fixture)
+        assert "artifacts" not in manifest["appearance"]
+        assert _errors("generation-manifest", manifest) == []
+        validate_appearance_families(manifest)
+
+
+def test_artifact_definition_is_closed_and_format_aware() -> None:
+    definitions = _load(SCHEMAS["generation-manifest"])["definitions"]
+    artifact = definitions["artifact"]
+    assert artifact["type"] == "object"
+    assert artifact["additionalProperties"] is False
+    assert artifact["required"] == ["consumer", "path", "format"]
+    assert set(artifact["properties"]) == {"consumer", "path", "format"}
+    assert artifact["properties"]["consumer"]["$ref"].endswith("/configDir")
+    assert definitions["configDir"]["pattern"] == CONSUMER_PATTERN
+    assert artifact["properties"]["format"]["enum"] == list(ARTIFACT_FORMATS)
+    assert artifact["properties"]["path"]["pattern"] == (
+        r"^appearance/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:rasi|conf|theme)$"
+    )
+
+    target = definitions["target"]
+    assert target["required"] == ["configDir", "path"]
+    assert target["additionalProperties"] is False
+    assert target["properties"]["path"]["pattern"] == (
+        r"^appearance/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.css$"
+    )
+
+
+@pytest.mark.parametrize(
+    ("fixture", "expected"),
+    [
+        ("artifacts-rasi.valid.json", ("rofi", "appearance/rofi.rasi", "rasi")),
+        ("artifacts-conf.valid.json", ("kitty", "appearance/kitty.conf", "conf")),
+        ("artifacts-theme.valid.json", ("btop", "appearance/btop.theme", "theme")),
+    ],
+)
+def test_valid_non_css_artifact_shapes_are_accepted(
+    fixture: str, expected: tuple[str, str, str]
+) -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / fixture)
+    assert _errors("generation-manifest", manifest) == []
+    artifacts = manifest["appearance"]["artifacts"]
+    assert [(item["consumer"], item["path"], item["format"]) for item in artifacts] == [
+        expected
+    ]
+    validate_appearance_families(manifest)
+
+
+def test_all_reserved_artifact_formats_coexist_with_css_targets() -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / "artifacts-all.valid.json")
+    assert _errors("generation-manifest", manifest) == []
+    assert [item["format"] for item in manifest["appearance"]["artifacts"]] == list(
+        ARTIFACT_FORMATS
+    )
+    assert all(path.endswith(".css") for path in (
+        target["path"] for target in manifest["appearance"]["targets"]
+    ))
+    validate_appearance_families(manifest)
+
+
+@pytest.mark.parametrize(
+    ("fixture", "needle"),
+    [
+        ("duplicate-consumer.semantic.json", "duplicate appearance consumer"),
+        (
+            "duplicate-consumer-across-families.semantic.json",
+            "duplicate appearance consumer",
+        ),
+        ("duplicate-path.semantic.json", "duplicate appearance path"),
+        ("extension-format-mismatch.semantic.json", "must equal"),
+    ],
+)
+def test_semantic_artifact_rules_are_rejected(fixture: str, needle: str) -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / fixture)
+    assert _errors("generation-manifest", manifest) == []
+    with pytest.raises(ValueError, match=needle):
+        validate_appearance_families(manifest)
+
+
+def test_artifacts_extension_may_not_reuse_the_css_target_family() -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / "glass-dark.valid.json")
+    manifest["appearance"]["artifacts"] = [
+        {"consumer": "rofi", "path": "appearance/rofi.css", "format": "rasi"}
+    ]
+    assert _errors("generation-manifest", manifest) != []
+    with pytest.raises(ValueError, match="must equal"):
+        validate_appearance_families(manifest)
 
 
 def test_structure_and_variant_are_rejected_at_every_manifest_level() -> None:
@@ -541,5 +690,35 @@ def test_generations_doc_pins_the_v3_interface() -> None:
         "host.fingerprint",
         "queue key stays host-free",
         "appearance.v3",
+        "appearance.artifacts",
+        "consumer",
+        "format",
+        "rasi",
+        "conf",
+        "theme",
+        "appearance/<consumer>.<format>",
+        "AGS consumers ignore",
+        "no fake CSS",
+        "reserved",
+    ):
+        assert needle in text
+
+
+def test_appearance_doc_pins_the_two_target_families() -> None:
+    text = (REPO_ROOT / "appearance.md").read_text(encoding="utf-8")
+    for needle in (
+        "appearance.targets",
+        "appearance.artifacts",
+        "{consumer, path, format}",
+        "appearance/<consumer>.<format>",
+        "rasi",
+        "conf",
+        "theme",
+        "AGS consumers ignore",
+        "no fake CSS",
+        "reserved",
+        "btop",
+        "kitty",
+        "rofi",
     ):
         assert needle in text

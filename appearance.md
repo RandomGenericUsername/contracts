@@ -23,6 +23,11 @@
 > token group and does not change any token type; the resolved `tokens.json`
 > stays concrete. The host snapshot participates in `appearance.v3` identity
 > and the generation manifest host block.
+>
+> **v0.10.0 artifact note.** The manifest's `appearance.targets` remains the
+> frozen CSS family. An optional, separate `appearance.artifacts` family adds
+> `{consumer, path, format}` entries for non-CSS consumers; this document's
+> token vocabulary, composed-CSS rules and skins are unchanged.
 
 An appearance is **palette + skin + mode**, composed once and consumed through **one atomically
 repointed hop**. Structure is outside the appearance plane: an appearance may not describe layout
@@ -144,6 +149,40 @@ references resolve to nothing and the UI paints near-black.
 
 The target set is derived from the selected skin's `<configDir>` artifacts, never from a fixed app
 list. A missing target is skipped at generation; it is not a partial appearance.
+
+## Non-CSS appearance artifacts (v0.10.0)
+
+The appearance contract has two target families. The families are separate on
+purpose: widening the CSS family would break every AGS consumer.
+
+- **CSS family — `appearance.targets` (frozen).** Each entry is
+  `{configDir, path}` with `path` exactly `appearance/<configDir>.css`. AGS,
+  wlogout, GTK3 and GTK4 use this family. GTK3/GTK4 are ordinary CSS consumers
+  with the aliases `gtk3`/`gtk4`; provisioning maps them to the real
+  `gtk-3.0`/`gtk-4.0` config dirs. This family is byte-identical to `v0.9.0`.
+- **Non-CSS family — `appearance.artifacts` (optional).** Each entry is
+  `{consumer, path, format}`. `consumer` uses the same safe lowercase segment
+  as `configDir`, `format` is `rasi|conf|theme`, and `path` is exactly
+  `appearance/<consumer>.<format>`. The runtime and verify enforce the
+  path/consumer/format equality because JSON Schema draft-07 cannot compare
+  properties; consumers that require strict schemas must re-pin this release.
+
+The format extension must match the format and consumer in the same entry.
+An unknown format, a CSS extension in `artifacts`, a non-CSS extension in
+`targets`, a dot in `consumer`, or a duplicate consumer/path fails closed.
+There is **no fake CSS** for non-CSS formats: a `.rasi`, `.conf` or `.theme`
+consumer never receives a `.css` sheet. `rasi` ships first for rofi; `conf` and
+`theme` are reserved even though no template ships yet. kitty (`.conf`) and
+btop (`.theme`) stay palette-only in this phase because a skin may not emit
+literal hex and the type/unit rules are unresolved.
+
+**AGS compatibility.** AGS consumers ignore unknown keys on `appearance`: the
+platform parser reads only `appearance.tokensPath`, `appearance.targets` and
+`mode`, and returns a fresh object. Adding `appearance.artifacts` therefore
+does not break an old AGS pin. The v0.9.0 strict JSON-Schema validators reject
+the new key, so every in-tree validator must re-pin before an artifact-emitting
+runtime ships. Evidence: `ags-platform/ports/appearance.ts:889-983`
+(`parseGenerationManifest` reads the known keys and ignores the rest).
 
 ## One pointer, one hop
 
