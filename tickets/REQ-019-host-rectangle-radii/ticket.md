@@ -2,13 +2,13 @@
 id: REQ-019
 title: "Host-delegated rectangle radii: expand the skin allowlist"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
-worktree: none
-branch: none
+worktree: .worktrees/REQ-019/
+branch: ticket/REQ-019-host-rectangle-radii
 ---
 
 # Host-delegated rectangle radii: expand the skin allowlist
