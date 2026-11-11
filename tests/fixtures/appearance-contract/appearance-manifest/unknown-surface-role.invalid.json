@@ -47,6 +47,16 @@
       },
       "widget": {
         "bg": "@surface"
+      },
+      "window": {
+        "bg": "alpha(@surface, 0.94)",
+        "border": "@primary",
+        "border-width": 1.5,
+        "radius": 12,
+        "padding": 11,
+        "shadow": "none",
+        "blur": "none",
+        "opacity": 0.94
       }
     },
     "state": {

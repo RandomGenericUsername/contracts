@@ -42,6 +42,16 @@
       "padding": 2,
       "font-size": 9,
       "letter-spacing": 0.06
+    },
+    "window": {
+      "bg": "@surface_container_lowest",
+      "border": "alpha(@on_surface, 0.22)",
+      "border-width": 1,
+      "radius": 6,
+      "padding": 11,
+      "shadow": "0 2px 8px alpha(@shadow, 0.18)",
+      "blur": "none",
+      "opacity": 1.0
     }
   },
   "state": {

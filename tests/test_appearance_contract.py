@@ -39,10 +39,20 @@ INVALID_FIXTURES = sorted(
 )
 
 GROUPS = ("surface", "state", "type", "ink", "layout")
-SURFACE_ROLES = ("panel", "card", "cell", "control", "pill")
+SURFACE_ROLES = ("window", "panel", "card", "cell", "control", "pill")
 STATE_ROLES = ("hover", "selected", "focus", "disabled")
 
 SURFACE_TOKENS = {
+    "window": {
+        "bg",
+        "border",
+        "border-width",
+        "radius",
+        "padding",
+        "shadow",
+        "blur",
+        "opacity",
+    },
     "panel": {"bg", "border", "border-width", "radius", "padding", "shadow", "blur"},
     "card": {"bg", "border", "border-width", "radius", "padding"},
     "cell": {"bg", "border", "border-width", "radius", "padding", "hover-bg"},
@@ -83,6 +93,8 @@ PLACEHOLDER = re.compile(r"\{\{SKIN_([A-Z0-9_]+)\}\}")
 CONDITIONAL = re.compile(r"\{%|%\}|\{\{#|\{\{/")
 
 HOST_PATHS = [
+    "surface.window.radius",
+    "surface.window.border-width",
     "surface.panel.radius",
     "surface.panel.border-width",
     "surface.card.radius",
@@ -93,6 +105,9 @@ HOST_PATHS = [
 #: Every numeric path in the v2 manifest/resolved shape, with a legal sample
 #: value. A unit-bearing string must be rejected at each path.
 NUMERIC_PATHS: dict[tuple[str, ...], float] = {
+    ("surface", "window", "border-width"): 1.5,
+    ("surface", "window", "radius"): 12,
+    ("surface", "window", "padding"): 11,
     ("surface", "panel", "border-width"): 1.5,
     ("surface", "panel", "radius"): 18,
     ("surface", "panel", "padding"): 11,
@@ -268,8 +283,16 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("host-duplicate-inherit.invalid.json", "non-unique"),
         ("host-unknown-inherit.invalid.json", "surface.card.border-width"),
         ("host-pill-inherit.invalid.json", "surface.pill.radius"),
+        ("host-window-padding.invalid.json", "surface.window.padding"),
+        ("host-window-opacity.invalid.json", "surface.window.opacity"),
         ("host-bad-fallback.invalid.json", "is not one of"),
         ("host-extra-key.invalid.json", "colour"),
+        ("missing-window-group.invalid.json", "'window' is a required property"),
+        ("missing-window-token.invalid.json", "'opacity' is a required property"),
+        ("opacity-string.invalid.json", "not of type 'number'"),
+        ("opacity-negative.invalid.json", "less than the minimum of 0"),
+        ("opacity-too-large.invalid.json", "greater than the maximum of 1"),
+        ("window-extra-key.invalid.json", "margin"),
     ],
 )
 def test_named_manifest_negative_fixture_reports_the_offending_construct(
@@ -288,6 +311,9 @@ def test_named_manifest_negative_fixture_reports_the_offending_construct(
         ("structure.invalid.json", "structure"),
         ("variant.invalid.json", "variant"),
         ("unknown-surface-role.invalid.json", "widget"),
+        ("missing-window.invalid.json", "'window' is a required property"),
+        ("opacity-string.invalid.json", "not of type 'number'"),
+        ("opacity-too-large.invalid.json", "greater than the maximum of 1"),
     ],
 )
 def test_named_resolved_negative_fixture_reports_the_offending_construct(
@@ -445,6 +471,7 @@ def test_host_policy_is_not_a_token_group_and_no_host_manifest_stays_valid() -> 
         "host-card-radius.valid.json",
         "host-control-radius.valid.json",
         "host-cell-radius.valid.json",
+        "host-window.valid.json",
     ],
 )
 def test_host_policy_accepts_rectangle_radius_allowlists(fixture: str) -> None:
@@ -461,6 +488,78 @@ def test_pill_radius_is_never_delegable() -> None:
     assert "surface.pill.radius" not in HOST_PATHS
     pill = _load(FIXTURE_DIR / "appearance-manifest" / "host-pill-inherit.invalid.json")
     assert _errors("appearance-manifest", pill) != []
+
+
+def test_window_role_is_required_with_exactly_eight_tokens() -> None:
+    definitions = _load(SCHEMAS["appearance-manifest"])["definitions"]
+    surface = definitions["surfaceGroup"]
+    assert "window" in surface["required"]
+    assert "window" in surface["properties"]
+    window = definitions["windowRole"]
+    assert set(window["properties"]) == SURFACE_TOKENS["window"]
+    assert set(window["required"]) == SURFACE_TOKENS["window"]
+    assert window["additionalProperties"] is False
+
+    resolved = _load(SCHEMAS["appearance-json"])["definitions"]
+    assert resolved["windowRole"] == window
+    assert "window" in resolved["surfaceGroup"]["required"]
+
+
+def test_window_group_is_never_aliased_from_panel() -> None:
+    """A missing window group fails closed; panel values are not a fallback."""
+    manifest = _load(FIXTURE_DIR / "appearance-manifest" / "missing-window-group.invalid.json")
+    errors = _error_text("appearance-manifest", manifest)
+    assert "'window' is a required property" in errors
+
+    # The rest of the document, including panel, is complete; only window is absent.
+    assert "panel" in manifest["groups"]["surface"]
+    assert _errors("appearance-manifest", manifest) != []
+
+    resolved = _load(FIXTURE_DIR / "appearance-json" / "missing-window.invalid.json")
+    assert "'window' is a required property" in _error_text("appearance-json", resolved)
+
+
+def test_window_opacity_is_a_unitless_number_in_the_unit_interval() -> None:
+    definition = _load(SCHEMAS["appearance-manifest"])["definitions"]["opacityValue"]
+    assert definition["type"] == "number"
+    assert definition["minimum"] == 0
+    assert definition["maximum"] == 1
+
+    for fixture in (
+        "opacity-string.invalid.json",
+        "opacity-negative.invalid.json",
+        "opacity-too-large.invalid.json",
+    ):
+        document = _load(FIXTURE_DIR / "appearance-manifest" / fixture)
+        assert _errors("appearance-manifest", document) != []
+
+    valid = _load(FIXTURE_DIR / "appearance-manifest" / "glass.valid.json")
+    assert valid["groups"]["surface"]["window"]["opacity"] == 0.94
+    assert _errors("appearance-manifest", valid) == []
+    for value in (0, 0.5, 1):
+        valid["groups"]["surface"]["window"]["opacity"] = value
+        assert _errors("appearance-manifest", valid) == []
+
+
+def test_window_host_geometry_is_delegable_but_padding_and_opacity_are_not() -> None:
+    assert "surface.window.radius" in HOST_PATHS
+    assert "surface.window.border-width" in HOST_PATHS
+    assert "surface.window.padding" not in HOST_PATHS
+    assert "surface.window.opacity" not in HOST_PATHS
+
+    window = _load(FIXTURE_DIR / "appearance-manifest" / "host-window.valid.json")
+    assert window["host"]["inherit"] == [
+        "surface.window.radius",
+        "surface.window.border-width",
+    ]
+    assert _errors("appearance-manifest", window) == []
+
+    for fixture in (
+        "host-window-padding.invalid.json",
+        "host-window-opacity.invalid.json",
+    ):
+        document = _load(FIXTURE_DIR / "appearance-manifest" / fixture)
+        assert _errors("appearance-manifest", document) != []
 
 
 def test_paper_light_is_explicit_and_resolves_before_validation() -> None:
@@ -664,6 +763,15 @@ def test_appearance_doc_pins_the_v2_contract() -> None:
         "layout.<app>",
         "letter-spacing",
         "font-weight",
+        "surface.window",
+        "surface.window.bg",
+        "surface.window.border-width",
+        "surface.window.radius",
+        "surface.window.padding",
+        "surface.window.opacity",
+        "{{SKIN_SURFACE_WINDOW_OPACITY}}",
+        "outermost application surface",
+        "no panel alias",
         "surface.panel.bg",
         "{{SKIN_SURFACE_PANEL_BG}}",
         "no literal hex",

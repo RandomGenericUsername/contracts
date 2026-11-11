@@ -44,6 +44,16 @@
         "padding": 2,
         "font-size": 9,
         "letter-spacing": 0.06
+      },
+      "window": {
+        "bg": "alpha(@surface, 0.94)",
+        "border": "@primary",
+        "border-width": 1.5,
+        "radius": 12,
+        "padding": 11,
+        "shadow": "none",
+        "blur": "none",
+        "opacity": 0.94
       }
     },
     "state": {
@@ -132,6 +142,16 @@
           "padding": 2,
           "font-size": 9,
           "letter-spacing": 0.06
+        },
+        "window": {
+          "bg": "color-mix(in srgb, @surface_container_lowest 96%, transparent)",
+          "border": "alpha(@outline, 0.35)",
+          "border-width": 1,
+          "radius": 6,
+          "padding": 11,
+          "shadow": "0 2px 8px alpha(@shadow, 0.12)",
+          "blur": "none",
+          "opacity": 1.0
         }
       },
       "state": {

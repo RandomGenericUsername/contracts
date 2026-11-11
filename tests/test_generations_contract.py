@@ -209,6 +209,8 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("host-empty-defaults.invalid.json", "non-empty"),
         ("host-unknown-default.invalid.json", "surface.card.border-width"),
         ("host-pill-default.invalid.json", "surface.pill.radius"),
+        ("host-window-padding.invalid.json", "surface.window.padding"),
+        ("host-window-opacity.invalid.json", "surface.window.opacity"),
         ("host-bad-source.invalid.json", "sway"),
         ("host-bad-fingerprint.invalid.json", "does not match"),
         ("host-bad-version.invalid.json", "1 was expected"),
@@ -341,6 +343,8 @@ def test_manifest_host_block_is_optional_closed_and_participating_only() -> None
     assert defaults["additionalProperties"] is False
     assert defaults["minProperties"] == 1
     assert set(defaults["properties"]) == {
+        "surface.window.radius",
+        "surface.window.border-width",
         "surface.panel.radius",
         "surface.panel.border-width",
         "surface.card.radius",
@@ -349,6 +353,10 @@ def test_manifest_host_block_is_optional_closed_and_participating_only() -> None
     }
     assert defaults["properties"]["surface.panel.radius"]["maximum"] == 64
     assert defaults["properties"]["surface.panel.border-width"]["maximum"] == 16
+    assert defaults["properties"]["surface.window.radius"]["maximum"] == 64
+    assert defaults["properties"]["surface.window.border-width"]["maximum"] == 16
+    assert "surface.window.padding" not in defaults["properties"]
+    assert "surface.window.opacity" not in defaults["properties"]
     for path in (
         "surface.card.radius",
         "surface.control.radius",
@@ -396,6 +404,20 @@ def test_host_snapshot_accepts_delegated_rectangle_radii() -> None:
         "surface.cell.radius": 0,
     }
     assert "surface.pill.radius" not in manifest["host"]["defaults"]
+    assert _errors("generation-manifest", manifest) == []
+    validate_host_identity(manifest)
+
+
+def test_host_snapshot_accepts_delegated_window_geometry() -> None:
+    manifest = _load(FIXTURE_DIR / "generation-manifest" / "host-window.valid.json")
+    assert manifest["host"]["defaults"] == {
+        "surface.window.radius": 12,
+        "surface.window.border-width": 1.5,
+        "surface.panel.radius": 0,
+        "surface.panel.border-width": 1,
+    }
+    assert "surface.window.padding" not in manifest["host"]["defaults"]
+    assert "surface.window.opacity" not in manifest["host"]["defaults"]
     assert _errors("generation-manifest", manifest) == []
     validate_host_identity(manifest)
 
@@ -715,6 +737,10 @@ def test_generations_doc_pins_the_v3_interface() -> None:
         "intent.host",
         "host.fingerprint",
         "queue key stays host-free",
+        "surface.window.radius",
+        "surface.window.border-width",
+        "surface.window.padding",
+        "surface.window.opacity",
         "surface.panel.radius",
         "surface.panel.border-width",
         "surface.card.radius",

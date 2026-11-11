@@ -8,10 +8,18 @@
 > contract only; the runtime renderer, `skinValue()`, and the AGS apps live elsewhere.
 >
 > **v2 host-delegation note.** The v1 skin plane below is frozen and has no host policy. The
-> superseding Appearance plane v2 (`appearance.md`) can delegate the outer panel and the inner
-> `surface.card`, `surface.control` and `surface.cell` rectangle radii to the live host, plus
-> `surface.panel.border-width`. `surface.pill.radius` stays explicit because a pill is a capsule;
-> the v1 `radius-pill` token below is unaffected.
+> superseding Appearance plane v2 (`appearance.md`) can delegate the outer window/toplevel and
+> panel geometry plus the inner `surface.card`, `surface.control` and `surface.cell` rectangle
+> radii to the live host. `surface.window.padding` and `surface.window.opacity` stay explicit;
+> `surface.pill.radius` stays explicit because a pill is a capsule; the v1 `radius-pill` token
+> below is unaffected.
+>
+> **v0.12.0 window-role note.** The Appearance plane's `surface.window` is a required sixth
+> surface role for real toplevels (rofi/wlogout/GTK outer slots, kitty). It is not an alias of
+> `surface.panel` and has no fallback: every skin manifest must author an explicit
+> `[groups.surface.window]` with `bg`, `border`, `border-width`, `radius`, `padding`, `shadow`,
+> `blur` and the unitless `opacity` in `[0, 1]`. `surface.panel` remains the AGS bar/layer-shell
+> overlay role. The v1 skin-plane vocabulary in this document is unchanged.
 
 A skin is **palette/ink mapping + paint + rhythm/density**. Structure is deliberately outside the
 skin plane: a skin may not describe layout trees, variants, ordering, or presence. Appearance is a

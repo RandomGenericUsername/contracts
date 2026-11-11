@@ -45,6 +45,16 @@
         "padding": 2,
         "font-size": 9.5,
         "letter-spacing": 0.05
+      },
+      "window": {
+        "bg": "alpha(@surface, 0.94)",
+        "border": "@primary",
+        "border-width": 1.5,
+        "radius": 12,
+        "padding": 11,
+        "shadow": "none",
+        "blur": "none",
+        "opacity": 0.94
       }
     },
     "state": {

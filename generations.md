@@ -199,6 +199,8 @@ live host value in the selected mode. When no delegated value participated, omit
   "version": 1,
   "fingerprint": "<hostHash>",
   "defaults": {
+    "surface.window.radius": 12,
+    "surface.window.border-width": 1.5,
     "surface.panel.radius": 0,
     "surface.panel.border-width": 1,
     "surface.card.radius": 0,
@@ -215,13 +217,17 @@ live host value in the selected mode. When no delegated value participated, omit
   only the participating logical token paths/values. It excludes the instance signature,
   timestamps and `set` flags. A host change that does not alter a participating value is the same
   fingerprint.
-- `defaults` is non-empty and closed. It may contain only the rectangle paths
-  the skin delegated: `surface.panel.radius` (0..64), `surface.panel.border-width`
-  (0..16), `surface.card.radius` (0..64), `surface.control.radius` (0..64) and
-  `surface.cell.radius` (0..64), and only when that token actually used the host.
-  `surface.pill.radius` is never recorded: the pill's capsule identity stays
-  explicit, and there is no inner border-width delegation. A snapshot with only
-  the two panel paths remains valid.
+- `defaults` is non-empty and closed. It may contain only the geometry paths
+  the skin delegated: `surface.window.radius` (0..64),
+  `surface.window.border-width` (0..16), `surface.panel.radius` (0..64),
+  `surface.panel.border-width` (0..16), `surface.card.radius` (0..64),
+  `surface.control.radius` (0..64) and `surface.cell.radius` (0..64), and only
+  when that token actually used the host. `surface.window.padding` and
+  `surface.window.opacity` are never recorded: the host has no honest
+  toplevel padding or opacity source. `surface.pill.radius` is never recorded:
+  the pill's capsule identity stays explicit. There is no inner border-width delegation;
+  border width is delegable only for the window and the panel. A snapshot with only the two panel paths remains
+  valid, as does a five-path rectangle snapshot.
 - `intent.host` is required when `host` is present and must equal `host.fingerprint`. JSON Schema
   enforces presence; equality is enforced by runtime manifest validation and by the contract
   fixture gate, because draft-07 cannot compare two properties.

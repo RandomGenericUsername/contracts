@@ -34,6 +34,18 @@
 > rectangle radii. `surface.pill.radius` stays explicit because a pill is a
 > capsule; `surface.panel.border-width` remains the only delegable border
 > width. Precedence and the resolved concrete token model are unchanged.
+>
+> **v0.12.0 window-role note.** `surface.window` is now a required sixth
+> surface role: the outer/application **toplevel** the compositor manages
+> (rofi, wlogout, GTK window/headerbar, kitty). It is **not** an alias for
+> `surface.panel`; a manifest without `[groups.surface.window]` fails schema
+> validation and is never populated from panel values. `surface.panel` keeps
+> its AGS bar/settings and layer-shell overlay consumers. The role adds the
+> unitless `surface.window.opacity` in `[0, 1]` and puts
+> `surface.window.radius` / `surface.window.border-width` on the host
+> allowlist. The token-model version stays **2** (manifest `schemaVersion: 2`,
+> resolved `version: 2`, `appearance.json` `version: 2`) and the generation
+> manifest stays **3**; the contract release is `v0.12.0`.
 
 An appearance is **palette + skin + mode**, composed once and consumed through **one atomically
 repointed hop**. Structure is outside the appearance plane: an appearance may not describe layout
@@ -233,16 +245,31 @@ the token names below are the only legal names.
 
 ### `surface`
 
-Five roles, each with its own paint and geometry. `border` is a colour expression and
+Six required roles, each with its own paint and geometry. `border` is a colour expression and
 `border-width` is the numeric width, so a role never has to share a global border token.
 
 | Role | Tokens |
 | --- | --- |
+| `surface.window` | `bg`, `border`, `border-width`, `radius`, `padding`, `shadow`, `blur`, `opacity` |
 | `surface.panel` | `bg`, `border`, `border-width`, `radius`, `padding`, `shadow`, `blur` |
 | `surface.card` | `bg`, `border`, `border-width`, `radius`, `padding` |
 | `surface.cell` | `bg`, `border`, `border-width`, `radius`, `padding`, `hover-bg` |
 | `surface.control` | `bg`, `border`, `border-width`, `radius`, `padding`, `font-size`, `font-weight` |
 | `surface.pill` | `bg`, `border`, `border-width`, `radius`, `padding`, `font-size`, `letter-spacing` |
+
+`surface.window` is the **outermost application surface the compositor manages as a window** — a
+toplevel, or an app-owned outer shell presented as a decorated/rounded window. It owns the outer
+paint, frame, corner geometry, inner window padding, shadow, blur and toplevel opacity. Its
+consumers are the rofi outer `window`, the wlogout outer `window`, the GTK3/GTK4 `window` and
+`headerbar`, and the kitty terminal window (`opacity` + `padding` + `type.*` only; kitty's paint is
+the palette). It is a distinct role, not a rename or fallback of `panel`: there is no panel alias
+and no `window if present else panel` rule, the two roles coexist, and no consumer reads both for
+the same slot.
+
+`surface.panel` is the **app-owned outer panel or layer-shell surface that is not a decorated
+toplevel**: the AGS bar, its settings surface and every AGS layer-shell overlay. AGS notifications
+keep a transparent layer-shell container and paint visible notifications with `surface.card`;
+`surface.pill` stays a badge/capsule and is never host-delegated.
 
 `surface.cell` is the row/tile surface. It may be borderless (`border: transparent`,
 `border-width: 0`) and it owns its own `hover-bg`, so a hover paint is a token rather than a
@@ -307,6 +334,8 @@ group and it does not make any token type dynamic: the authored manifest and the
 ```toml
 [host]
 inherit = [
+  "surface.window.radius",
+  "surface.window.border-width",
   "surface.panel.radius",
   "surface.panel.border-width",
   "surface.card.radius",
@@ -316,24 +345,30 @@ inherit = [
 fallback = "skin"          # "skin" (default) or "error"
 ```
 
-Phase 1 supports exactly five logical paths: the **outer panel** and the **inner
-card/control/cell rectangle radii**.
+The allowlist is exactly **seven** logical paths: the **outer window/toplevel geometry**, the
+**outer panel geometry**, and the **inner card/control/cell rectangle radii**.
 
-| Token path | Host source | Meaning |
-| --- | --- | --- |
-| `surface.panel.radius` | Hyprland `decoration:rounding` | outer panel/window corner |
-| `surface.panel.border-width` | Hyprland `general:border_size` | outer panel/window frame width |
-| `surface.card.radius` | Hyprland `decoration:rounding` | inner card rectangle corner |
-| `surface.control.radius` | Hyprland `decoration:rounding` | inner control rectangle corner |
-| `surface.cell.radius` | Hyprland `decoration:rounding` | inner cell rectangle corner |
+| Token path | Host source | Bounds | Meaning |
+| --- | --- | --- | --- |
+| `surface.window.radius` | Hyprland `decoration:rounding` | `0..64` | toplevel window corner |
+| `surface.window.border-width` | Hyprland `general:border_size` | `0..16` | toplevel window frame width |
+| `surface.panel.radius` | Hyprland `decoration:rounding` | `0..64` | outer panel/layer-shell corner |
+| `surface.panel.border-width` | Hyprland `general:border_size` | `0..16` | outer panel/layer-shell frame width |
+| `surface.card.radius` | Hyprland `decoration:rounding` | `0..64` | inner card rectangle corner |
+| `surface.control.radius` | Hyprland `decoration:rounding` | `0..64` | inner control rectangle corner |
+| `surface.cell.radius` | Hyprland `decoration:rounding` | `0..64` | inner cell rectangle corner |
 
 `inherit` must be non-empty and unique. A token not named in `inherit` is always the skin's
-explicit value. `surface.pill.radius` is **intentionally not delegable**: the pill is a capsule,
-not a rectangle, and its capsule identity must not be flattened by the host rounding value. No
-card/control/cell border width, padding, gap, type, paint, colour or `layout.<app>` path may be
-inherited, and a host value is never a literal hex or structure. Host rounding maps only to the
-listed rectangle radii; there is no border-width expansion beyond
-`surface.panel.border-width`.
+explicit value. `surface.window.padding` and `surface.window.opacity` are **not delegable**: the
+host has no honest toplevel padding or opacity source. `surface.pill.radius` is
+**intentionally not delegable**: the pill is a capsule, not a rectangle, and its capsule identity must not be
+flattened by the host rounding value. No card/control/cell border width, padding, gap, type,
+paint, colour or `layout.<app>` path may be inherited, and a host value is never a literal hex or
+structure. Host rounding maps only to the listed rectangle radii and the two outer roles; there is
+no border-width expansion beyond `surface.window.border-width` and
+`surface.panel.border-width`. Keeping both outer roles means toplevel consumers take geometry from
+`window` while layer-shell panels (the AGS bar) keep taking geometry from `panel`; no consumer uses
+both for one slot.
 
 Resolution precedence, highest first: **mode override > host > skin fallback**.
 
@@ -365,7 +400,12 @@ The contract separates the **stored value** from its CSS rendering.
   paint strings composed only from palette roles. The permitted atoms are `transparent`, `@<role>`,
   `alpha(@<role>, <0..1>)`, `color-mix(in srgb, @<role> <pct>%, transparent|@<role>)`, and
   gradients/shadows composed from them.
-- **`surface.panel.blur`** is `none` or `blur(<n>px) [saturate(<n>)]`.
+- **`surface.window.opacity`** is a **unitless number in `[0, 1]`**. It is never a length, a unit
+  string, a percentage or an `alpha()` value; CSS expansion renders a bare number and a `conf`
+  renderer renders a bare decimal. It is authored, not parsed from `surface.window.bg` or any other
+  paint.
+- **`surface.panel.blur` and `surface.window.blur`** are `none` or
+  `blur(<n>px) [saturate(<n>)]`.
 - **There is no literal hex anywhere** (`#...` is rejected). The palette owns colours.
 - **There are no transitions** (a `transition` key or value is rejected). Motion is outside the
   appearance plane and would race a live CSS swap.
@@ -396,6 +436,8 @@ characters replaced by `_`, prefixed with `SKIN` and wrapped in `{{...}}`:
 
 | Token path | Placeholder |
 | --- | --- |
+| `surface.window.opacity` | `{{SKIN_SURFACE_WINDOW_OPACITY}}` |
+| `surface.window.padding` | `{{SKIN_SURFACE_WINDOW_PADDING}}` |
 | `surface.panel.bg` | `{{SKIN_SURFACE_PANEL_BG}}` |
 | `surface.cell.hover-bg` | `{{SKIN_SURFACE_CELL_HOVER_BG}}` |
 | `state.selected.ring` | `{{SKIN_STATE_SELECTED_RING}}` |
@@ -470,21 +512,34 @@ the `version: 2` artifacts, and the forbidden constructs above.
 
 ## Built-in skins (v2)
 
-- **`glass`** — the default and the app fallback parity target. Translucent panel/card paint,
-  rounded corners, blur and a soft shadow. The v1 values are converted faithfully: panel
+Every built-in skin carries an explicit `[groups.surface.window]`. The values are authored, not
+derived at runtime; `glass` in particular authors `opacity = 0.94` rather than parsing it out of
+its `alpha(@surface, 0.94)` window paint. `paper` also authors a complete
+`[mode.light.surface.window]`, because a mode override replaces the whole `surface` group.
+
+- **`glass`** — the default and the app fallback parity target. Translucent window/panel/card
+  paint, rounded corners, blur and a soft shadow. The v1 values are converted faithfully: panel
   `border-width` `1.5`, card/cell/control/pill hairlines `1`, panel `radius` `18`, card `14`,
-  cell `10`, pill `20`, and the same paint/shadow strings.
+  cell `10`, pill `20`, and the same paint/shadow strings. Window: radius `12`, padding `11`,
+  border-width `1.5`, opacity `0.94`.
 - **`flat`** — zero radii, no blur, no shadow, solid role paint; all borders zero-width and
   transparent/outline-free. The v1 values are converted faithfully (radii `0`, `border-w` `0`,
-  `hairline-w` `0`).
+  `hairline-w` `0`). Window: radius `0`, padding `11`, opacity `1.0`.
 - **`paper`** — the role-based ink/palette axis with clean rules and light-weight borders. It uses
   explicit `mode.light` overrides for its light surface/state/ink groups instead of guessing from
   the palette. A light palette + `paper` reads light; a dark palette + `paper` keeps the base
   groups. The base groups are the v1 paper values converted faithfully; `mode.light` is authored,
-  not derived.
+  not derived. Window: radius `6`, padding `11`, opacity `1.0`, with an explicit light override.
 
 ## Migration
 
+- **v0.12.0 window role.** An existing manifest must add an explicit
+  `[groups.surface.window]` with all eight tokens, and a `mode.<mode>` override must add a complete
+  `surface.window` inside its complete `surface` replacement. Copying the panel values once, in the
+  authored manifest, is the migration; a runtime panel→window derivation is the forbidden alias.
+  A manifest without the group fails schema validation with `'window' is a required property`; it
+  is never rendered with panel values, and `{{SKIN_SURFACE_WINDOW_*}}` has no
+  `{{SKIN_SURFACE_PANEL_*}}` fallback. Contract release `v0.12.0` is the re-pin boundary.
 - v1 `skin.css`, `skin.json`, `current/skins/` and `current/skin.json` are retired by this
   contract. Consumers re-pin the `v0.7.0` tag; there is no dual-publish window and no `v1.1
   hotfix`.
@@ -507,4 +562,7 @@ The appearance tests validate all three schemas as draft-07, accept the `glass`/
 manifests and resolved token documents, reject literal hex, transition, structure/variant, an
 unknown surface role, an incomplete mode override and unit-bearing numeric strings, and exercise
 the v2 placeholder flattening: `surface.panel.bg` expands to `{{SKIN_SURFACE_PANEL_BG}}`, mode is
-resolved before expansion, and a layout token in a template is rejected.
+resolved before expansion, and a layout token in a template is rejected. Window-specific fixtures
+assert all eight tokens, a missing `window` group/token, an extra window key, opacity bounds and
+type (`0..1`, number only), window host geometry, and the rejection of
+`surface.window.padding` / `surface.window.opacity` in `[host].inherit`.
