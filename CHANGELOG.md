@@ -9,6 +9,54 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.12.0] - 2026-11-11
+
+Minor release on the 0.x line: the required **`surface.window`** outer/toplevel
+role (ticket [`REQ-020`](./tickets/REQ-020-window-role/ticket.md), design
+`dotfiles-v3/docs/113-window-role-kitty-projection.md`, D4-B). This is breaking
+for every skin manifest: the window group is required and there is no alias or
+fallback to `surface.panel`.
+
+### Added
+
+- `schemas/appearance-manifest.schema.json` and
+  `schemas/appearance-json.schema.json` — required `surface.window` role with
+  exactly `bg`, `border`, `border-width`, `radius`, `padding`, `shadow`, `blur`
+  and `opacity`. `opacity` is a new unitless number value type in `[0, 1]`.
+- `schemas/appearance-manifest.schema.json` — `host.inherit` now accepts exactly
+  seven paths: `surface.window.radius`, `surface.window.border-width`,
+  `surface.panel.radius`, `surface.panel.border-width`, `surface.card.radius`,
+  `surface.control.radius` and `surface.cell.radius`. Window padding, window
+  opacity and `surface.pill.radius` are rejected.
+- `schemas/generation-manifest.schema.json` — `host.defaults` accepts
+  `surface.window.radius` (`0..64`) and `surface.window.border-width` (`0..16`)
+  in addition to the five existing paths.
+- `appearance.md`, `skins.md`, `generations.md`, `README.md` — window role
+  semantics, consumer mapping (rofi/wlogout/GTK outer slots and kitty use
+  window; AGS bar/overlays use panel; notifications stay card), the opacity
+  type, the seven-path allowlist and explicit migration/no-alias rules.
+- Fixtures covering all eight tokens, a missing window group/token, an extra
+  window key, opacity bounds/type, window-only host policies, rejected window
+  padding/opacity host paths and generation window defaults.
+
+### Changed
+
+- Migrated the built-in `glass`/`flat`/`paper` manifest and resolved fixtures
+  (including the `paper` light override) to an explicit window group. A legacy
+  no-window fixture is kept as a negative: it fails with `'window' is a
+  required property`.
+- The token-model version stays `2` (manifest `schemaVersion: 2`, resolved
+  `version: 2`, `appearance.json` `version: 2`); the generation manifest stays
+  `version: 3`.
+- `cli-invocation-contract` and `CONTRACT_VERSION` move to `0.12.0`;
+  `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.12.0` on the merged release commit. No runtime, platform,
+  assets, provisioning, composition or app code was changed in this repo, and
+  no live apply was run.
+
 ## [0.11.0] - 2026-11-11
 
 Minor release: host-delegated rectangle radii (ticket

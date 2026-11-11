@@ -14,10 +14,12 @@ Canonical contract sources for the AGS platform, one repo.
    `dotfiles-provision`, `dotfiles-runtime`, `ags-platform`, and every app repo.
 4. **Appearance plane v2** — `appearance.md` plus
    `schemas/appearance-manifest.schema.json`, `schemas/appearance-json.schema.json`
-   and `schemas/appearance-artifact.schema.json`. The nested
-   surface/state/type/ink/layout/mode token model, the optional `[host]`
-   delegation policy and the composed-sheet rules. v2 supersedes the frozen v1
-   skin-plane artifacts; there is no v1.1 hotfix.
+   and `schemas/appearance-artifact.schema.json`. The nested surface (six
+   required roles, including the outer `surface.window` toplevel),
+   state/type/ink/layout/mode token model, the optional `[host]` delegation
+   policy and the composed-sheet rules. `surface.window` is not an alias of
+   `surface.panel`; it adds the unitless `opacity` in `[0, 1]`. v2 supersedes
+   the frozen v1 skin-plane artifacts; there is no v1.1 hotfix.
 5. **Generations v3** — `generations.md` plus
    `schemas/generation-manifest.schema.json`,
    `appearance-refresh.md` and
@@ -81,12 +83,13 @@ tag that every consumer re-pins; literals are not duplicated in consumer tests.
   and `palette-refresh` mechanics are superseded by `generations.md` and
   `appearance-refresh.md`; the token vocabulary and skins are unchanged.
 - `schemas/appearance-manifest.schema.json` — the v2 authored manifest
-  (`schemaVersion: 2`, nested surface/state/type/ink/layout groups, optional
-  same-shape `mode.dark`/`mode.light` overrides, optional `[host]` delegation
-  policy, structure/variant forbidden).
+  (`schemaVersion: 2`, nested surface/state/type/ink/layout groups with the
+  required six-role surface incl. `window`, optional same-shape
+  `mode.dark`/`mode.light` overrides, optional `[host]` delegation policy,
+  structure/variant forbidden).
 - `schemas/appearance-json.schema.json` — the resolved, mode-resolved
-  `tokens.json` token map (`version: 2` plus the five groups), validated without
-  the manifest wrapper.
+  `tokens.json` token map (`version: 2` plus the five groups and the required
+  six-role surface incl. `window`), validated without the manifest wrapper.
 - `schemas/appearance-artifact.schema.json` — `appearance.json` metadata
   (`version: 2`, skin, mode, palette/skin/appearance/generation hashes and the
   `tokens.json` ref).
@@ -203,3 +206,14 @@ width remains delegable only for the panel, and precedence stays
 mode-override > host > skin-fallback. The generation host `defaults` object records the same five
 paths when they participate. Old two-path policies and every existing manifest/generation
 fixture remain valid; `DATA_VERSION` stays `2` with byte-identical invocation data.
+
+`v0.12.0` (`cli-invocation-contract` 0.12.0) adds the required sixth surface role
+**`surface.window`** (REQ-020): `bg`, `border`, `border-width`, `radius`, `padding`, `shadow`,
+`blur` and the unitless `opacity` in `[0, 1]`. It is the outer/application toplevel role for
+rofi/wlogout/GTK outer slots and kitty; `surface.panel` stays the AGS bar/settings and layer-shell
+overlay role, and notifications stay `surface.card`. There is no panel alias or fallback: a
+manifest without `[groups.surface.window]` fails validation. The `[host].inherit` allowlist adds
+`surface.window.radius` and `surface.window.border-width` to the five existing paths, and the
+generation host `defaults` accepts both window paths. Window padding and window opacity are not
+delegable. The token-model version stays `2` and the generation manifest stays `version: 3`;
+`DATA_VERSION` stays `2` with byte-identical invocation data.

@@ -19,7 +19,7 @@ Evidence: `S1` §0 (condensed facts table), §1.3–1.6, §2.2. Verify (from tha
 
 Two versions are exported and kept distinct:
 
-- `CONTRACT_VERSION = "0.11.0"` — the **release** version, equal to the `contracts` tag without its
+- `CONTRACT_VERSION = "0.12.0"` — the **release** version, equal to the `contracts` tag without its
   leading `v` (AD-11: each CLI reports this version and it must equal the pinned tag).
 - `DATA_VERSION = 2` — the **data shape** version declared by `contract_version` in the JSON.
 
@@ -52,9 +52,13 @@ uniqueness. The generation manifest stays `version: 3`. The `0.11.0` minor expan
 allowlist to the inner rectangle radii: `surface.card.radius`, `surface.control.radius` and
 `surface.cell.radius` join `surface.panel.radius` and `surface.panel.border-width`.
 `surface.pill.radius` stays explicit (capsule identity), border-width delegation stays
-panel-only, and old two-path policies remain valid. Across `0.5.0`–`0.11.0` the invocation
-data is byte-identical, so `DATA_VERSION` stays `2` while the release version moves with the repo
-tag.
+panel-only, and old two-path policies remain valid. The `0.12.0` minor adds the required
+`surface.window` outer/toplevel role (`bg`, `border`, `border-width`, `radius`, `padding`,
+`shadow`, `blur`, unitless `opacity` in `[0, 1]`): it is not a `surface.panel` alias, a manifest
+without it fails validation, and `surface.window.radius` / `surface.window.border-width` join the
+seven-path host allowlist while window padding/opacity stay explicit. Across `0.5.0`–`0.12.0` the
+invocation data is byte-identical, so `DATA_VERSION` stays `2` while the release version moves
+with the repo tag.
 
 | Field | Meaning |
 |---|---|
@@ -78,7 +82,7 @@ Evidence: `invocation-contract.json` `contract_version` and
 `src/cli_invocation_contract/__init__.py` `CONTRACT_VERSION` / `DATA_VERSION`; the strict
 comparison is `load()`'s `if version != DATA_VERSION` branch. Verify:
 `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"`
-→ `0.11.0 2`.
+→ `0.12.0 2`.
 
 ## Per-CLI record
 
