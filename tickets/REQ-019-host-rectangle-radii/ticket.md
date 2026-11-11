@@ -2,7 +2,7 @@
 id: REQ-019
 title: "Host-delegated rectangle radii: expand the skin allowlist"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -63,49 +63,72 @@ border width, padding, gap, type, paint, colour, state or `layout.<app>` path.
 
 ## Acceptance
 
-- [ ] The appearance host enum is exactly the five rectangle paths.
-- [ ] `surface.pill.radius` is rejected; every unknown/padding/colour/layout
+- [x] The appearance host enum is exactly the five rectangle paths.
+- [x] `surface.pill.radius` is rejected; every unknown/padding/colour/layout
       path is rejected.
-- [ ] Old two-path host policies and every existing manifest fixture validate.
-- [ ] The generation host `defaults` object accepts the five paths and still
+- [x] Old two-path host policies and every existing manifest fixture validate.
+- [x] The generation host `defaults` object accepts the five paths and still
       accepts the two-path snapshot.
-- [ ] Docs state rectangle-radii delegation, the pill exclusion, unchanged
+- [x] Docs state rectangle-radii delegation, the pill exclusion, unchanged
       precedence and no border-width expansion beyond the panel.
-- [ ] `make test`, `make skin-test`, `make appearance-test`,
+- [x] `make test`, `make skin-test`, `make appearance-test`,
       `make generations-test`, `make schema-test` and `make contracts-drift`
       exit 0.
-- [ ] Version metadata and `tests/test_record.py` agree on `0.11.0`; annotated
+- [x] Version metadata and `tests/test_record.py` agree on `0.11.0`; annotated
       tag `v0.11.0` points at the merged release commit; no existing tag moves.
 
 ## Evidence
 
 - Frozen baseline: `schemas/appearance-manifest.schema.json` host
   `inherit.items.enum` is exactly `surface.panel.radius` and
-  `surface.panel.border-width` at `v0.10.0`.
+  `surface.panel.border-width` at `v0.10.0` (commit `8af8aca`).
 - Frozen generation baseline: `schemas/generation-manifest.schema.json`
   `host.defaults.properties` names the same two paths at `v0.10.0`.
-- Existing fixtures: `tests/fixtures/appearance-contract/appearance-manifest/
-  host.valid.json` and `tests/fixtures/generations-contract/generation-manifest/
-  host.valid.json`.
+- Positive fixtures: `host.valid.json` (all five), `host-old-two-path.valid.json`,
+  `host-card-radius.valid.json`, `host-control-radius.valid.json` and
+  `host-cell-radius.valid.json` under
+  `tests/fixtures/appearance-contract/appearance-manifest/`.
+- Negative fixtures: `host-pill-inherit.invalid.json` and
+  `host-unknown-inherit.invalid.json` (`surface.card.border-width`).
+- Generation fixtures: `host-rectangles.valid.json`,
+  `host-pill-default.invalid.json` and the updated
+  `host-unknown-default.invalid.json` under
+  `tests/fixtures/generations-contract/generation-manifest/`; the legacy
+  `host.valid.json` two-key snapshot still validates.
 
 ## Verification
 
 Commands run from the worktree root (`.worktrees/REQ-019/`, branch
-`ticket/REQ-019-host-rectangle-radii`, base `8af8aca`). Filled after
-implementation.
+`ticket/REQ-019-host-rectangle-radii`, base `e5dabc1`).
 
 | Claim | Command | Result |
 | --- | --- | --- |
+| Full repo gate | `make test` | `Ran 10 tests ... OK`; `448 passed in 2.72s`, exit 0 |
+| Frozen v1 skin gates | `make skin-test` | `110 passed in 0.61s`, exit 0 |
+| Appearance contract | `make appearance-test` | `124 passed in 1.70s`, exit 0 |
+| Generation contract | `make generations-test` | `105 passed in 0.39s`, exit 0 |
+| AGS app contract | `make schema-test` | `40 passed in 0.10s`, exit 0 |
+| Symmetric drift gate | `make contracts-drift` | `[ok]` symmetric; regenerate-and-diff clean, exit 0 |
+| Lockfile check | `uv lock --check` | `Resolved 13 packages in 0.76ms`, exit 0 |
+| Package version constants | `uv run python -c "from cli_invocation_contract import CONTRACT_VERSION, DATA_VERSION; print(CONTRACT_VERSION, DATA_VERSION)"` | `0.11.0 2` |
 
 ### Commits
 
 | Commit | Subject |
 | --- | --- |
+| `e5dabc1` | `docs(REQ-019): plan the rectangle-radii host allowlist` |
+| `acc6a7b` | `chore(REQ-019): start — record worktree/branch, move to in-progress` |
+| `c49c116` | `feat(REQ-019): delegate rectangle radii to the host` |
+| release commit (the `v0.11.0` tag target) | `chore(REQ-019): release v0.11.0` |
 
 ### Status
 
-**Proposed.** Contract-only slice. No runtime, assets, provisioning,
-composition, app or live-state change.
+**Done on `ticket/REQ-019-host-rectangle-radii`.** The five-path host allowlist,
+the panel-only border width, the pill exclusion and the expanded generation
+host snapshot are frozen. Merge to `main` fast-forward, then create the
+annotated `v0.11.0` tag on the merged release commit and push `main` plus the
+tag; no existing tag moves. No runtime, assets, provisioning, composition or
+app code is in this slice, and no live apply was run.
 
 ## Downstream pins (not part of this slice)
 

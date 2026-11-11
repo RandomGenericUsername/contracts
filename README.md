@@ -194,3 +194,12 @@ outputs, while `appearance.targets` stays the frozen `{configDir, path}` CSS fam
 consumers/paths are unique across both families. `rasi` ships first for rofi; `conf`/`theme` are
 reserved for kitty/btop without a template. The generation manifest stays `version: 3`, existing
 CSS-only manifests remain valid, and `DATA_VERSION` stays `2` with byte-identical invocation data.
+
+`v0.11.0` (`cli-invocation-contract` 0.11.0) expands the **host-defaults** allowlist (REQ-019)
+from the outer panel to the inner rectangle radii: `surface.panel.radius`,
+`surface.panel.border-width`, `surface.card.radius`, `surface.control.radius` and
+`surface.cell.radius`. `surface.pill.radius` stays explicit because a pill is a capsule, border
+width remains delegable only for the panel, and precedence stays
+mode-override > host > skin-fallback. The generation host `defaults` object records the same five
+paths when they participate. Old two-path policies and every existing manifest/generation
+fixture remain valid; `DATA_VERSION` stays `2` with byte-identical invocation data.

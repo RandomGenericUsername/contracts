@@ -9,6 +9,43 @@ Notable changes to the `contracts` repo. Format follows
 
 (nothing yet)
 
+## [0.11.0] - 2026-11-11
+
+Minor release: host-delegated rectangle radii (ticket
+[`REQ-019`](./tickets/REQ-019-host-rectangle-radii/ticket.md)). The skin
+`[host]` allowlist expands from the outer panel to the inner rectangle roles.
+This is additive: the old two-path policy, every existing manifest and every
+generation fixture remain valid, and no token type or `required` list changes.
+
+### Added
+
+- `schemas/appearance-manifest.schema.json` — the `host.inherit` enum now
+  accepts `surface.panel.radius`, `surface.panel.border-width`,
+  `surface.card.radius`, `surface.control.radius` and `surface.cell.radius`.
+  `surface.pill.radius` is deliberately absent: a pill is a capsule and its
+  radius stays explicit. No padding, gap, type, paint, colour, state or
+  `layout.<app>` path is delegable.
+- `schemas/generation-manifest.schema.json` — `host.defaults` records the same
+  five logical paths (radii `0..64`, panel border width `0..16`) when they
+  participated. A two-key panel-only snapshot remains valid.
+- `appearance.md`, `skins.md`, `generations.md` — the outer/inner
+  rectangle-radius rule, the intentional pill exclusion, the unchanged
+  `mode override > host > skin fallback` precedence and the panel-only
+  border-width rule.
+- Positive fixtures for all five paths, each inner radius individually and the
+  old two-path policy; negative fixtures for the pill and an unknown path.
+  Generation fixtures cover all five participating defaults.
+
+### Changed
+
+- `cli-invocation-contract` and `CONTRACT_VERSION` move to `0.11.0`;
+  `DATA_VERSION` stays `2` and the invocation records are byte-identical.
+
+### Release
+
+- Annotated tag `v0.11.0` on the merged release commit. No runtime, platform,
+  assets, provisioning, composition or app code was changed in this repo.
+
 ## [0.10.0] - 2026-11-10
 
 Minor release: format-aware non-CSS appearance consumers (ticket
