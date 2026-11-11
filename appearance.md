@@ -28,6 +28,12 @@
 > frozen CSS family. An optional, separate `appearance.artifacts` family adds
 > `{consumer, path, format}` entries for non-CSS consumers; this document's
 > token vocabulary, composed-CSS rules and skins are unchanged.
+>
+> **v0.11.0 host-radius note.** The `[host]` allowlist now delegates the outer
+> panel plus the inner `surface.card`, `surface.control` and `surface.cell`
+> rectangle radii. `surface.pill.radius` stays explicit because a pill is a
+> capsule; `surface.panel.border-width` remains the only delegable border
+> width. Precedence and the resolved concrete token model are unchanged.
 
 An appearance is **palette + skin + mode**, composed once and consumed through **one atomically
 repointed hop**. Structure is outside the appearance plane: an appearance may not describe layout
@@ -300,20 +306,34 @@ group and it does not make any token type dynamic: the authored manifest and the
 
 ```toml
 [host]
-inherit = ["surface.panel.radius", "surface.panel.border-width"]
+inherit = [
+  "surface.panel.radius",
+  "surface.panel.border-width",
+  "surface.card.radius",
+  "surface.control.radius",
+  "surface.cell.radius",
+]
 fallback = "skin"          # "skin" (default) or "error"
 ```
 
-Phase 1 supports exactly two logical paths:
+Phase 1 supports exactly five logical paths: the **outer panel** and the **inner
+card/control/cell rectangle radii**.
 
 | Token path | Host source | Meaning |
 | --- | --- | --- |
 | `surface.panel.radius` | Hyprland `decoration:rounding` | outer panel/window corner |
 | `surface.panel.border-width` | Hyprland `general:border_size` | outer panel/window frame width |
+| `surface.card.radius` | Hyprland `decoration:rounding` | inner card rectangle corner |
+| `surface.control.radius` | Hyprland `decoration:rounding` | inner control rectangle corner |
+| `surface.cell.radius` | Hyprland `decoration:rounding` | inner cell rectangle corner |
 
 `inherit` must be non-empty and unique. A token not named in `inherit` is always the skin's
-explicit value. No padding, gap, type, paint, colour or `layout.<app>` path may be inherited, and
-a host value is never a literal hex or structure.
+explicit value. `surface.pill.radius` is **intentionally not delegable**: the pill is a capsule,
+not a rectangle, and its capsule identity must not be flattened by the host rounding value. No
+card/control/cell border width, padding, gap, type, paint, colour or `layout.<app>` path may be
+inherited, and a host value is never a literal hex or structure. Host rounding maps only to the
+listed rectangle radii; there is no border-width expansion beyond
+`surface.panel.border-width`.
 
 Resolution precedence, highest first: **mode override > host > skin fallback**.
 

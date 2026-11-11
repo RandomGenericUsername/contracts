@@ -65,9 +65,7 @@
     "version": 1,
     "fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
     "defaults": {
-      "surface.panel.radius": 0,
-      "surface.panel.border-width": 1,
-      "surface.card.radius": 8
+      "surface.card.border-width": 1
     }
   }
 }

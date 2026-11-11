@@ -6,6 +6,12 @@
 > [`schemas/skin-manifest.schema.json`](./schemas/skin-manifest.schema.json) and
 > [`schemas/skin-json.schema.json`](./schemas/skin-json.schema.json). This repo owns the
 > contract only; the runtime renderer, `skinValue()`, and the AGS apps live elsewhere.
+>
+> **v2 host-delegation note.** The v1 skin plane below is frozen and has no host policy. The
+> superseding Appearance plane v2 (`appearance.md`) can delegate the outer panel and the inner
+> `surface.card`, `surface.control` and `surface.cell` rectangle radii to the live host, plus
+> `surface.panel.border-width`. `surface.pill.radius` stays explicit because a pill is a capsule;
+> the v1 `radius-pill` token below is unaffected.
 
 A skin is **palette/ink mapping + paint + rhythm/density**. Structure is deliberately outside the
 skin plane: a skin may not describe layout trees, variants, ordering, or presence. Appearance is a

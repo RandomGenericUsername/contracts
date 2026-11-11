@@ -82,7 +82,13 @@ INK_TOKENS = {"ink", "ink-dim", "accent", "accent-muted", "ink-over"}
 PLACEHOLDER = re.compile(r"\{\{SKIN_([A-Z0-9_]+)\}\}")
 CONDITIONAL = re.compile(r"\{%|%\}|\{\{#|\{\{/")
 
-HOST_PATHS = ["surface.panel.radius", "surface.panel.border-width"]
+HOST_PATHS = [
+    "surface.panel.radius",
+    "surface.panel.border-width",
+    "surface.card.radius",
+    "surface.control.radius",
+    "surface.cell.radius",
+]
 
 #: Every numeric path in the v2 manifest/resolved shape, with a legal sample
 #: value. A unit-bearing string must be rejected at each path.
@@ -260,7 +266,8 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("unknown-mode.invalid.json", "sepia"),
         ("host-empty-inherit.invalid.json", "non-empty"),
         ("host-duplicate-inherit.invalid.json", "non-unique"),
-        ("host-unknown-inherit.invalid.json", "surface.card.radius"),
+        ("host-unknown-inherit.invalid.json", "surface.card.border-width"),
+        ("host-pill-inherit.invalid.json", "surface.pill.radius"),
         ("host-bad-fallback.invalid.json", "is not one of"),
         ("host-extra-key.invalid.json", "colour"),
     ],
@@ -428,6 +435,32 @@ def test_host_policy_is_not_a_token_group_and_no_host_manifest_stays_valid() -> 
     assert _errors("appearance-json", resolved) == []
     assert isinstance(resolved["surface"]["panel"]["radius"], (int, float))
     assert isinstance(resolved["surface"]["panel"]["border-width"], (int, float))
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    [
+        "host.valid.json",
+        "host-old-two-path.valid.json",
+        "host-card-radius.valid.json",
+        "host-control-radius.valid.json",
+        "host-cell-radius.valid.json",
+    ],
+)
+def test_host_policy_accepts_rectangle_radius_allowlists(fixture: str) -> None:
+    manifest = _load(FIXTURE_DIR / "appearance-manifest" / fixture)
+    assert _errors("appearance-manifest", manifest) == []
+
+
+def test_pill_radius_is_never_delegable() -> None:
+    schema = _load(SCHEMAS["appearance-manifest"])
+    ref = schema["properties"]["host"]["$ref"].split("/")[-1]
+    inherit = schema["definitions"][ref]["properties"]["inherit"]
+
+    assert "surface.pill.radius" not in inherit["items"]["enum"]
+    assert "surface.pill.radius" not in HOST_PATHS
+    pill = _load(FIXTURE_DIR / "appearance-manifest" / "host-pill-inherit.invalid.json")
+    assert _errors("appearance-manifest", pill) != []
 
 
 def test_paper_light_is_explicit_and_resolves_before_validation() -> None:
@@ -639,6 +672,14 @@ def test_appearance_doc_pins_the_v2_contract() -> None:
         "[host]",
         "surface.panel.radius",
         "surface.panel.border-width",
+        "surface.card.radius",
+        "surface.control.radius",
+        "surface.cell.radius",
+        "surface.pill.radius",
+        "intentionally not delegable",
+        "outer panel",
+        "card/control/cell rectangle radii",
+        "no border-width expansion beyond",
         "mode override > host > skin fallback",
         'fallback = "skin"',
         'fallback = "error"',

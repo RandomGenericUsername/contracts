@@ -207,7 +207,8 @@ def test_invalid_fixture_is_rejected(path: Path) -> None:
         ("invalid-config-dir.invalid.json", "AGS"),
         ("host-without-intent-host.invalid.json", "required property"),
         ("host-empty-defaults.invalid.json", "non-empty"),
-        ("host-unknown-default.invalid.json", "surface.card.radius"),
+        ("host-unknown-default.invalid.json", "surface.card.border-width"),
+        ("host-pill-default.invalid.json", "surface.pill.radius"),
         ("host-bad-source.invalid.json", "sway"),
         ("host-bad-fingerprint.invalid.json", "does not match"),
         ("host-bad-version.invalid.json", "1 was expected"),
@@ -342,9 +343,18 @@ def test_manifest_host_block_is_optional_closed_and_participating_only() -> None
     assert set(defaults["properties"]) == {
         "surface.panel.radius",
         "surface.panel.border-width",
+        "surface.card.radius",
+        "surface.control.radius",
+        "surface.cell.radius",
     }
     assert defaults["properties"]["surface.panel.radius"]["maximum"] == 64
     assert defaults["properties"]["surface.panel.border-width"]["maximum"] == 16
+    for path in (
+        "surface.card.radius",
+        "surface.control.radius",
+        "surface.cell.radius",
+    ):
+        assert defaults["properties"][path]["maximum"] == 64
 
     intent = schema["definitions"]["intent"]
     assert "host" in intent["properties"]
@@ -370,6 +380,22 @@ def test_valid_host_manifest_records_only_participating_values() -> None:
         "surface.panel.radius": 0,
         "surface.panel.border-width": 1,
     }
+    assert _errors("generation-manifest", manifest) == []
+    validate_host_identity(manifest)
+
+
+def test_host_snapshot_accepts_delegated_rectangle_radii() -> None:
+    manifest = _load(
+        FIXTURE_DIR / "generation-manifest" / "host-rectangles.valid.json"
+    )
+    assert manifest["host"]["defaults"] == {
+        "surface.panel.radius": 0,
+        "surface.panel.border-width": 1,
+        "surface.card.radius": 0,
+        "surface.control.radius": 0,
+        "surface.cell.radius": 0,
+    }
+    assert "surface.pill.radius" not in manifest["host"]["defaults"]
     assert _errors("generation-manifest", manifest) == []
     validate_host_identity(manifest)
 
@@ -689,6 +715,14 @@ def test_generations_doc_pins_the_v3_interface() -> None:
         "intent.host",
         "host.fingerprint",
         "queue key stays host-free",
+        "surface.panel.radius",
+        "surface.panel.border-width",
+        "surface.card.radius",
+        "surface.control.radius",
+        "surface.cell.radius",
+        "surface.pill.radius",
+        "capsule identity",
+        "no inner border-width delegation",
         "appearance.v3",
         "appearance.artifacts",
         "consumer",

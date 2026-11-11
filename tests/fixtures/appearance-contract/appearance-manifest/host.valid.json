@@ -97,7 +97,10 @@
   "host": {
     "inherit": [
       "surface.panel.radius",
-      "surface.panel.border-width"
+      "surface.panel.border-width",
+      "surface.card.radius",
+      "surface.control.radius",
+      "surface.cell.radius"
     ],
     "fallback": "skin"
   }

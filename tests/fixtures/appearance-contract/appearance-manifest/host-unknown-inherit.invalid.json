@@ -96,7 +96,7 @@
   },
   "host": {
     "inherit": [
-      "surface.card.radius"
+      "surface.card.border-width"
     ]
   }
 }
