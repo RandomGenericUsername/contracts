@@ -2,14 +2,14 @@
 id: REQ-020
 title: "surface.window role: required outer toplevel surface + host geometry"
 kind: requirement
-status: proposed
+status: in-progress
 lane: 2
 links:
   openspec: none
   bmad: none
   design: dotfiles-v3/docs/113-window-role-kitty-projection.md
-worktree: none
-branch: none
+worktree: .worktrees/REQ-020/
+branch: ticket/REQ-020-window-role
 ---
 
 # surface.window role: required outer toplevel surface + host geometry
