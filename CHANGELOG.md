@@ -7,7 +7,12 @@ Notable changes to the `contracts` repo. Format follows
 
 ## [Unreleased]
 
-(nothing yet)
+## [0.13.0] - 2026-11-19
+
+- **tpr invocation carries the Neovim projection (`REQ-021`)**: the `tpr`
+  record now requests `--format nvim.lua` and requires `colors.nvim.lua`, so
+  `min_count` rises from 8 to 9. The runtime pins this contract before it can
+  request the artifact.
 
 ## [0.12.0] - 2026-11-11
 

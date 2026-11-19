@@ -172,7 +172,7 @@ src/runtime/src/runtime/adapters/itr_adapter.py` → no output (the gap this key
 
 ```
 tpr generate <wallpaper> --format yaml --format conf --format gtk.css --format adw.css \
-    --format sequences --format rasi --format kitty --format btop.theme
+    --format sequences --format rasi --format kitty --format btop.theme --format nvim.lua
 ```
 
 - The wallpaper is a plain positional argument; no `-o`/`--output`, output redirection is
@@ -181,11 +181,12 @@ tpr generate <wallpaper> --format yaml --format conf --format gtk.css --format a
   `settings.toml` for `output.directory` and `output.overwrite`, so the two keys are required
   and injected.
 - Required artifacts, exact names: `colors.yaml`, `colors.conf`, `colors.gtk.css`,
-  `colors.adw.css`, `colors.sequences`, `colors.rasi`, `colors.kitty`, `colors.btop.theme`.
-  `recursive` is `false` and `min_count` is `8`.
+  `colors.adw.css`, `colors.sequences`, `colors.rasi`, `colors.kitty`, `colors.btop.theme`,
+  `colors.nvim.lua`. `recursive` is `false` and `min_count` is `9`.
 - `tpr generate` also writes the canonical `theme.json`; it is **not** part of this record. The
-  record names only the eight files the runtime palette-entry cache accepts, so an unrecorded
-  ninth file cannot make the cache reject the entry. The adoption adapter copies only the eight.
+  record names only the nine files the runtime palette-entry cache accepts, so an unrecorded
+  extra file cannot make the cache reject the entry. The runtime copies the required eight plus
+  the optional Neovim artifact.
 - Timeout 60 s (local-first, like `csg`/`itr`; container runs use the adapter's own timeout).
 - The runtime's env allowlist currently forwards `COLORSCHEME__`, `WALLPAPER__`,
   `ICON_RENDERER__` and `XDG_` (`dotfiles-runtime` `src/runtime/adapters/env.py:47-52`).
