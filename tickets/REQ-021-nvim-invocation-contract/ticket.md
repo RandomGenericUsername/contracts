@@ -2,7 +2,7 @@
 id: REQ-021
 title: "Add the Neovim projection to the tpr invocation contract"
 kind: requirement
-status: in-progress
+status: done
 lane: 2
 links:
   openspec: none
@@ -25,3 +25,6 @@ branch: ticket/REQ-021-nvim-invocation-contract
 - [x] Contract record updated.
 - [x] `make test` and `make check-symmetry` pass.
 - [x] `v0.13.0` tagged/pushed/released.
+
+
+- Release: https://github.com/RandomGenericUsername/contracts/releases/tag/v0.13.0

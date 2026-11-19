@@ -22,7 +22,7 @@
 - [REQ-019-host-rectangle-radii](./REQ-019-host-rectangle-radii/ticket.md) — Host-delegated rectangle radii: expand the skin allowlist | `done` | worktree: .worktrees/REQ-019/ | branch: ticket/REQ-019-host-rectangle-radii | tag: v0.11.0
 - [REQ-020-window-role](./REQ-020-window-role/ticket.md) — Required `surface.window` outer toplevel role + host geometry | `done` | design: dotfiles-v3/docs/113-window-role-kitty-projection.md | worktree: .worktrees/REQ-020/ | branch: ticket/REQ-020-window-role | tag: v0.12.0
 
-- [REQ-021-nvim-invocation-contract](./REQ-021-nvim-invocation-contract/ticket.md) — Add the Neovim projection to the tpr invocation contract | `in-progress` | worktree: .worktrees/REQ-021/ | branch: ticket/REQ-021-nvim-invocation-contract
+- [REQ-021-nvim-invocation-contract](./REQ-021-nvim-invocation-contract/ticket.md) — Add the Neovim projection to the tpr invocation contract | `done` | tag: v0.13.0 | worktree: .worktrees/REQ-021/ | branch: ticket/REQ-021-nvim-invocation-contract
 ## Bugs
 
 (none)
