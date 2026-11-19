@@ -47,6 +47,7 @@ TPR_FILENAMES = [
     "colors.rasi",
     "colors.kitty",
     "colors.btop.theme",
+    "colors.nvim.lua",
 ]
 
 TPR_ARGV = [
@@ -68,12 +69,14 @@ TPR_ARGV = [
     "kitty",
     "--format",
     "btop.theme",
+    "--format",
+    "nvim.lua",
 ]
 
 
 def test_contract_version_is_the_release_version() -> None:
     # AD-11: the version a CLI reports equals the pinned `contracts` tag (v0.12.0).
-    assert CONTRACT_VERSION == "0.12.0"
+    assert CONTRACT_VERSION == "0.13.0"
 
 
 def test_data_version_is_the_json_shape_version() -> None:
@@ -138,7 +141,7 @@ def test_tpr_argv_is_the_observed_generation_call() -> None:
     record = get("tpr")
     assert record["binary"] == "tpr"
     assert record["argv"] == TPR_ARGV
-    assert record["argv"].count("--format") == 8
+    assert record["argv"].count("--format") == 9
     assert "-o" not in record["argv"] and "--output" not in record["argv"]
 
 
@@ -147,8 +150,8 @@ def test_tpr_artifacts_are_the_eight_consumer_files() -> None:
     assert artifacts["match"] == "exact_filename"
     assert artifacts["recursive"] is False
     assert artifacts["filenames"] == TPR_FILENAMES
-    assert len(artifacts["filenames"]) == 8
-    assert artifacts["min_count"] == 8
+    assert len(artifacts["filenames"]) == 9
+    assert artifacts["min_count"] == 9
     # theme.json is canonical for tpr but not a palette-entry artifact (non-goal).
     assert "theme.json" not in artifacts["filenames"]
 

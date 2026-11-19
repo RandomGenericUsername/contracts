@@ -95,7 +95,7 @@ def test_fake_tpr_writes_all_eight_artifacts(tmp_path: Path) -> None:
         get("tpr"), "tpr", write_tpr_artifacts(tmp_path), tmp_path
     )
     assert [path.name for path in found] == sorted(TPR_FILENAMES)
-    assert len(found) == 8
+    assert len(found) == 9
 
 
 def test_fake_csg_writes_all_exact_artifacts(tmp_path: Path) -> None:
