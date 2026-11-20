@@ -349,8 +349,9 @@ def test_surface_roles_have_exactly_the_v2_token_sets() -> None:
     definitions = _load(SCHEMAS["appearance-manifest"])["definitions"]
     surface = definitions["surfaceGroup"]
     assert list(surface["required"]) == list(SURFACE_ROLES)
-    assert set(surface["properties"]) == set(SURFACE_ROLES)
-    for role, expected in SURFACE_TOKENS.items():
+    assert set(surface["properties"]) == set(SURFACE_ROLES) | {"overlay"}
+    assert list(surface["properties"]) == [*SURFACE_ROLES, "overlay"]
+    for role, expected in {**SURFACE_TOKENS, "overlay": SURFACE_TOKENS["panel"]}.items():
         role_schema = definitions[f"{role}Role"]
         assert set(role_schema["properties"]) == expected
         assert set(role_schema["required"]) == expected
